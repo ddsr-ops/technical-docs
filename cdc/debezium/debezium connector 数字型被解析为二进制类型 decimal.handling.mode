@@ -1,0 +1,26 @@
+debezium connector 有配置项
+
+decimal.handling.mode
+
+precise
+
+Specifies how the connector should handle values for DECIMAL and NUMERIC columns:
+
+precise (the default) represents them precisely using java.math.BigDecimal values represented in change events in a binary form.
+
+double represents them using double values, which may result in a loss of precision but is easier to use.
+
+string encodes values as formatted strings, which is easy to consume but semantic information about the real type is lost.
+
+默认配置为precise，为二进制数据，下面为将二进制数据转换为数字型
+
+How to retrieve DECIMAL field from binary representation?
+If Debezium is configured to handle DECIMAL values as precise then it encodes it as org.apache.kafka.connect.data.Decimal. This type is converted into a BigInteger and serialized as a byte array. To decode it back we need to know the scale of value either in advance or it has to be obtained from the schema. The code for unwrapping then can look like one of the following snippets depending whether the encoded value is available as a byte array or as a string.
+
+byte[] encoded = ...;
+int scale = ...;
+final BigDecimal decoded = new BigDecimal(new BigInteger(encoded), scale);
+
+String encoded = ...;
+int scale = ...;
+final BigDecimal decoded = new BigDecimal(new BigInteger(Base64.getDecoder().decode(encoded)), scale);

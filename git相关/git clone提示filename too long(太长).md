@@ -1,0 +1,1 @@
+在git bash中，运行下列命令： git config --global core.longpaths true

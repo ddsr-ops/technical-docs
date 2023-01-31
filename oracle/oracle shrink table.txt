@@ -1,0 +1,355 @@
+--====================
+-- 收缩表段(shrink space)
+--====================
+
+一、表的增长方式
+    当表被创建后，随着记录的不断插入，组成表的区间会被填满，如果启用了自动扩展，则当区间填满后，会分配新的区间。假定高水
+    位线随着记录的增加从最左端往右端来移动，当到底部区间的尾端时，则新的区间将会被分配。
+
+二、表可收缩的原理
+    随着记录的增加高水位线不断的右移，记录的删除不会导致高水位线往回(左)移动
+    删除记录后的空闲空间(高水位线左侧)尽管可以使用，但其稀疏性导致空间空闲
+    注：完整的表扫描所耗费的时间不会因为记录的减少(删除)而减少
+
+三、使用 alter table tbname shrink space 来收缩表段
+     1. 实现原理
+        实质上构造一个新表(在内部表现为一系列的DML操作,即将副本插入新位置，删除原来位置的记录)
+        靠近末尾处(右端)数据块中的记录往开始处(左端)的空闲空间处移动(DML操作)，不会引起DML触发器
+        当所有可能的移动被完成，高水位线将会往左端移动(DDL操作)
+        新的高水位线右边的空闲空间被释放(DDL操作)
+
+     2. 实现前提条件
+        必须启用行记录转移(enable row movement)
+        仅仅适用于堆表,且位于自动段空间管理的表空间(堆表包括:标准表,分区表,物化视图容器,物化视图日志表)
+
+     3. 不能实现收缩的表
+        群集表
+        具有LONG类型列的表
+        LOB段(尽管表本身可以被缩小)，注，10gR2以后版本支持对LOB段的收缩
+        具有基于提交的物化视图的表(因为禁用了触发器)
+        具有rowid物化视图的表(因为rowid发生了变化)
+        IOT映射表IOT溢出段
+        索引基于函数的表
+        未启用行记录转移的堆表
+
+     4. 段收缩的优点
+        提高缓存利用率，提高OLTP的性能
+         减少磁盘I/O，提高访问速度，节省磁盘空间
+         段收缩是在线的，索引在段收缩期间维护，不要求额外的磁盘空间
+
+     5. 两个选项
+        cascade:缩小表及其索引，并移动高水位线，释放空间
+        compact:仅仅是缩小表和索引，并不移动高水位线，不释放空间
+        alter table tbname shrink space 相当于带cascade参数
+
+四、实战演习
+
+1. 查看需要收缩的表段的基本情况，此处为表big_table
+SQL> col SEGMENT_NAME format a20
+SQL> select OWNER,SEGMENT_NAME,BYTES/1024/1024,BLOCKS from dba_segments
+  2  where owner='SCOTT' and SEGMENT_NAME='BIG_TABLE';
+
+OWNER                          SEGMENT_NAME         BYTES/1024/1024     BLOCKS
+------------------------------ -------------------- --------------- ----------
+SCOTT                          BIG_TABLE                        120      15360
+
+SQL> select table_name,blocks,empty_blocks from dba_tables
+  2  where table_name='big_table' and owner='scott';    -->未更新统计信息前BLOCKS，EMPTY_BLOCKS列为空
+
+TABLE_NAME                         BLOCKS EMPTY_BLOCKS
+------------------------------ ---------- ------------
+BIG_TABLE
+
+SQL> exec dbms_stats.gather_table_stats(ownname=>'SCOTT',tabname=>'BIG_TABLE',estimate_percent=>30);
+
+PL/SQL procedure successfully completed.
+
+SQL> select TABLE_NAME,BLOCKS,EMPTY_BLOCKS from dba_tables
+  2  where TABLE_NAME='BIG_TABLE' and owner='SCOTT';
+
+TABLE_NAME                         BLOCKS EMPTY_BLOCKS
+------------------------------ ---------- ------------
+BIG_TABLE                           14590            0   -->使用gather_table_stats时不会统计EMPTY_BLOCKS块
+
+SQL> analyze table big_table compute statistics;         -->使用analyze更新统计信息后EMPTY_BLOCKS得到数据
+
+Table analyzed.
+
+SQL> select TABLE_NAME,BLOCKS,EMPTY_BLOCKS from dba_tables
+  2  where TABLE_NAME='BIG_TABLE' and owner='SCOTT';
+
+TABLE_NAME                         BLOCKS EMPTY_BLOCKS
+------------------------------ ---------- ------------
+BIG_TABLE                           14590          770
+
+SQL> set serveroutput on;
+SQL> exec show_space('BIG_TABLE','SCOTT');                -->使用show_space过程或的BIG_TABLE上的空间分配信息
+Unformatted Blocks .....................               0
+FS1 Blocks (0-25) ......................               0  -->空闲度为0-25%的块数。FS1,FS2,FS3,FS4为空闲度所占的百分比
+FS2 Blocks (25-50) .....................               0
+FS3 Blocks (50-75) .....................               0
+FS4 Blocks (75-100).....................               0
+Full Blocks ............................          14,427
+Total Blocks............................          15,360
+Total Bytes.............................     125,829,120
+Total MBytes............................             120
+Unused Blocks...........................             770
+Unused Bytes............................       6,307,840
+Last Used Ext FileId....................               4
+Last Used Ext BlockId...................          16,521
+Last Used Block.........................             254
+
+PL/SQL procedure successfully completed.
+2. 删除记录之后，进行收缩表段
+SQL> delete from big_table where owner in ('SCOTT','SYSTEM');   -->删除记录
+
+8715 rows deleted.
+
+SQL> commit;
+
+Commit complete.
+
+SQL> alter table big_table shrink space;                        -->实施shrink,提示没有启用ROW MOVEMENT
+alter table big_table shrink space
+*
+ERROR at line 1:
+ORA-10636: ROW MOVEMENT is not enabled
+
+SQL> alter table big_table enable row movement;                 -->开启row movement
+
+Table altered.
+
+SQL> alter table big_table shrink space;                        -->shrink成功
+
+Table altered.
+
+SQL> exec show_space('BIG_TABLE','SCOTT');         -->从下面的结果中可以看到块数以及总大小已经变小
+Unformatted Blocks .....................               0
+FS1 Blocks (0-25) ......................               1
+FS2 Blocks (25-50) .....................               1
+FS3 Blocks (50-75) .....................               0
+FS4 Blocks (75-100).....................               0
+Full Blocks ............................          14,318
+Total Blocks............................          14,488
+Total Bytes.............................     118,685,696
+Total MBytes............................             113
+Unused Blocks...........................               5
+Unused Bytes............................          40,960
+Last Used Ext FileId....................               4
+Last Used Ext BlockId...................          16,521
+Last Used Block.........................             147
+
+PL/SQL procedure successfully completed.
+3. 验证cascade与compact的差异
+SQL> delete from big_table where rownum<8000;     -->再次删除一些记录
+
+7999 rows deleted.
+
+SQL> alter table big_table shrink space compact;  -->使用compact方式收缩表段
+
+Table altered.
+
+SQL> exec show_space('BIG_TABLE','SCOTT');
+Unformatted Blocks .....................               0
+FS1 Blocks (0-25) ......................               1
+FS2 Blocks (25-50) .....................               2
+FS3 Blocks (50-75) .....................               0
+FS4 Blocks (75-100).....................             103
+Full Blocks ............................          14,214 --仅有的变化为14318-14214=104块，即完全填满的数据块减少了104块
+Total Blocks............................          14,488 --数据的总块数及总大小并没有减少，即未移动高水位线
+Total Bytes.............................     118,685,696
+Total MBytes............................             113
+Unused Blocks...........................               5
+Unused Bytes............................          40,960
+Last Used Ext FileId....................               4
+Last Used Ext BlockId...................          16,521
+Last Used Block.........................             147
+
+PL/SQL procedure successfully completed.
+
+SQL> alter table big_table shrink space cascade;  -->使用cascade方式收缩，
+
+Table altered.
+
+SQL> exec show_space('BIG_TABLE','SCOTT');
+Unformatted Blocks .....................               0
+FS1 Blocks (0-25) ......................               1
+FS2 Blocks (25-50) .....................               2
+FS3 Blocks (50-75) .....................               0
+FS4 Blocks (75-100).....................               0
+Full Blocks ............................          14,214
+Total Blocks............................          14,384   -->总块数及总大小均已减少
+Total Bytes.............................     117,833,728
+Total MBytes............................             112
+Unused Blocks...........................               4
+Unused Bytes............................          32,768
+Last Used Ext FileId....................               4
+Last Used Ext BlockId...................          16,521
+Last Used Block.........................              44
+
+PL/SQL procedure successfully completed.
+
+-->收缩之后索引依然有效
+SQL> select OWNER,INDEX_NAME,STATUS from dba_indexes where TABLE_NAME='BIG_TABLE';
+
+OWNER                          INDEX_NAME                     STATUS
+------------------------------ ------------------------------ --------
+SCOTT                          BIG_TABLE_PK                   VALID
+五、语法总结：
+ALTER TABLE <table_name> ENABLE ROW MOVEMENT   -->前提条件
+
+ALTER TABLE <table_name> SHRINK SPACE [ <NULL> | COMPACT | CASCADE ];
+
+ALTER TABLE <table_name> SHRINK SPACE COMPCAT;  -->缩小表和索引，不移动高水位线，不释放空间
+
+ALTER TABLE <table_name> SHRINK SPACE;     -->收缩表，降低高水位线;
+
+ALTER TABLE <table_name> SHRINK SPACE CASCADE; -->收缩表，降低高水位线，并且相关索引也要收缩一下
+
+ALTER TABLE <table_name> MODIFY LOB (lob_column) (SHRINK SPACE);  -->收缩LOB段
+
+ALTER INDEX IDXNAME SHRINK SPACE;     -->索引段的收缩，同表段
+
+六、批量收缩脚本
+1. 普通表(根据相应需求修改下面的语句生产相应脚本)
+select'alter table '||table_name||' enable row movement;'
+||chr(10)||'alter table '||table_name||' shrink space;'||chr(10)from user_tables;
+
+select'alter index '||index_name||' shrink space;'||chr(10)from user_indexes;
+2. 分区表的处理
+
+    分区表进行shrink space时发生ORA-10631错误.shrink space有一些限制.
+
+    在表上建有函数索引（包括全文索引）会失败。
+--根据相应需求修改下面的语句生产相应脚本
+select 'alter table '||owner||'.'||table_name||' enable row movement;'
+||chr(10)||'alter table '||owner||'.'||table_name||' shrink space;'||chr(10) from dba_tables
+where owner=upper('&input_owner');
+
+select 'alter index '||owner||'.'||index_name||' shrink space;'
+||chr(10) from dba_indexes where uniqueness='NONUNIQUE' ;
+
+select 'alter table '||owner||'.'||segment_name||' modify partition '||partition_name||' shrink space;'
+||chr(10) from dba_segments where segment_type='TABLE PARTITION';
+  3. 附show_space脚本(来自Tom大师)
+CREATE OR REPLACE PROCEDURE show_space
+(
+    p_segname IN VARCHAR2,
+    p_owner IN VARCHAR2 DEFAULT USER,
+    p_type IN VARCHAR2 DEFAULT 'TABLE',
+    p_partition IN VARCHAR2 DEFAULT NULL
+)
+-- this procedure uses authid current user so it can query DBA_*
+    -- views using privileges from a ROLE, and so it can be installed
+    -- once per database, instead of once per user who wanted to use it
+AUTHID CURRENT_USER AS
+    l_free_blks NUMBER;
+    l_total_blocks NUMBER;
+    l_total_bytes NUMBER;
+    l_unused_blocks NUMBER;
+    l_unused_bytes NUMBER;
+    l_LastUsedExtFileId NUMBER;
+    l_LastUsedExtBlockId NUMBER;
+    l_LAST_USED_BLOCK NUMBER;
+    l_segment_space_mgmt VARCHAR2(255);
+    l_unformatted_blocks NUMBER;
+    l_unformatted_bytes NUMBER;
+    l_fs1_blocks NUMBER;
+    l_fs1_bytes NUMBER;
+    l_fs2_blocks NUMBER;
+    l_fs2_bytes NUMBER;
+    l_fs3_blocks NUMBER;
+    l_fs3_bytes NUMBER;
+    l_fs4_blocks NUMBER;
+    l_fs4_bytes NUMBER;
+    l_full_blocks NUMBER;
+    l_full_bytes NUMBER;
+    -- inline procedure to print out numbers nicely formatted
+    -- with a simple label
+    PROCEDURE p
+    (
+        p_label IN VARCHAR2,
+        p_num IN NUMBER
+    ) IS
+    BEGIN
+        dbms_output.put_line(rpad(p_label, 40, '.') ||
+                             to_char(p_num, '999,999,999,999'));
+    END;
+BEGIN
+    -- this query is executed dynamically in order to allow this procedure
+    -- to be created by a user who has access to DBA_SEGMENTS/TABLESPACES
+    -- via a role as is customary.
+    -- NOTE: at runtime, the invoker MUST have access to these two
+    -- views!
+    -- this query determines if the object is an ASSM object or not
+    BEGIN
+        EXECUTE IMMEDIATE 'select ts.segment_space_management
+from dba_segments seg, dba_tablespaces ts
+where seg.segment_name = :p_segname
+and (:p_partition is null or
+seg.partition_name = :p_partition)
+and seg.owner = :p_owner
+and seg.tablespace_name = ts.tablespace_name'
+            INTO l_segment_space_mgmt
+            USING p_segname, p_partition, p_partition, p_owner;
+    EXCEPTION
+        WHEN too_many_rows THEN
+            dbms_output.put_line('This must be a partitioned table, use p_partition => ');
+            RETURN;
+    END;
+    -- if the object is in an ASSM tablespace, we must use this API
+    -- call to get space information, otherwise we use the FREE_BLOCKS
+    -- API for the user-managed segments
+    IF l_segment_space_mgmt = 'AUTO' THEN
+        dbms_space.space_usage(p_owner,
+                               p_segname,
+                               p_type,
+                               l_unformatted_blocks,
+                               l_unformatted_bytes,
+                               l_fs1_blocks,
+                               l_fs1_bytes,
+                               l_fs2_blocks,
+                               l_fs2_bytes,
+                               l_fs3_blocks,
+                               l_fs3_bytes,
+                               l_fs4_blocks,
+                               l_fs4_bytes,
+                               l_full_blocks,
+                               l_full_bytes,
+                               p_partition);
+        p('Unformatted Blocks ', l_unformatted_blocks);
+        p('FS1 Blocks (0-25) ', l_fs1_blocks);
+        p('FS2 Blocks (25-50) ', l_fs2_blocks);
+        p('FS3 Blocks (50-75) ', l_fs3_blocks);
+        p('FS4 Blocks (75-100)', l_fs4_blocks);
+        p('Full Blocks ', l_full_blocks);
+    ELSE
+        dbms_space.free_blocks(segment_owner => p_owner,
+                               segment_name => p_segname,
+                               segment_type => p_type,
+                               freelist_group_id => 0,
+                               free_blks => l_free_blks);
+        p('Free Blocks', l_free_blks);
+    END IF;
+    -- and then the unused space API call to get the rest of the
+    -- information
+    dbms_space.unused_space(segment_owner => p_owner,
+                            segment_name => p_segname,
+                            segment_type => p_type,
+                            partition_name => p_partition,
+                            total_blocks => l_total_blocks,
+                            total_bytes => l_total_bytes,
+                            unused_blocks => l_unused_blocks,
+                            unused_bytes => l_unused_bytes,
+                            LAST_USED_EXTENT_FILE_ID => l_LastUsedExtFileId,
+                            LAST_USED_EXTENT_BLOCK_ID => l_LastUsedExtBlockId,
+                            LAST_USED_BLOCK => l_LAST_USED_BLOCK);
+    p('Total Blocks', l_total_blocks);
+    p('Total Bytes', l_total_bytes);
+    p('Total MBytes', trunc(l_total_bytes / 1024 / 1024));
+    p('Unused Blocks', l_unused_blocks);
+    p('Unused Bytes', l_unused_bytes);
+    p('Last Used Ext FileId', l_LastUsedExtFileId);
+    p('Last Used Ext BlockId', l_LastUsedExtBlockId);
+    p('Last Used Block', l_LAST_USED_BLOCK);
+END;

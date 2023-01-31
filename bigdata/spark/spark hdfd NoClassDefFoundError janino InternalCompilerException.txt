@@ -1,0 +1,11 @@
+解决Exception in thread “main” java.lang.NoClassDefFoundError: org/codehaus/janino/InternalCompilerException
+
+问题描述
+spark读取hdfs文件时候报错
+
+解决方法
+ <dependency>
+      <groupId>org.codehaus.janino</groupId>
+      <artifactId>janino</artifactId>
+      <version>3.0.8</version>
+   </dependency>

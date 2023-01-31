@@ -1,0 +1,7 @@
+搜索相关问题：
+https://issues.redhat.com/projects/DBZ/issues/DBZ-3645?filter=allopenissues
+网页右上方有个search框，输入以下关键字：
+oracle alter table which does not exist
+
+问题关键字：
+io.debezium.text.ParsingException: Trying to alter table XXX, which does not exist

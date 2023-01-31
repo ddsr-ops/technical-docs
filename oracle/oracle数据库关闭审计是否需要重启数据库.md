@@ -1,0 +1,5 @@
+You do not need to restart the database if you change the auditing of objects. You only need to restart the database if you made a universal change, such as turning on or off all auditing or changing the destination of the audit trail operating system files.
+
+You do not need to set AUDIT_TRAIL to enable either fine-grained auditing or SYS auditing. (SYS auditing enables you to monitor the activities of a system administrator. See Oracle Database Security Guide for more information.) For fine-grained auditing, you add and remove fine-grained auditing policies as necessary, applying them to the specific operations or objects you want to monitor. You can use the AUDIT_SYS_OPERATIONS parameter to enable and disable SYS auditing.
+
+[参考链接] (https://docs.oracle.com/cd/E11882_01/server.112/e10575/tdpsg_auditing.htm#TDPSG50522)

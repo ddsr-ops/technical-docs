@@ -1,0 +1,14 @@
+spring-boot-maven-plugin not found的解决方案
+通过IDE创建一个springboot项目
+
+<plugin>
+ <groupId>org.springframework.boot</groupId>
+ <artifactId>spring-boot-maven-plugin</artifactId>//这行红色
+</plugin>
+提示spring-boot-maven-plugin not found。在网上找了有说是通过添加<pluginRepositories>过解决，但是测试之后发觉不起作用。 经过多次尝试，最终spring-boot-maven-plugin指定版本后成功解决。 修改后的pom.xml文件
+
+<plugin>  
+ <groupId>org.springframework.boot</groupId>  
+ <artifactId>spring-boot-maven-plugin</artifactId>  
+ <version>2.2.2.RELEASE</version>
+</plugin>

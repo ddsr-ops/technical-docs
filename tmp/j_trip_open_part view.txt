@@ -1,0 +1,64 @@
+create view tft_xcgl.j_trip_open_part as 
+select * from tft_xcgl.j_trip_open_part_0
+union all
+select * from tft_xcgl.j_trip_open_part_1
+union all
+select * from tft_xcgl.j_trip_open_part_2
+union all
+select * from tft_xcgl.j_trip_open_part_3
+union all
+select * from tft_xcgl.j_trip_open_part_4
+union all
+select * from tft_xcgl.j_trip_open_part_5
+union all
+select * from tft_xcgl.j_trip_open_part_6
+union all
+select * from tft_xcgl.j_trip_open_part_7
+union all
+select * from tft_xcgl.j_trip_open_part_8
+union all
+select * from tft_xcgl.j_trip_open_part_9
+union all
+select * from tft_xcgl.j_trip_open_part_10
+union all
+select * from tft_xcgl.j_trip_open_part_11
+union all
+select * from tft_xcgl.j_trip_open_part_12
+union all
+select * from tft_xcgl.j_trip_open_part_13
+union all
+select * from tft_xcgl.j_trip_open_part_14
+union all
+select * from tft_xcgl.j_trip_open_part_15
+union all
+select * from tft_xcgl.j_trip_open_part_16
+union all
+select * from tft_xcgl.j_trip_open_part_17
+union all
+select * from tft_xcgl.j_trip_open_part_18
+union all
+select * from tft_xcgl.j_trip_open_part_19
+union all
+select * from tft_xcgl.j_trip_open_part_20
+union all
+select * from tft_xcgl.j_trip_open_part_21
+union all
+select * from tft_xcgl.j_trip_open_part_22
+union all
+select * from tft_xcgl.j_trip_open_part_23
+union all
+select * from tft_xcgl.j_trip_open_part_24
+union all
+select * from tft_xcgl.j_trip_open_part_25
+union all
+select * from tft_xcgl.j_trip_open_part_26
+union all
+select * from tft_xcgl.j_trip_open_part_27
+union all
+select * from tft_xcgl.j_trip_open_part_28
+union all
+select * from tft_xcgl.j_trip_open_part_29
+union all
+select * from tft_xcgl.j_trip_open_part_30
+union all
+select * from tft_xcgl.j_trip_open_part_31;

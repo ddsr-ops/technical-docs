@@ -1,0 +1,1 @@
+http://www.trevorsimonton.com/blog/2020/09/09/java-native-memory.html

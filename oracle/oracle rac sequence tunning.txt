@@ -1,0 +1,328 @@
+REF: http://www.dba-oracle.com/t_rac_proper_sequence_usage.htm
+
+Also see these important notes on removing Oracle RAC sequence contention.
+
+Proper Sequence Usage
+
+If not used properly, sequences can be a major headache in RAC. Non-cached sequences can be the cause of major performance issues on RAC.  Another major performance issue can occur if the cached sequence's cache_value is set too low.  Tom Kyte wrote on his website, asktom.oracle.com, the following about proper sequence usage.
+
+ 
+
+"You would be amazed what setting a sequence cache via alter sequence to 100,000 or more can do during a large load -- amazed."
+
+ 
+
+Note, however, that cache values are lost during shutdown.  Generally speaking, sequences should be either CACHED or ORDERED, but not both. The preferred sequence is a CACHED, non-ordered sequence. If the ordering of sequences is forced, performance in a RAC environment will suffer unless ordering the sequence to a single node in the RAC cluster isolates insert activity. 
+
+Oracle 11g RAC Sequence Example
+
+Create the sequence.
+
+ 
+
+SQL> create sequence seq_rac_test cache 50;
+
+ 
+
+Sequence created.
+
+ 
+
+Select the sequence from node 1.
+
+ 
+
+SQL> select seq_rac_test.nextval from dual;
+
+ 
+
+NEXTVAL
+
+----------
+
+1
+
+ 
+
+Again.
+
+ 
+
+SQL> /
+
+ 
+
+NEXTVAL
+
+----------
+
+2
+
+ 
+
+Again.
+
+ 
+
+SQL> /
+
+ 
+
+NEXTVAL
+
+----------
+
+3
+
+ 
+
+Again.
+
+ 
+
+SQL> /
+
+ 
+
+NEXTVAL
+
+----------
+
+4
+
+ 
+
+Now select the sequence from node 2.
+
+ 
+
+SQL> select seq_rac_test.nextval from dual;
+
+ 
+
+NEXTVAL
+
+----------
+
+51
+
+ 
+
+Again.
+
+ 
+
+SQL> /
+
+ 
+
+NEXTVAL
+
+----------
+
+52
+
+ 
+
+Again.
+
+ 
+
+SQL> /
+
+ 
+
+NEXTVAL
+
+----------
+
+53
+
+ 
+
+Again.
+
+ 
+
+SQL> /
+
+ 
+
+NEXTVAL
+
+----------
+
+54
+
+ 
+
+Select again from node 1 when NEXTVAL is near the cache maximum of 50.
+
+ 
+
+SQL> /
+
+ 
+
+NEXTVAL
+
+----------
+
+48
+
+ 
+
+Again.
+
+ 
+
+SQL> /
+
+ 
+
+NEXTVAL
+
+----------
+
+49
+
+ 
+
+Again.
+
+ 
+
+SQL> /
+
+ 
+
+NEXTVAL
+
+----------
+
+50
+
+ 
+
+Again.
+
+ 
+
+SQL> /
+
+ 
+
+NEXTVAL
+
+----------
+
+101
+
+ 
+
+As can be seen, since node 2 has already cached values 51-100, it is logical that node 1 will then cache 101-150.  Using the order clause when creating the sequence will guarantee sequence order across all RAC instances, but will likely cause performance problems.
+
+ 
+
+Another method to optimize the use of sequences is to use a staggered sequence insert trigger. A staggered sequence insert trigger is a specific constant added to the sequence value based on the instance number. This isolates each set of inserts and prevents inadvertent attempts to use the same sequence number. An example of a staggered sequence insert trigger is shown in the following script:
+
+ 
+
+CREATE TRIGGER insert_EMP_PK
+
+ BEFORE insert ON EMP
+
+ FOR EACH ROW
+
+DECLARE
+
+ INST_ID NUMBER;
+
+ SEQ_NUM NUMBER;
+
+ INST_SEQ_ID NUMBER;
+
+BEGIN
+
+ select
+
+    INSTANCE_NUMBER INTO INST_ID
+
+  FROM
+
+    V$INSTANCE;
+
+  select
+
+    EMP_ID_SEQ.NEXTVAL INTO SEQ_NUM
+
+  FROM
+
+    DUAL;
+
+  INST_SEQ_ID:=(INST_ID-1)*100000 + SEQ_NUM;
+
+  :NEW.EMP_ID:=INST_SEQ_ID;
+
+END;.
+
+ 
+
+A staggered sequence trigger will insert the values into indexes such that each instance's values are staggered to prevent index node intra-node transfers. The formula to allow this is:
+
+ 
+
+index key = (instance_number -1)* 100000+ Sequence number
+
+ 
+
+One of the best ways to determine if sequences are a bottleneck on the system is to simply run the following query.
+
+ 
+
+SELECT LAST_NUMBER FROM DBA_SEQUENCES WHERE SEQUENCE_NAME = 'X'
+
+ 
+
+The above query will show the last sequence number that has been written to disk.  A safe rule to follow is to ensure the LAST_NUMBER value changes only a few times per day.  If the LAST_NUMBER is changing constantly, make sure the sequence is cached.  If the sequence is cached, keep increasing the cache value until the LAST_NUMBER stabilizes.
+
+ 
+
+In some applications, the sequence numbers used must be sequential.  An example would be the line numbers for a purchase order or perhaps check numbers for an automatic check printer. In this case, a sequence table may have to be used to store the highest sequence number. The value is read from the sequence table, increased by one, and then updated. While all of this occurs, the row for the sequence being used is locked, thus no one else can use it. If this type of logic must be used, the table should be placed in a tablespace with a small 2048 block size.
+
+Conclusion
+
+Great care must be taken to select the fastest interface and network components to get optimal performance from the cluster interconnect.
+
+ 
+
+Designing for true high availability starts with redundant hardware. If there are multiple single-points of failure, the finest RAC implementation in the known universe will do little to achieve high availability.
+
+ 
+
+The response time and throughput requirements placed on the system by service-level agreements and customer/client expectations ultimately determine whether a data and functional partitioning strategy should be implemented and how stringent the strategy must be. The response time and throughput needs for the application also determine how much effort needs to be invested to achieve an optimal database design.
+
+ 
+
+To determine how to allocate work to particular instances, start with a careful analysis of the system's workload. This analysis must consider:
+
+System resource consumption by functional area
+
+Data access distributions by functional area
+
+Functional dependencies between application software components
+
+Proper implementation of a strategy that considers these points will make the system more robust and scalable.
+
+ 
+
+The old 80/20 rule applies here; 80% or more of the overhead results from 20% or less of the workload. If the 20% is fixed by observing some simple guidelines, tangible benefits can be achieved with minimal effort. Workload problems can be corrected by implementing any or all of the following:
+
+
+Use the sequence "cache" option: Oracle has a method for  caching frequently reference sequences, and you can also cache sequences with n-way Streams replication for fast access to sequence values.  Caching sequences is especially important for high-DML applications with lots on insert and update activity.  You can easily cache as sequence with the "add/alter sequence xxx cache" command.  The "cache" clause caches the specified number of sequence values into the buffers in the SGA, speeding-up sequence access speed.
+ Use the noorder sequence clause:  When creating sequences for a RAC environment, DBAs should use the noorder keyword to avoid an additional cause of SQ enqueue contention that is forced ordering of queued sequence values.  In RAC, a best practice is to specify the "noordered" clause for a sequence.  With a non-ordered sequence, a global lock not required by a node whenever you access the sequence.
+ Increase sequence index freelist groups (or use ASSM):  Indexes with key values generated by sequences tend to be subject to leaf block contention when the insert rate is high. One remedy is to alter the index to use additional freelists groups.  You can often achieve the same relief from index block contention by using ASSM or using ht sequence "cache" option". If possible, reduce concurrent changes to index blocks. However, if index key values are not modified by multiple instances, or if the modification rate is not excessive, the overhead may be acceptable. In extreme cases, techniques like physical table partitioning can be applied.
+ Use sequence staggering:  A staggered sequence insert trigger is a specific constant added to the sequence value based on the instance number. This isolates each set of inserts and prevents inadvertent attempts to use the same sequence number.
+ 
+
+For more details on using RAC with sequences, see the book Oracle 11g Grid & Real Application Clusters by Rampant TechPress.

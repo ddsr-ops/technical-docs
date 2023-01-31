@@ -1,0 +1,11 @@
+java.lang.NoSuchMethodError: scala.Predef$.refArrayOps([Ljava/lang/Object;)Lscala/collection/mutable/ArrayOps;
+
+
+用Maven创建了一个spark sql项目，在引入spark sql jar包时引入的是：
+
+  <dependency>
+      <groupId>org.apache.spark</groupId>
+      <artifactId>spark-sql_2.11</artifactId>
+      <version>2.1.0</version>
+    </dependency>
+spark-sql_2.11：这个jar包是在scala2.11的版本上编译的，但是我在项目中引入的scala编译器是scala2.12.1的。所以就出错了。把编译器版本换成和spark-sql_2.11版本一致即可

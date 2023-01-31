@@ -1,0 +1,27 @@
+BEGIN
+  FOR I IN 1 .. 10000000 LOOP
+--    DBMS_LOCK.SLEEP(0.03);
+    --DBMS_OUTPUT.PUT_LINE(to_char(i));
+		INSERT INTO dba_test.tb_test VALUES(i, '天府通'||to_char(i));
+		COMMIT;
+		--DELETE FROM dba_test.tb_test WHERE ID = i;
+		--COMMIT;
+  END LOOP;
+END;
+/
+
+
+declare
+   v_max_id number;
+BEGIN
+  select nvl(max(id), 0) + 1 into v_max_id from dba_test.tb_test;
+  FOR I IN v_max_id .. 10000000 LOOP
+    DBMS_LOCK.SLEEP(0.5);
+    --DBMS_OUTPUT.PUT_LINE(to_char(i));
+		INSERT INTO dba_test.tb_test(id, name) VALUES(i, '天府通'||to_char(i));
+		COMMIT;
+		--DELETE FROM dba_test.tb_test WHERE ID = i;
+		--COMMIT;
+  END LOOP;
+END;
+/

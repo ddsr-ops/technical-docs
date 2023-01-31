@@ -1,0 +1,87 @@
+https://asktom.oracle.com/pls/apex/f?p=100:11:0::::P11_QUESTION_ID:9541844100346101463
+why an INDEX UNIQUE SCAN can use high buffer gets?
+
+参考本地文档：oracle统计信息未更新造成buffer get（逻辑读）较高.txt
+
+You Asked
+the process run a few hours more after upgrade from 11g to 12c, we identified from AWR that one query stand out, it run 7 millions of time, it used to take only 3 buffer gets for each run but now it's taking 300+, it's hash partitioned table with hash partitioned index.
+
+This is the query and query plan.
+
+SQL_ID gpajb2bnac80b
+--------------------
+SELECT 1 FROM PAY_RUN_RESULT_VALUES WHERE RUN_RESULT_ID = :B2 AND
+INPUT_VALUE_ID = :B1
+
+Plan hash value: 3686252633
+
+------------------------------------------------------------------------------------------------------------------
+| Id  | Operation             | Name                     | Rows  | Bytes | Cost (%CPU)| Time     | Pstart| Pstop |
+------------------------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT      |                          |       |       |     2 (100)|          |    |  |
+|   1 |  PARTITION HASH SINGLE|                          |     1 |    12 |     2   (0)| 00:00:01 |   KEY |   KEY |
+|   2 |   INDEX UNIQUE SCAN   | PAY_RUN_RESULT_VALUES_PK |     1 |    12 |     2   (0)| 00:00:01 |   KEY |   KEY |
+------------------------------------------------------------------------------------------------------------------
+
+select sql_id,PLAN_HASH_VALUE plan, to_char(BEGIN_INTERVAL_TIME,'yyyymmdd') rundate,
+sum(EXECUTIONS_DELTA) as exec,
+to_char(min(BEGIN_INTERVAL_TIME),'hh24mi') start_time,to_char(max(end_intervAL_TIME),'hh24mi') end_time,
+sum(BUFFER_GETS_DELTA) as buffer,
+sum(physical_read_bytes_delta) as phy_read,
+round(sum(cpu_time_delta)/1000000) "cpu(s)",round(sum(ELAPSED_TIME_DELTA)/1000000) "elp(s)",sum(disk_READs_DELTA) read, sum(iowait_delta) iowait, sum(DIRECT_WRITES_DELTA) direct,
+sum(BUFFER_GETS_DELTA)/sum(EXECUTIONS_DELTA) buffer_Per_Exec
+from dba_hist_sqlstat st, DBA_HIST_SNAPSHOT sn
+where st.snap_id=sn.snap_id
+and st.instance_number=sn.instance_number
+and
+BEGIN_INTERVAL_TIME > sysdate-60
+and sql_id='&sql_id'
+group by sql_id,PLAN_HASH_VALUE,to_char(BEGIN_INTERVAL_TIME,'yyyymmdd')
+order by to_char(min(BEGIN_INTERVAL_TIME),'YYYYMMDD-hh24mi')
+/
+   SQL_ID              PLAN RUNDATE         EXEC START_TIME     END_TIME           BUFFER   PHY_READ     cpu(s)     elp(s)       READ     IOWAIT     DIRECT BUFFER_PER_EXEC
+------------- ---------- --------- ---------- -------------- -------------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------------
+gpajb2bnac80b 3686252633 20190906     7853891 1600           2000             39072550     376832     412           413         80    2862227          0      4.97492899
+gpajb2bnac80b 3686252633 20190909       91712 1630           1700               275592          0       4             4          4     114028          0      3.00497209
+gpajb2bnac80b 3686252633 20190912       88236 0900           1000               265152          0       4             4          1      36222          0      3.00503196
+gpajb2bnac80b 3686252633 20190917       83761 1100           1130               694741    1089536       8            11        133    2853173          0      8.29432552
+gpajb2bnac80b 3686252633 20190919     7854321 1400           1930           3242896821    5586944      22644      22672        682   30364132          0      412.880607
+gpajb2bnac80b 3686252633 20190923      167522 1330           1600               503318      16384       9             9          2     211777          0      3.00448896
+gpajb2bnac80b 3686252633 20190924      167522 0930           1700               503330          0       9             9          0          0          0       3.0045606
+
+this table has 206 millions of rows, the insert is about 7 millions.
+select count(*) from PAY_RUN_RESULT_VALUES;
+
+  COUNT(*)
+----------
+206322479
+
+The table and index has 32 hash paritions, index is based on column ("INPUT_VALUE_ID", "RUN_RESULT_ID")
+Comparing from the above history stats, the bufferPerExec increased suddenly from about 4.9 (rundate： 20190906) to 412.8 (rundate: 20190919) , and then back to normal of 3.
+I do not think it's related to db upgrade, the query plan is same using index unique scan.
+From AWR, the table are inserted 7 millions of time, but there is no huge update/delete/insert of this table shown in AWR. why suddenly each execution has this huge jump on buffer gets? I believe this is the cause of using CPU and increase elapsed time.
+Please help.
+and we said...
+Thanks for your patience. One problem is that we can't infer detail from a summary. So while you had a big jump in logical I/O, we don't know if *all* executions jumped to 412 per executions, or if *some* jumped to a much higher value, and the others were ok in that time period.
+
+A few possibilities I can think of:
+
+1) Are you using automatic segment space management (ASSM) ?
+
+Around the 11.2 and 12.1 timeframe, there were some issues when it came to insertion into tables which were stored in ASSM tablespaces. It was possible to see excessive logical IO during insert, and potentially subsequent queries. The excessive IO was not on the table/index blocks, but management of the bitmap blocks that are used to manage ASSM.
+
+Although my understanding that these were by and large been resolved by the 12.1.0.2 timeframe.
+
+2) Do you have adaptive features enabled for the optimizer?
+
+It is possible that the adaptive features decided that an execution was not as efficient as it could have been, and then a followup execution did some dynamic sampling (before deciding to stay with the same index scan). Although I would not expect this to end up with such huge numbers in total.
+
+3) uncommitted transactions
+
+If there were any large uncomitted transactions occurring, then a simple query might have do a lot of work to undo the current state. See a blog post by Jonathan Lewis for an example of this:
+
+https://jonathanlewis.wordpress.com/2009/05/14/consistent-gets/
+
+To be honest, all of these above things I still do not expect to be the root cause :-(
+
+Is it something that you can reproduce ?

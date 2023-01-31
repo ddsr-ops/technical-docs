@@ -1,0 +1,20 @@
+[liusiyi@localhost ~]$ echo $a
+-rw-r----- 3 hduser302 hduser302 3336 2019-07-12 17:35 /apps/hduser302/student/properties/xxyy/IMP_00004_XXYY_USE_PERSONALINFO.properties
+
+#用变量替换${a//}做字符串替换
+[liusiyi@localhost ~]$ echo ${a/hduser302/hdpusr400} 　　#变量a中的第一个匹配的字符串会被替换
+-rw-r----- 3 hdpusr400 hduser302 3336 2019-07-12 17:35 /apps/hduser302/student/properties/xxyy/IMP_00004_XXYY_USE_PERSONALINFO.properties
+[liusiyi@localhost ~]$ echo ${a//hduser302/hdpusr400}　　#变量a中所有匹配的字符串都会被替换
+-rw-r----- 3 hdpusr400 hdpusr400 3336 2019-07-12 17:35 /apps/hdpusr400/student/properties/xxyy/IMP_00004_XXYY_USE_PERSONALINFO.properties
+
+#用sed做字符串替换
+[liusiyi@localhost ~]$ echo $a | sed 's/hduser302/hdpusr400/' 　　#sed 's///' 用来替换第一个匹配的字符串
+-rw-r----- 3 hdpusr400 hduser302 3336 2019-07-12 17:35 /apps/hduser302/student/properties/xxyy/IMP_00004_XXYY_USE_PERSONALINFO.properties
+[liusiyi@localhost ~]$ echo $a | sed 's/hduser302/hdpusr400/g' 　　#sed 's///g'用来替换所有匹配的字符串
+-rw-r----- 3 hdpusr400 hdpusr400 3336 2019-07-12 17:35 /apps/hdpusr400/student/properties/xxyy/IMP_00004_XXYY_USE_PERSONALINFO.properties
+
+#用awk做字符串替换 （这个例子中用sub或gsub都可以，默认是空格为分隔符）
+[liusiyi@localhost ~]$ echo $a | awk '{gsub(/hduser302/,"hdpusr400",$3);print $0}' #指定替换第一个
+-rw-r----- 3 hdpusr400 hduser302 3336 2019-07-12 17:35 /apps/hduser302/student/properties/xxyy/IMP_00004_XXYY_USE_PERSONALINFO.properties
+[liusiyi@localhost ~]$ echo $a | awk '{gsub(/hduser302/,"hdpusr400");print $0}' 　　#全部替换
+-rw-r----- 3 hdpusr400 hdpusr400 3336 2019-07-12 17:35 /apps/hdpusr400/student/properties/xxyy/IMP_00004_XXYY_USE_PERSONALINFO.properties

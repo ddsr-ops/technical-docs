@@ -1,0 +1,10 @@
+auto.offset.reset
+
+Offset Management
+The two main settings affecting offset management are whether auto-commit is enabled and the offset reset policy. First, if you set enable.auto.commit (which is the default), then the consumer will automatically commit offsets periodically at the interval set by auto.commit.interval.ms. The default is 5 seconds.
+
+Second, use auto.offset.reset to define the behavior of the consumer when there is no committed position (which would be the case when the group is first initialized) or when an offset is out of range. You can choose either to reset the position to the “earliest” offset or the “latest” offset (the default). You can also select “none” if you would rather set the initial offset yourself and you are willing to handle out of range errors manually
+
+earliest	当各分区下有已提交的offset时，从提交的offset开始消费；无提交的offset时，从头开始消费
+latest	默认使用latest，当各分区下有已提交的offset时，从提交的offset开始消费；无提交的offset时，消费新产生的该分区下的数据
+none	topic各分区都存在已提交的offset时，从offset后开始消费；只要有一个分区不存在已提交的offset，则抛出异常

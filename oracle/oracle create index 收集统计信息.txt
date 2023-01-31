@@ -1,0 +1,20 @@
+create index "index01" on “table01”("name","age")
+PCTFREE 20 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
+STORAGE(INITIAL xxxx NEXT xxxx MINEXTENTS xx MAXEXTENTS xxxx
+PCTINCREASE x FREELISTS xx FREELIST GROUPS xx
+BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+TABLESPACE "Table-space" ;
+
+
+(PCTFREE 20 INITRANS 2 MAXTRANS 255) - descries how DB block is filled
+(COMPUTE STATISTICS) - tells Oracle to gather performance statistics for created index
+(STORAGE(INITIAL xxxx NEXT xxxx MINEXTENTS xx MAXEXTENTS xxxx PCTINCREASE) - describes how to allocate disk space to index in datafiles
+(BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT) - describes how to store index's block into memory (buffer cache).
+TABLESPACE "Table-space" - in that tablespace to create index
+
+
+COMPUTE STATISTICS
+In earlier releases, you could use this clause to start or stop the collection of statistics on an index. This clause has been deprecated. Oracle Database now
+automatically collects statistics during index creation and rebuild. This clause is supported for backward compatibility and will not cause errors.
+
+完整的create index语法，参考《ORACLE CREATE INDEX.pdf》

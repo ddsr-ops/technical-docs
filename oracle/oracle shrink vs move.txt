@@ -1,0 +1,259 @@
+move 和shrink 的共同点
+
+1、收缩段
+
+2、消除部分行迁移
+
+3、消除空间碎片
+
+4、使数据更紧密
+
+******************************************************************************************************************************
+一、shrink
+
+语法：
+
+ alter table TABLE_NAME shrink space [compact|cascade]
+
+segment shrink执行的两个阶段：
+
+1、数据重组(compact):
+
+ 通过一系列insert、delete操作，将数据尽量排列在段的前面。在这个过程中需要在表上加RX锁，即只在需要移动的行上加锁。
+
+由于涉及到rowid的改变，需要enable row movement.同时要disable基于rowid的trigger.这一过程对业务影响比较小。
+
+
+2、HWM调整：第二阶段是调整HWM位置，释放空闲数据块。
+
+此过程需要在表上加X锁，会造成表上的所有DML语句阻塞。在业务特别繁忙的系统上可能造成比较大的影响。
+
+
+
+注意：shrink space语句两个阶段都执行。
+
+  shrink space compact只执行第一个阶段。
+
+  如果系统业务比较繁忙，可以先执行shrink space compact重组数据,然后在业务不忙的时候再执行shrink space降低HWM释放空闲数据块。
+
+
+
+举例
+
+  alter table TABLE_NAME shrink space compact;  只整理碎片 不回收空间，  
+  alter table TABLE_NAME shrink space;                 整理碎片并回收空间。
+  alter table TABLE_NAME shrink space cascade;    整理碎片回收空间 并连同表的级联对象一起整理(比如索引)
+  alter table pt_table modify  PARTITION P1 shrink space cascade;  分区表
+
+
+shrink的优点
+
+1.可在线执行
+
+2.可使用参数cascade，同时收缩表上的索引
+
+3.执行后不会导致索引失效
+
+4.可避免alter table move执行过程中占用很多表空间（如果表10G大小，那alter table move差不多还得需要10G空间才能执行）。
+
+
+******************************************************************************************************************************
+
+
+二、move
+
+1、move table的功能：
+
+①：将一个table从当前的tablespace上移动到另一个tablespace上：
+
+②：来改变table已有的block的存储参数,如：alter table t move storage (initial 30k next 50k);
+
+③：move操作也可以用来解决table中的行迁移的问题。
+
+
+2、使用move的一些注意事项：
+
+①：table上的index需要rebuild：
+
+ 在前面我们讨论过，move操作后，数据的rowid发生了改变，我们知道，index是通过rowid来fetch数据行的，所以，table上的index是必须要rebuild的。
+
+  alter index index_name rebuild online；
+
+②：move时对table的锁定
+
+ 当我们对table进行move操作时，查询v$locked_objects视图可以发现，table上加了exclusive lock
+
+③：关于move时空间使用的问题：
+
+ 当我们使用alter table move来降低table的HWM时，有一点是需要注意的，这时，当前的tablespace中需要有1倍于table的空闲空间以供使用。
+
+
+
+三、move和hrink的区别是：
+
+1、move后，表在表空间中的位置肯定会变，可能前移也可能后移，一般来说如果该表前面的表空间中有足够空间容纳该表，则前移，否则后移。
+
+2、hrink后，表在表空间中的位置肯定不变，也就是表的段头位置不会发生变化。
+
+3、Move会移动高水位，但不会释放申请的空间，是在高水位以下(below HWM)的操作。
+
+4、shrink space 同样会移动高水位，但也会释放申请的空间，是在高水位上下(below and above HWM)都有的操作。
+
+5、使用move时，会改变一些记录的ROWID，所以MOVE之后索引会变为无效，需要REBUILD。
+
+6、使用shrink space时，索引会自动维护。如果在业务繁忙时做压缩，
+
+ 可以先shrink space compact，来压缩数据而不移动HWM，等到不繁忙的时候再shrink space来移动HWM。
+
+7、shrink可以单独压缩索引，alter index xxx shrink space来压缩索引。另外、压缩表时指定Shrink space cascade会同时压缩索引，
+
+
+四、实战实验：
+
+实验环境：Oracle11.2.0.4
+
+[oracle@dbs ~]$ sqlplus '/as sysdba'
+SQL*Plus: Release 11.2.0.4.0 Production on Thu Aug 10 14:44:59 2017
+Copyright (c) 1982, 2013, Oracle.  All rights reserved.
+Connected to:
+Oracle Database 11g Enterprise Edition Release 11.2.0.4.0 - 64bit Production
+With the Partitioning, OLAP, Data Mining and Real Application Testing options
+SQL>
+1、创建两张测试表：test_1 和 test_2
+
+SQL> create table test_1 (name varchar2(10)) storage (initial 500m next 1m);
+Table created.
+SQL> create table test_2 (name varchar2(10)) storage (initial 500m next 1m);
+SQL>  create index idx_test1 on test_1(name);
+Index created.
+SQL>  create index idx_test2 on test_2(name);
+Index created.
+
+2、插入数据，并收集统计信息：
+
+SQL> insert into test_1 values('zhang');
+SQL> insert into test_1 values('zhang');
+SQL> insert into test_2 values('zhang');
+SQL> insert into test_2 values('zhang');
+SQL> exec dbms_stats.gather_table_stats(ownname =>'ADMIN',tabname =>'TEST_1',cascade=>TRUE);
+PL/SQL procedure successfully completed.
+SQL> exec dbms_stats.gather_table_stats(ownname =>'ADMIN',tabname =>'TEST_2',cascade=>TRUE);
+PL/SQL procedure successfully completed.
+SQL>
+
+3、查看两张表的blocks信息：
+
+SQL> select B.SEGMENT_NAME, B.blocks,B.blocks * 8096 / 1024 / 1024, A.BLOCKS,A.blocks * 8096 / 1024 / 1024, A.EMPTY_BLOCKS from user_tables a, 
+    USER_SEGMENTS B WHERE TABLE_NAME in ('TEST_1','TEST_2') AND A.TABLE_NAME = B.SEGMENT_NAME; 
+SEGMENT_NAME                                                                          BLOCKS B.BLOCKS*8096/1024/1024     BLOCKS A.BLOCKS*8096/1024/1024 EMPTY_BLOCKS
+--------------------------------------------------------------------------------- ---------- ----------------------- ---------- ----------------------- ------------
+TEST_1                                                                                 64512               498.09375        222              1.71405029            0
+TEST_2                                                                                 64512               498.09375        222              1.71405029            0
+SQL> select TABLE_NAME,BLOCKS,EMPTY_BLOCKS from user_tables where table_name in ('TEST_1','TEST_2');
+TABLE_NAME                         BLOCKS EMPTY_BLOCKS
+------------------------------ ---------- ------------
+TEST_1                                222            0
+TEST_2                                222            0
+SQL> select owner,segment_name,sum(bytes)/1024/1024 MB from dba_segments where tablespace_name='TEST' and segment_type like '%TAB%' group by owner,segment_name order by MB desc;
+OWNER                          SEGMENT_NAME                                                                              MB
+------------------------------ --------------------------------------------------------------------------------- ----------
+ADMIN                          TEST_2                                                                                   504
+ADMIN                          TEST_1                                                                                   504
+SQL> select index_name,table_name,status from user_indexes where table_name in ('TEST_1','TEST_2');    ---索引状态都正常
+INDEX_NAME                     TABLE_NAME                     STATUS
+------------------------------ ------------------------------ --------
+IDX_TEST2                      TEST_2                         VALID
+IDX_TEST1                      TEST_1                         VALID
+SQL>
+
+----从上面可以看出，由于我们预分配给了两张表500M，那么他们俩现在一共有64512个blocks，共有500M，而实际只占用了222个，
+
+4、删除两张表的数据，并收集统计信息然后查看两张表的blocks信息：
+
+SQL> delete from test_1 where rownum <=1;
+1 row deleted.
+SQL> delete from test_2 where rownum <=1;
+1 row deleted.
+SQL> exec dbms_stats.gather_table_stats(ownname =>'ADMIN',tabname =>'TEST_1',cascade=>TRUE);
+PL/SQL procedure successfully completed.
+SQL>  exec dbms_stats.gather_table_stats(ownname =>'ADMIN',tabname =>'TEST_2',cascade=>TRUE);
+PL/SQL procedure successfully completed.
+SQL> select TABLE_NAME,BLOCKS,EMPTY_BLOCKS from user_tables where table_name in ('TEST_1','TEST_2');
+TABLE_NAME                         BLOCKS EMPTY_BLOCKS
+------------------------------ ---------- ------------
+TEST_1                                222            0
+TEST_2                                222            0
+SQL> select B.SEGMENT_NAME, B.blocks,B.blocks * 8096 / 1024 / 1024, A.BLOCKS,A.blocks * 8096 / 1024 / 1024, A.EMPTY_BLOCKS from user_tables a, 
+  2      USER_SEGMENTS B WHERE TABLE_NAME in ('TEST_1','TEST_2') AND A.TABLE_NAME = B.SEGMENT_NAME; 
+SEGMENT_NAME                                                                          BLOCKS B.BLOCKS*8096/1024/1024     BLOCKS A.BLOCKS*8096/1024/1024 EMPTY_BLOCKS
+--------------------------------------------------------------------------------- ---------- ----------------------- ---------- ----------------------- ------------
+TEST_1                                                                                 64512               498.09375        222              1.71405029            0
+TEST_2                                                                                 64512               498.09375        222              1.71405029            0
+SQL> 
+SQL> select index_name,table_name,status from user_indexes where table_name in ('TEST_1','TEST_2');    ---此时索引状态都正常
+INDEX_NAME                     TABLE_NAME                     STATUS
+------------------------------ ------------------------------ --------
+IDX_TEST2                      TEST_2                         VALID
+IDX_TEST1                      TEST_1                         VALID
+---从上面可以看出，虽然删除了表的数据，但是空间并没有释放，没有释放的空间包括高水位线以上和高水位线以下。（高水位线上面的空间就是预分配的空间 减去 实际占用的空间；
+
+高水位线以下的空间就是数据实际占用的空间--因为delete是不会是否空间的，也就是说高水位一直存在除非新插入的数据将其覆盖）
+
+5、对test_1表进行move操作：
+
+SQL> alter table test_1 move;
+Table altered.
+SQL> exec dbms_stats.gather_table_stats(ownname =>'ADMIN',tabname =>'TEST_1',cascade=>TRUE);
+PL/SQL procedure successfully completed.
+SQL> select B.SEGMENT_NAME, B.blocks,B.blocks * 8096 / 1024 / 1024, A.BLOCKS,A.blocks * 8096 / 1024 / 1024, A.EMPTY_BLOCKS from user_tables a, 
+  2         USER_SEGMENTS B WHERE TABLE_NAME in ('TEST_1','TEST_2') AND A.TABLE_NAME = B.SEGMENT_NAME; 
+SEGMENT_NAME                                                                          BLOCKS B.BLOCKS*8096/1024/1024     BLOCKS A.BLOCKS*8096/1024/1024 EMPTY_BLOCKS
+--------------------------------------------------------------------------------- ---------- ----------------------- ---------- ----------------------- ------------
+TEST_2                                                                                 64512               498.09375        222              1.71405029            0
+TEST_1                                                                                 64384              497.105469         35              .270233154            0
+SQL> select index_name,table_name,status from user_indexes where table_name in ('TEST_1','TEST_2'); 
+INDEX_NAME                     TABLE_NAME                     STATUS
+------------------------------ ------------------------------ --------
+IDX_TEST2                      TEST_2                         VALID
+IDX_TEST1                      TEST_1                         UNUSABLE
+---从上面可以看出，对表做了move后，该表实际占用的空间已经释放了，但是预分配的空间始终没有变化，这说明move操作会释放高水位以下的空间，但是不会释放高水位以上的空间；同时 test_1表的索引已经失效了！
+
+6、对test_2表做shrink space操作：
+
+SQL> alter table test_2 enable row movement;
+Table altered.
+SQL> alter table test_2 shrink space;
+Table altered.
+SQL> exec dbms_stats.gather_table_stats(ownname =>'ADMIN',tabname =>'TEST_2',cascade=>TRUE);
+PL/SQL procedure successfully completed.
+SQL> select B.SEGMENT_NAME, B.blocks,B.blocks * 8096 / 1024 / 1024, A.BLOCKS,A.blocks * 8096 / 1024 / 1024, A.EMPTY_BLOCKS from user_tables a, 
+  2            USER_SEGMENTS B WHERE TABLE_NAME in ('TEST_1','TEST_2') AND A.TABLE_NAME = B.SEGMENT_NAME; 
+SEGMENT_NAME                                                                          BLOCKS B.BLOCKS*8096/1024/1024     BLOCKS A.BLOCKS*8096/1024/1024 EMPTY_BLOCKS
+--------------------------------------------------------------------------------- ---------- ----------------------- ---------- ----------------------- ------------
+TEST_2                                                                                    40              .308837891          1              .007720947            0
+TEST_1                                                                                 64384              497.105469         35              .270233154            0
+SQL> 
+SQL> select index_name,table_name,status from user_indexes where table_name='TEST_2';
+INDEX_NAME                     TABLE_NAME                     STATUS
+------------------------------ ------------------------------ --------
+IDX_TEST2                      TEST_2                         VALID
+SQL>
+
+---从上面可以看出预分配的空间全部释放了，说明shrink space 同样会移动高水位，但也会释放申请的空间，是在高水位上下(below and above HWM)都有的操作，并且索引不会失效。
+
+
+注意：
+
+①：使用move时，会改变一些记录的ROWID，所以MOVE之后索引会变为无效，需要REBUILD。
+
+②：使用shrink space时，索引会自动维护。如果在业务繁忙时做压缩，可以先shrink space compact，来压缩数据而不移动HWM，等到不繁忙的时候再shrink space来移动HWM。
+
+③：索引也是可以压缩的，压缩表时指定Shrink space cascade会同时压缩索引，也可以alter index xxx shrink space来压缩索引。
+
+④：shrink space需要在表空间是自动段空间管理的，所以system表空间上的表无法shrink space。
+
+
+
+---补充，move 也可以做到真正的压缩分配空间，只要指定STORAGE参数即可。：
+
+SQL> alter table test_1 move storage (initial 1m);

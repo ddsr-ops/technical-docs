@@ -1,0 +1,20 @@
+IntelliJ IDEA下划线转驼峰及大小写转换插件和快捷键
+idea带有快捷键ctrl+shift+u,来进行大小写的转换，这不能完全满足我们的需求。
+
+IntelliJ IDEA提供了CamelCase很方便的工具插件，使用快捷键shift+alt+u。
+
+按住shift+alt再不停的按U,会把选中内容的单词的下划线转驼峰转大写等，不停的转换，直到你想要的。
+
+ 
+
+CamelCase插件：
+
+1.安装方法：
+
+idea菜单栏-file-settings-搜索"plugins"-点击下面按钮‘browse repositories‘-搜索“CamelCase”-点击安装
+
+2.使用方法
+
+安装后重新打开idea,选中内容，快捷键shit+alt+u，选中内容中的单词 就会变，直到变成你想要的。
+
+这个真的很方便，特别是mysql数据库字段带下划线 直接复制字段到java，开发很快！

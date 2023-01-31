@@ -1,0 +1,59 @@
+alter system set db_recovery_file_dest_size = 10G;
+alter system set db_recovery_file_dest = '/home/oracle/oradta/recovery_area' scope=spfile;
+alter system set db_recovery_file_dest = '/oracle/recovery_area' scope=spfile;
+shutdown immediate;
+startup mount;
+alter database archivelog;
+alter database open;
+archive log list
+exit;
+
+ALTER DATABASE ADD SUPPLEMENTAL LOG DATA (ALL) COLUMNS;
+
+select supplemental_log_data_all, supplemental_log_data_fk, supplemental_log_data_min, supplemental_log_data_pk, supplemental_log_data_ui from v$database;
+
+Note: the value of supplemental_log_data_all must be 'YES', otherwise unchanged columns are null or 0.
+
+CREATE TABLESPACE logminer_tbs DATAFILE '/opt/oracle/oradata/ORCLCDB/logminer_tbs.dbf'
+    SIZE 25M REUSE AUTOEXTEND ON MAXSIZE UNLIMITED;
+	
+CREATE USER logminer IDENTIFIED BY logminer
+DEFAULT TABLESPACE logminer_tbs
+QUOTA UNLIMITED ON logminer_tbs;
+
+CREATE TABLESPACE logminer_tbs DATAFILE '/u01/app/oracle/oradata/ora11g/logminer_tbs.dbf'
+    SIZE 25M REUSE AUTOEXTEND ON MAXSIZE UNLIMITED;
+
+CREATE USER logminer IDENTIFIED BY logminer
+  DEFAULT TABLESPACE logminer_tbs
+  QUOTA UNLIMITED ON logminer_tbs;
+
+GRANT CREATE SESSION TO logminer;
+GRANT CREATE TABLE TO logminer;
+GRANT CREATE SEQUENCE TO logminer;
+GRANT CREATE TRIGGER TO logminer;
+GRANT SELECT ON V_$DATABASE to logminer;
+GRANT FLASHBACK ANY TABLE TO logminer;
+GRANT SELECT ANY TABLE TO logminer;
+GRANT SELECT_CATALOG_ROLE TO logminer;
+GRANT EXECUTE_CATALOG_ROLE TO logminer;
+GRANT SELECT ANY TRANSACTION TO logminer;
+GRANT LOCK ANY TABLE TO logminer;
+GRANT ALTER ANY TABLE TO logminer;
+GRANT EXECUTE ON DBMS_LOGMNR TO logminer;
+GRANT EXECUTE ON DBMS_LOGMNR_D TO logminer;
+GRANT SELECT ON V_$LOG TO logminer;
+GRANT SELECT ON V_$LOG_HISTORY TO logminer;
+GRANT SELECT ON V_$LOGMNR_LOGS TO logminer;
+GRANT SELECT ON V_$LOGMNR_CONTENTS TO logminer;
+GRANT SELECT ON V_$LOGMNR_PARAMETERS TO logminer;
+GRANT SELECT ON V_$LOGFILE TO logminer;
+GRANT SELECT ON V_$ARCHIVED_LOG TO logminer;
+GRANT SELECT ON V_$ARCHIVE_DEST_STATUS TO logminer;
+GRANT SELECT ON SYSTEM.LOGMNR_COL$ TO logminer;
+GRANT SELECT ON SYSTEM.LOGMNR_OBJ$ TO logminer;
+GRANT SELECT ON SYSTEM.LOGMNR_USER$ TO logminer;
+GRANT SELECT ON SYSTEM.LOGMNR_UID$ TO logminer;
+GRANT LOGMINING TO logminer;
+GRANT EXECUTE ON DBMS_LOGMNR TO logminer;
+GRANT EXECUTE ON DBMS_LOGMNR_D TO logminer;

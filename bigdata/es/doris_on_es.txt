@@ -1,0 +1,183 @@
+{
+   "settings": {
+      "index": {
+         "number_of_shards": "1",
+         "number_of_replicas": "0"
+      }
+   },
+   "mappings": {
+      "doc": {
+         "properties": {n
+            "k1": {
+               "type": "long"
+            },
+            "k2": {
+               "type": "date"
+            },
+            "k3": {
+               "type": "keyword"
+            },
+            "k4": {
+               "type": "text",
+               "analyzer": "standard"
+            },
+            "k5": {
+               "type": "float"
+            }
+         }
+      }
+   }
+}
+
+
+
+
+
+
+
+CREATE EXTERNAL TABLE `test_es_6` (
+  `k1` bigint(20) COMMENT "",
+  `k2` datetime COMMENT "",
+  `k3` varchar(20) COMMENT "",
+  `k4` varchar(100) COMMENT "",
+  `k5` float COMMENT ""
+) ENGINE=ELASTICSEARCH
+PROPERTIES (
+"hosts" = "http://88.88.16.189:9200",
+"index" = "test",
+"type" = "doc"
+);
+
+
+
+
+
+	{
+		"query":{
+			"match_all":{} 
+		},
+		"from": 0,
+		"size": 100
+	}
+
+
+
+
+
+
+
+
+
+{
+   "settings": {
+      "index": {
+         "number_of_shards": "1",
+         "number_of_replicas": "0"
+      }
+   },
+   "mappings": {
+         "properties": {
+            "k1": {
+               "type": "long"
+            },
+            "k2": {
+               "type": "date"
+            },
+            "k3": {
+               "type": "keyword"
+            },
+            "k4": {
+               "type": "text",
+               "analyzer": "standard"
+            },
+            "k5": {
+               "type": "float"
+            }
+         }
+   }
+}
+
+
+{"index":{"_index":"test"}}
+{ "k1" : 100, "k2": "2020-01-01", "k3": "Trying out Elasticsearch", "k4": "Trying out Elasticsearch", "k5": 10.0}
+{"index":{"_index":"test"}}
+{ "k1" : 100, "k2": "2020-01-01", "k3": "Trying out Doris", "k4": "Trying out Doris", "k5": 10.0}
+{"index":{"_index":"test"}}
+{ "k1" : 100, "k2": "2020-01-01", "k3": "Doris On ES", "k4": "Doris On ES", "k5": 10.0}
+{"index":{"_index":"test"}}
+{ "k1" : 100, "k2": "2020-01-01", "k3": "Doris", "k4": "Doris", "k5": 10.0}
+{"index":{"_index":"test"}}
+{ "k1" : 100, "k2": "2020-01-01", "k3": "ES", "k4": "ES", "k5": 10.0}
+
+
+CREATE EXTERNAL TABLE `test_es_7` (
+  `k1` bigint(20) COMMENT "",
+  `k2` datetime COMMENT "",
+  `k3` varchar(20) COMMENT "",
+  `k4` varchar(100) COMMENT "",
+  `k5` float COMMENT ""
+) ENGINE=ELASTICSEARCH
+PROPERTIES (
+"hosts" = "http://88.88.16.189:9200",
+"index" = "test",
+"type" = "_doc"
+);
+
+
+CREATE EXTERNAL TABLE `test_es_7` (
+  `k1` bigint(20) COMMENT "",
+  `k2` datetime COMMENT "",
+  `k3` varchar(20) COMMENT "",
+  `k4` varchar(100) COMMENT "",
+  `k5` float COMMENT ""
+) ENGINE=ELASTICSEARCH
+PROPERTIES (
+"hosts" = "http://10.50.253.6:9200",
+"index" = "test_es_7",
+"type" = "_doc"
+);
+
+
+
+CREATE EXTERNAL TABLE `test_es_7` (
+  `k1` bigint(20) COMMENT "",
+  `k2` datetime COMMENT "",
+  `k3` varchar(20) COMMENT "",
+  `k4` varchar(100) COMMENT "",
+  `k5` float COMMENT ""
+) ENGINE=ELASTICSEARCH
+PROPERTIES (
+"hosts" = "http://namenode2:9220",
+"index" = "test",
+"type" = "_doc"
+);
+
+
+
+https://www.cnblogs.com/hellxz/p/11057234.html
+
+
+
+CREATE EXTERNAL TABLE `test_es_7` (
+  `k1` bigint(20) COMMENT "",
+  `k2` datetime COMMENT "",
+  `k3` varchar(20) COMMENT "",
+  `k4` varchar(100) COMMENT "",
+  `k5` float COMMENT ""
+) ENGINE=ELASTICSEARCH
+PROPERTIES (
+"hosts" = "http://88.88.16.189:9220",
+"index" = "test",
+"type" = "_doc"
+);
+
+
+
+
+
+select date_format(k2,'%Y%m%d'),sum(k5/100) from test.test_es_7 group by date_format(k2,'%Y%m%d');
+
+select date_format(order_date,'%Y%m%d'),sum(cast(cast(trade_amount as string ) as decimal(16,2)) /100) from m_trip_order_detail_es group by date_format(order_date,'%Y%m%d') limit 10;
+select date_format(order_date,'%Y%m%d'),sum(cast(cast(trade_amount as string ) as decimal(16,2)) /100) from m_trip_order_detail_es group by date_format(order_date,'%Y%m%d') limit 10;
+
+2ce6bcb2abe3ffb4855d87ddce872f733b6dfdd6

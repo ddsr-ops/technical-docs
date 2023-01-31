@@ -1,0 +1,49 @@
+Scala中三个引号应用
+双引号
+1.换行需要加/n ,比如:
+val s = "select * from user \n where user_id >100"
+println(s)
+
+控制台输出结果:
+select * from user
+where user_id >100
+
+三引号
+1:中间字符串可以直接回车换行
+val s ="""select * from user
+         where user_id >100
+         and age <18 """
+println(s)
+
+控制台输出结果:
+select * from user
+where user_id >100
+and age <18
+
+2:保留代码块原意,中间可以有双引号
+val s ="""select * from user
+         where user_id >100
+         and name="dudu" """
+println(s)
+
+控制台输出结果:
+select * from user
+where user_id >100
+and name=“dudu”
+
+3:格式化
+在idea中输入三个双引号,回车,行头会出现|,回车一次,会出现一个|,结尾是.stripMargin
+
+val s =
+      """select *
+        |from user
+        |where user_name="dudu"
+        |and age = 18
+      """.stripMargin
+    println(s)
+	
+控制台输出结果:
+select *
+from user
+where user_name=“dudu”
+and age = 18

@@ -1,0 +1,7 @@
+我们把Kafka比作Linux的内核,Confluent就相当于Linux的某个发行版。Confluent提供了Kafka没有的组件和功能，比如完善的跨数据中心数据备份以及集群监控解决方案。
+
+Confluent还分开源版本和企业版本,企业版本中提供了对底层Kafka集群完整的可视化监控解决方案，以及一些辅助系统帮助管理集群。
+
+Confluent的开源版本和Apache社区的Kafka并无太大区别。用户完全可以使用Confluent Open Source替代Apache Kafka。
+
+Confluent网址：https://www.confluent.io

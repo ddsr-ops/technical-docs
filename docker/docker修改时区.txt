@@ -1,0 +1,32 @@
+一、修改已运行容器的时区
+将时区文件从宿主机拷贝至容器
+docker cp /usr/share/zoneinfo/Asia/Shanghai container-id:/usr/share/zoneinfo/Asia/Shanghai
+进入容器执行
+docker exec -it <容器> /bin/bash
+ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+echo "Asia/Shanghai" > /etc/timezone
+退出容器后，重启容器
+docker restart <容器>
+
+二、在docker run命令中修改时区
+运行容器时，加上挂载参数
+docker run -d <容器> -v /etc/timezone:/etc/timezone -v /etc/localtime:/etc/localtime
+或者通过-e TZ="Asia/Shanghai"设置时区：
+docker run -d <容器> -e TZ="Asia/Shanghai"
+
+三、在Dockerfile中修改时区
+在Dockerfile中
+FROM xxx
+WORKDIR /app
+COPY . /app
+EXPOSE 8080
+RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+RUN echo 'Asia/Shanghai' > /etc/timezone
+ENTRYPOINT ["java", "-jar", "/app.jar"]
+
+四、在Compose中修改时区
+如果宿主机不存在timezone文件，echo "Asia/Shanghai" > /etc/timezone
+在docker-compose.yml文件中
+volumes:
+  - /etc/timezone:/etc/timezone
+  - /etc/localtime:/etc/localtime

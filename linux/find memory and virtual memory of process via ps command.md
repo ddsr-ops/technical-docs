@@ -1,0 +1,1 @@
+ps -eo pid,lstart,etime,%mem,rss,vsz,cmd|grep palo_be|grep -v grep|grep -v source

@@ -1,0 +1,23 @@
+Clash软件修改代理
+【配置 -- 在文本模式下编辑】
+将代理的规则添加在rules下方的首部
+建议通过复制粘贴的形式书写，以免格式错误无法读取配置
+
+验证新增规则生效：
+访问新增规则的站点，在clash的日志窗口，可以查看是否走Proxy
+
+# 规则
+rules:
+  # (Proxy)
+  # > ABC
+  - DOMAIN-KEYWORD,programcreek,Proxy
+  - DOMAIN-SUFFIX,edgedatg.com,Proxy
+  - DOMAIN-SUFFIX,go.com,Proxy
+
+  # > AbemaTV
+  - DOMAIN,linear-abematv.akamaized.net,Proxy
+  - DOMAIN-SUFFIX,abema.io,Proxy
+  - DOMAIN-SUFFIX,abema.tv,Proxy
+  - DOMAIN-SUFFIX,akamaized.net,Proxy
+  - DOMAIN-SUFFIX,ameba.jp,Proxy
+  - DOMAIN-SUFFIX,hayabusa.io,Proxy

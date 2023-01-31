@@ -1,0 +1,1 @@
+Restart solr cluster to solve the problem.

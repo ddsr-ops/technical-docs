@@ -1,0 +1,13 @@
+Spark应用程序无法写入在docker中运行的elasticsearch解决办法
+
+20/12/15 16:23:44 INFO EsRDDWriter: Writing to [spark/docs]
+20/12/15 16:24:05 INFO HttpMethodDirector: I/O exception (java.net.ConnectException) caught when processing request: Connection timed out: connect
+20/12/15 16:24:05 INFO HttpMethodDirector: Retrying request
+20/12/15 16:24:05 INFO HttpMethodDirector: I/O exception (java.net.ConnectException) caught when processing request: Connection timed out: connect
+20/12/15 16:24:05 INFO HttpMethodDirector: Retrying request
+20/12/15 16:24:26 INFO HttpMethodDirector: I/O exception (java.net.ConnectException) caught when processing request: Connection timed out: connect
+20/12/15 16:24:26 INFO HttpMethodDirector: Retrying request
+20/12/15 16:24:26 INFO HttpMethodDirector: I/O exception (java.net.ConnectException) caught when processing request: Connection timed out: connect
+20/12/15 16:24:26 INFO HttpMethodDirector: Retrying request
+
+conf.set("es.nodes.wan.only", "true")

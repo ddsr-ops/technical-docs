@@ -1,0 +1,8 @@
+web 界面出现：Warning! Detected 437.83 seconds time difference between your browser and the server. Prometheus relies on accurate time and time drift might cause unexpected query results.
+
+
+[root@prometheus-node ~]# yum -y install ntp
+
+[root@prometheus-node ~]# systemctl enable ntpd
+
+[root@prometheus-node ~]# ntpdate time1.aliyun.com

@@ -1,0 +1,5 @@
+spark-sql> explain extended select * from emp e inner join dept d on e.deptno = d.deptno where e.deptno > 10;
+
+In spark application UI, show the visualize plan in the tab SQL.
+
+Note: Support sql plan showing in spark-sql with iceberg.

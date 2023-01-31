@@ -1,0 +1,424 @@
+mysql之 mysql 5.6不停机主主搭建（活跃双主基于日志点复制）
+环境说明：
+版本 version 5.6.25-log
+主1库ip: 10.219.24.25
+主2库ip：10.219.24.22
+os 版本： centos 6.7
+已安装热备软件：xtrabackup
+防火墙已关
+
+补充：
+主从复制原理： http://blog.csdn.net/zhang123456456/article/details/72972701
+mysql 5.6安装 ：http://blog.csdn.net/zhang123456456/article/details/53608554
+xtrabackup 安装： http://blog.csdn.net/zhang123456456/article/details/72836184
+
+全程：先搭建一主一从，然后反过来搭建，就是双主复制：
+
+先一主一从搭建：
+
+1、 主库参数调整
+-- 停止主库mysql
+[root@mysql02 ~]# service mysql stop
+[root@mysql02 ~]# netstat -nltp|grep mysql|grep 3606
+-- 主库创建relay log目录
+[root@mysql02 full]# mkdir -p /data/mysql/relaylog/
+[root@mysql02 full]# chown -R mysql:mysql /data/mysql/relaylog
+-- 调整 my.cnf 参数
+[root@mysql02 ~]# cat /etc/my.cnf
+[client]
+password = oracle
+port = 3306
+socket = /data/mysql/mysql.sock
+[mysqld]
+server-id=25
+port = 3306
+socket = /data/mysql/mysql.sock
+character_set_server = utf8
+character_set_client = utf8
+collation-server=utf8_general_ci
+lower_case_table_names = 1
+max_connections = 1000
+datadir = /data/mysql
+log_bin = /data/mysql/binarylog/binlog
+log_bin_index = /data/mysql/binarylog/binlog
+relay-log = /data/mysql/relaylog/relay
+relay-log-index = /data/mysql/relaylog/relay
+relay_log_purge = on
+binlog_format = mixed
+innodb_data_file_path = ibdata1:12M:autoextend
+auto_increment_increment = 10
+auto_increment_offset = 1
+[mysql]
+default-character-set = utf8
+
+说明：
+a、主库必须配置的参数
+server-id （主从的server-id必须不同）、log_bin、binlog_format、relay-log、relay-log-index、relay_log_purge
+auto-increment-offset、auto-increment-increment
+
+b、log-slave-updates 意思是，中继日志执行之后，这些变化是否需要计入自己的binarylog。 当你的B服务器需要作为另外一个服务器的主服务器的时候需要打开。 就是双主互相备份，或者多主循环备份。 我们这里需要， 所以打开。
+
+c、auto-increment-offset、auto-increment-increment 两个参数用于在 双主（多主循环）互相备份。 因为每台数据库服务器都可能在同一个表中插入数据，如果表有一个自动增长的主键，那么就会在多服务器上出现主键冲突。 解决这个问题的办法就是让每个数据库的自增主键不连续。 上图说是， 我假设需要将来可能需要10台服务器做备份， 所以auto-increment-increment 设为10. 而 auto-increment-offset=1 表示这台服务器的序号。 从1开始， 不超过auto-increment-increment。这样做之后， 我在这台服务器上插入的第一个id就是 1， 第二行的id就是 11了， 而不是2.（同理，在第二台服务器上插入的第一个id就是2， 第二行就是12， 这个后面再介绍） 这样就不会出现主键冲突了。 后面我们会演示这个id的效果。
+
+-- 启动主库
+[root@mysql02 ~]# mysqld_safe --defaults-file=/etc/my.cnf &
+
+2、 从库参数调整
+-- 停止从库mysql
+[root@mysql01 ~]# service mysql stop
+[root@mysql01 ~]# netstat -nltp|grep mysql|grep 3606
+-- 调整 my.cnf 参数
+[root@mysql01 ~]# cat /etc/my.cnf
+[client]
+password = oracle
+port = 3306
+socket = /data/mysql/mysql.sock
+[mysqld]
+server-id=22
+port = 3306
+socket = /data/mysql/mysql.sock
+character_set_server = utf8
+character_set_client = utf8
+collation-server=utf8_general_ci
+lower_case_table_names = 1
+max_connections = 1000
+datadir = /data/mysql
+log_bin = /data/mysql/binarylog/binlog
+log_bin_index = /data/mysql/binarylog/binlog
+relay-log = /data/mysql/relaylog/relay
+relay-log-index = /data/mysql/relaylog/relay
+relay_log_purge = on
+auto_increment_increment = 10
+auto_increment_offset = 2
+[mysql]
+default-character-set = utf8
+说明：从库必须配置的参数
+server-id、log_bin、relay-log、relay_log_purge、auto-increment-offset、auto-increment-increment、
+
+3、 主库备份
+-- 主库备份目录
+[root@mysql02 full]# pwd
+/xtrabackup/full
+-- 主库 innobackupex 备份
+[root@mysql02 ~]# innobackupex --user=root --password=oracle --port=3606 /xtrabackup/full/
+170610 17:50:23 Backup created in directory '/xtrabackup/full/2017-06-10_17-50-19/'
+MySQL binlog position: filename 'binlog.000010', position '120'
+....
+170610 17:50:23 completed OK!
+-- 查看备份 binlog编号 与 截止 position
+[root@mysql02 2017-06-10_17-50-19]# cat xtrabackup_binlog_info
+binlog.000010 120
+
+4、 从库创建与主库相同的备份目录
+[root@mysql01 ~]# mkdir -p /xtrabackup/full
+[root@mysql01 ~]# chown -R mysql:mysql /xtrabackup/full/
+
+5、 主库将备份 scp 到从库
+[root@mysql02 full]# pwd
+/xtrabackup/full
+[root@mysql02 full]# scp -r 2017-06-10_17-50-19 10.219.24.22:/xtrabackup/full
+6、 从库查看scp过来的备份
+[root@mysql01 ~]# cd /xtrabackup/full/2017-06-10_17-50-19/
+[root@mysql01 2017-06-10_17-50-19]# ll
+total 12320
+-rw-r-----. 1 root root 419 Jun 10 18:01 backup-my.cnf
+-rw-r-----. 1 root root 12582912 Jun 10 18:01 ibdata1
+drwxr-x---. 2 root root 4096 Jun 10 18:01 mysql
+drwxr-x---. 2 root root 4096 Jun 10 18:01 performance_schema
+drwxr-x---. 2 root root 4096 Jun 10 18:01 test
+-rw-r-----. 1 root root 18 Jun 10 18:01 xtrabackup_binlog_info
+-rw-r-----. 1 root root 113 Jun 10 18:01 xtrabackup_checkpoints
+-rw-r-----. 1 root root 482 Jun 10 18:01 xtrabackup_info
+-rw-r-----. 1 root root 2560 Jun 10 18:01 xtrabackup_logfile
+
+7、 主库创建同步用户
+mysql> GRANT replication slave ON *.* TO 'slave25'@'%' IDENTIFIED BY 'oracle';
+Query OK, 0 rows affected (0.05 sec)
+
+8、 从库恢复主库数据
+-- 从库将原有datadir文件夹重命名到新位置，并创建原文件夹
+[root@mysql01 ~]# mv /data/mysql /data/mysqlbak
+[root@mysql01 ~]# mkdir -p /data/mysql
+-- innobackupex apply-log
+[root@mysql01 ~]# innobackupex --apply-log --user=oracle \
+--password=oracle --port=3606 /xtrabackup/full/2017-06-10_17-50-19/
+-- innobackupex copy 恢复的文件到原来的数据位置
+[root@mysql01 mysql]# innobackupex --defaults-file=/etc/my.cnf --user=root \
+--copy-back /xtrabackup/full/2017-06-10_17-50-19/
+
+170610 18:25:11 completed OK!
+-- 创建binlog目录与 relaylog 目录并赋权
+[root@mysql01 ~]# mkdir -p /data/mysql/binarylog
+[root@mysql01 ~]# mkdir -p /data/mysql/relaylog/
+[root@mysql01 mysql]# chown -R mysql:mysql /data/mysql
+
+9、 从库配置与检测
+-- 从库启动
+[root@mysql01 mysql]# mysqld_safe --defaults-file=/etc/my.cnf &
+-- 从库指定与主库同步的基本信息
+mysql>
+change master to
+master_host='10.219.24.25',
+master_port=3306,
+master_user='slave25',
+master_password='oracle',
+master_log_file='binlog.000010',
+master_log_pos=120;
+Query OK, 0 rows affected, 2 warnings (0.04 sec)
+
+参数解释：
+MASTER_HOST : 设置要连接的主服务器的ip地址
+MASTER_USER : 设置要连接的主服务器的用户名
+MASTER_PASSWORD : 设置要连接的主服务器的密码
+MASTER_LOG_FILE : 设置要连接的主服务器的bin日志的日志名称
+MASTER_LOG_POS : 设置要连接的主服务器的bin日志的记录位置
+-- 启动slave 状态(开始监听msater的变化)
+mysql> start slave;
+Query OK, 0 rows affected, 1 warning (0.00 sec)
+-- 查看slave的状态.
+mysql> show slave status \G;
+*************************** 1. row ***************************
+Slave_IO_State: Waiting for master to send event
+Master_Host: 10.219.24.25 #主库 IP
+Master_User: slave25 # 主库复制的用户
+Master_Port: 3306 # 主库 mysqld
+Connect_Retry: 60
+Master_Log_File: binlog.000010 #io_thread 读取主库 master_log_file
+Read_Master_Log_Pos: 717 # io_thread 读取主库 master_log_pos
+Relay_Log_File: relay.000002
+Relay_Log_Pos: 877
+Relay_Master_Log_File: binlog.000010 #sql_thread 执行主库的 master_log_file
+Slave_IO_Running: Yes # 关键的，io_thread 是否 running
+Slave_SQL_Running: Yes # 关键的，sql_thread 是否 running
+Replicate_Do_DB:
+Replicate_Ignore_DB:
+Replicate_Do_Table:
+Replicate_Ignore_Table:
+Replicate_Wild_Do_Table:
+Replicate_Wild_Ignore_Table:
+Last_Errno: 0
+Last_Error:
+Skip_Counter: 0
+Exec_Master_Log_Pos: 717 #sql_thread 执行主库的 master_log_pos
+Relay_Log_Space: 1040
+Until_Condition: None
+Until_Log_File:
+Until_Log_Pos: 0
+Master_SSL_Allowed: No
+Master_SSL_CA_File:
+Master_SSL_CA_Path:
+Master_SSL_Cert:
+Master_SSL_Cipher:
+Master_SSL_Key:
+Seconds_Behind_Master: 0 # 从库 的延迟
+Master_SSL_Verify_Server_Cert: No
+Last_IO_Errno: 0
+Last_IO_Error:
+Last_SQL_Errno: 0
+Last_SQL_Error:
+Replicate_Ignore_Server_Ids:
+Master_Server_Id: 25
+Master_UUID: 29d68531-4cf9-11e7-8e1f-000c297c4100
+Master_Info_File: /data/mysql/master.info
+SQL_Delay: 0
+SQL_Remaining_Delay: NULL
+Slave_SQL_Running_State: Slave has read all relay log; waiting for the slave I/O thread to update it
+Master_Retry_Count: 86400
+Master_Bind:
+Last_IO_Error_Timestamp:
+Last_SQL_Error_Timestamp:
+Master_SSL_Crl:
+Master_SSL_Crlpath:
+Retrieved_Gtid_Set:
+Executed_Gtid_Set:
+Auto_Position: 0
+1 row in set (0.00 sec)
+
+ERROR:
+No query specified
+
+10、 主从同步检查
+-- 主库
+mysql> create database repl;
+Query OK, 1 row affected (0.00 sec)
+mysql> use repl
+Database changed
+mysql> create table repl (id int);
+Query OK, 0 rows affected (0.02 sec)
+mysql> insert into repl values(1);
+Query OK, 1 row affected (0.00 sec)
+
+-- 从库
+mysql> show databases;
++--------------------+
+| Database |
++--------------------+
+| information_schema |
+| binarylog |
+| mysql |
+| performance_schema |
+| relaylog |
+| repl |
+| test |
++--------------------+
+7 rows in set (0.00 sec)
+mysql> use repl
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+Database changed
+mysql> select * from repl;
++------+
+| id |
++------+
+| 1 |
++------+
+1 row in set (0.00 sec) >一主一从同步成功！
+
+##################################################
+#至此A到B的复制已经配置完成，下面配置从B到A的复制。#
+##################################################
+
+声明> 下面操作中 新主库即为原从库（10.219.24.22） 新从库为原主库（10.219.24.25）
+
+11、 新主库创建同步用户
+mysql> GRANT replication slave ON *.* TO 'slave22'@'%' IDENTIFIED BY 'oracle';
+Query OK, 0 rows affected (0.00 sec)
+
+12、 新主库查看 binlog 文件号与 position 点
+mysql> show master status;
++---------------+----------+--------------+------------------+-------------------+
+| File | Position | Binlog_Do_DB | Binlog_Ignore_DB | Executed_Gtid_Set |
++---------------+----------+--------------+------------------+-------------------+
+| binlog.000004 | 313 | | | |
++---------------+----------+--------------+------------------+-------------------+
+1 row in set (0.00 sec)
+
+**NOTE: 一般来说，在搭建好上述主从后，不断执行show master status， POSITION会发生变化，可暂时stop slave，其POSITION不再发生变化**
+
+
+13、 新从库指定与主库同步的基本信息
+mysql>
+change master to
+master_host='10.219.24.22',
+master_port=3306,
+master_user='slave22',
+master_password='oracle',
+master_log_file='binlog.000004',
+master_log_pos=313;
+Query OK, 0 rows affected, 2 warnings (0.04 sec)
+
+14、新从库打开 slave 复制功能
+mysql> start slave;
+Query OK, 0 rows affected (0.00 sec)
+15、 新从库检测同步复制状态
+mysql> show slave status \G;
+*************************** 1. row ***************************
+Slave_IO_State: Waiting for master to send event
+Master_Host: 10.219.24.22
+Master_User: slave22
+Master_Port: 3306
+Connect_Retry: 60
+Master_Log_File: binlog.000004
+Read_Master_Log_Pos: 313
+Relay_Log_File: relay.000002
+Relay_Log_Pos: 280
+Relay_Master_Log_File: binlog.000004
+Slave_IO_Running: Yes
+Slave_SQL_Running: Yes
+Replicate_Do_DB:
+Replicate_Ignore_DB:
+Replicate_Do_Table:
+Replicate_Ignore_Table:
+Replicate_Wild_Do_Table:
+Replicate_Wild_Ignore_Table:
+Last_Errno: 0
+Last_Error:
+Skip_Counter: 0
+Exec_Master_Log_Pos: 313
+Relay_Log_Space: 443
+Until_Condition: None
+Until_Log_File:
+Until_Log_Pos: 0
+Master_SSL_Allowed: No
+Master_SSL_CA_File:
+Master_SSL_CA_Path:
+Master_SSL_Cert:
+Master_SSL_Cipher:
+Master_SSL_Key:
+Seconds_Behind_Master: 0
+Master_SSL_Verify_Server_Cert: No
+Last_IO_Errno: 0
+Last_IO_Error:
+Last_SQL_Errno: 0
+Last_SQL_Error:
+Replicate_Ignore_Server_Ids:
+Master_Server_Id: 22
+Master_UUID: 70023652-4dc7-11e7-9360-000c2944297a
+Master_Info_File: /data/mysql/master.info
+SQL_Delay: 0
+SQL_Remaining_Delay: NULL
+Slave_SQL_Running_State: Slave has read all relay log; waiting for the slave I/O thread to update it
+Master_Retry_Count: 86400
+Master_Bind:
+Last_IO_Error_Timestamp:
+Last_SQL_Error_Timestamp:
+Master_SSL_Crl:
+Master_SSL_Crlpath:
+Retrieved_Gtid_Set:
+Executed_Gtid_Set:
+Auto_Position: 0
+1 row in set (0.00 sec)
+
+ERROR:
+No query specified
+
+-- 新从库测试数据同步状态
+mysql> create database mm_repl;
+Query OK, 1 row affected (0.00 sec)
+mysql> use mm_repl;
+Database changed
+mysql> create table mm_repl(id int auto_increment,name varchar(10), primary key(id));
+Query OK, 0 rows affected (0.01 sec)
+mysql> insert into mm_repl(name) values("andy"),("taoYe");
+Query OK, 1 row affected (0.00 sec)
+mysql> select * from mm_repl;
++----+-------+
+| id | name |
++----+-------+
+| 1 | andy |
+| 11 | taoYe |
++----+-------+
+2 rows in set (0.00 sec)
+-- 新主库测试数据同步状态
+mysql> select * from mm_repl;
++----+-------+
+| id | name |
++----+-------+
+| 1 | andy |
+| 11 | taoYe |
++----+-------+
+2 rows in set (0.00 sec)
+mysql> insert into mm_repl(name) values("andy"),("taoYe");
+Query OK, 2 rows affected (0.00 sec)
+Records: 2 Duplicates: 0 Warnings: 0
+mysql> select * from mm_repl;
++----+-------+
+| id | name |
++----+-------+
+| 1 | andy |
+| 11 | taoYe |
+| 12 | andy |
+| 22 | taoYe |
++----+-------+
+4 rows in set (0.00 sec)
+-- 新从库检查同步复制
+mysql> select * from mm_repl;
++----+-------+
+| id | name |
++----+-------+
+| 1 | andy |
+| 11 | taoYe |
+| 12 | andy |
+| 22 | taoYe |
++----+-------+
+4 rows in set (0.00 sec) >主主同步测试成功

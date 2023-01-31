@@ -1,0 +1,1 @@
+find . -name "*SNAPSHOT.jar"|xargs -i cp {} ./oracle-jar/

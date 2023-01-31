@@ -1,0 +1,24 @@
+enq: TX - index contention
+ 
+Most probable reasons are
+o Indexes on the tables which are being accessed heavily from the application. o Indexes on table columns which are monotonically growing. In other words, most of the index insertions occur only on the right edge of an index.
+o Large data purge has been performed, followed by high concurrent insert（大批量并发的insert）
+
+When running an OLTP systems, it is possible to see high TX enqueue contention on index associated with tables, which are having high concurrency from the application.  This usually happens when the application performs lot of INSERTs and DELETEs concurrently. For RAC system, the concurrent INSERTs and DELETEs could happen from all the instances .
+
+The reason for this is the index block splits while inserting a new row into the index. The transactions will have to wait for TX lock in mode 4, until the session that is doing the block splits completes the operations.（索引块的分裂）
+A session will initiate a index block split, when it can'??t find space in an index block where it needs to insert a new row. Before starting the split, it would clean out all the keys in the block to check whether there is enough sufficient space in the block.deleted
+
+Splitter has to do the following activities:
+
+    o          Allocate a new block.
+    o          Copy a percentage of rows to the new buffer.
+    o          Add the new buffer to the index structure and commit the operation.
+
+In RAC environments, this could be an expensive operation, due to the global cache operations included. The impact will be more if the split is happening at a branch or root block level.
+
+Solutions:解决方法
+a) Rebuild the index  as reverse key indexes or hash partition the indexes which are listed in the Segments by Row Lock Waits' of the AWR reports  重建索引
+b) Consider increasing the CACHE size of the sequences  增大cache值
+c) Rebuild or shrink associated index after huge amount of data purge   大批量的数据改动后 索引的收缩或重建
+d) Increase PCT_FREE for the index 增大索引块的PCT_FREE

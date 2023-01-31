@@ -1,0 +1,1 @@
+Give up deploying pip repository , because no enough volume(> 3T) to persist pip packages.

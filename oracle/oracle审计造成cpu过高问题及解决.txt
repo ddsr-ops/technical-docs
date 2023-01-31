@@ -1,0 +1,154 @@
+Oracle数据库经常会遇到CPU利用率很高的情况，这种时候大都是数据库中存在着严重性能低下的SQL语句，这种SQL语句大大的消耗了CPU资源，导致整个系统性能低下。当然，引起严重性能低下的SQL语句的原因是多方面的，具体的原因要具体的来分析，下面通过一个实际的案例来说明如何来诊断和解决CPU利用率高的这类问题。
+
+操作系统：Linux7.0
+
+数据库：Oracle11.2.0.4
+
+问题描述：现场工程师汇报数据库非常慢，几乎所有应用操作均无法正常进行。不久后，系统断开连接，宕机。
+
+首先重启系统后，启动数据库。执行top发现CPU资源几乎消耗殆尽，存在很多占用CPU很高的进程，而内存和I/O都不高，具体如下：
+
+last pid: 26136;  load averages:  8.89,  8.91,  8.12                                                                      
+
+216 processes: 204 sleeping, 8 running, 4 on cpu
+
+CPU states:  0.6% idle, 97.3% user,  1.8% kernel,  0.2% iowait,  0.0% swap
+
+Memory: 8192M real, 1166M free, 14M swap in use, 8179M swap free
+
+PID USERNAME THR PRI NICE  SIZE   RES STATE   TIME    CPU COMMAND
+
+25725 oracle     1  50    0 4550M 4508M cpu2   12:23 11.23% oracle
+
+25774 oracle     1  41    0 4550M 4508M run    14:25 10.66% oracle
+
+26016 oracle     1  31    0 4550M 4508M run     5:41 10.37% oracle
+
+26010 oracle     1  41    0 4550M 4508M run     4:40  9.81% oracle
+
+26014 oracle     1  51    0 4550M 4506M cpu6    4:19  9.76% oracle
+
+25873 oracle     1  41    0 4550M 4508M run    12:10  9.45% oracle
+
+25723 oracle     1  50    0 4550M 4508M run    15:09  9.40% oracle
+
+26121 oracle     1  41    0 4550M 4506M cpu0    1:13  9.28% oracle
+
+25745 oracle     1  41    0 4551M 4512M run     9:33  9.28% oracle
+
+26136 oracle     1  41    0 4550M 4506M run     0:06  5.61% oracle
+
+  409 root      15  59    0 7168K 7008K sleep 173.1H  0.52% picld
+
+25653 oracle     1  59    0 4550M 4508M sleep   1:01  0.46% oracle
+
+25565 oracle     1  59    0 4550M 4508M sleep   0:07  0.24% oracle
+
+25703 oracle     1  59    0 4550M 4506M sleep   0:08  0.13% oracle
+
+25701 oracle     1  59    0 4550M 4509M sleep   0:23  0.10% oracle
+
+于是先查看数据库的告警日志ALERT文件，并没有发现有什么错误存在，日志显示数据库运行正常，排除数据库本身存在问题。
+
+然后查看这些占用CPU资源很高的Oracle进程究竟是在做什么操作，使用如下SQL语句：
+
+select sql_text,spid,v$session.program,process  from
+
+v$sqlarea,v$session,v$process
+
+where v$sqlarea.address=v$session.sql_address
+
+and v$sqlarea.hash_value=v$session.sql_hash_value
+
+and v$session.paddr=v$process.addr
+
+and v$process.spid in (PID);
+
+用top中占用CPU很高的进程的PID替换脚本中的PID,得到相应的Oracle进程所执行的SQL语句，发现占用CPU资源很高的进程都是执行同一个SQL语句：
+
+
+select username "username", to_char(timestamp,'DD-MON-YYYY HH24:MI:SS') "time_stamp", action_name "statement", os_username "os_username", userhost "userhost", returncode||decode(returncode,'1004','-Wrong Connection','1005','-NULL Password','1017','-Wrong Password','1045','-Insufficient Priviledge','0','-Login Accepted','--') "returncode" from sys.dba_audit_session where (sysdate - timestamp)*24 < 1 and returncode <> 0 order by timestamp;
+
+
+基本上可以肯定是这个SQL引起了系统CPU资源大量被占用，那究竟是什么原因造成这个SQL这么大量占用CPU资源呢，从上面的SQL语句中我们可以看到sys.dba_audit_session这张表，由此可以确定是由于审计的原因导致数据库占用大量CPU。
+
+查看数据库审计信息：
+
+SQL> show parameter audit
+
+
+NAME                                 TYPE        VALUE
+
+------------------------------------ ----------- ------------------------------
+
+audit_file_dest                      string      /u01/app/oracle/admin/orcl/adump
+
+audit_sys_operations                 boolean     FALSE
+
+audit_syslog_level                   string
+
+audit_trail                          string      DB
+
+可以看到数据库审计为开启状态，并且将audited record的存放在数据库里（sys.aud$）中。
+
+问题处理方法：
+
+1.如果审计不是必须的，可以关掉审计功能；
+
+SQL> alter system set audit_trail=none scope=spfile;
+
+SQL>showdown immediate;
+
+SQL>startup
+
+2.删除已有的审计信息
+
+可以直接truncate表aud$,
+
+或者采取dbms_audit_mgmt来清除。
+
+3.或者将aud$表移到另外一个表空间下，以减少system表空间的压力和被撑爆的风险。
+
+附：11g中有关audit_trail参数的设置说明：
+
+AUDIT_TRAIL
+Property	Description
+Parameter type	String
+Syntax	AUDIT_TRAIL = { none | os | db [, extended] | xml [, extended] }
+Default value	none
+Modifiable	No
+Basic	No
+
+AUDIT_TRAIL enables or disables database auditing.
+
+Values:
+
+none
+
+Disables standard auditing. This value is the default if the AUDIT_TRAIL parameter was not set in the initialization parameter file or if you created the database using a method other than Database Configuration Assistant. If you created the database using Database Configuration Assistant, then the default is db.
+
+os
+
+Directs all audit records to an operating system file. Oracle recommends that you use the os setting, particularly if you are using an ultra-secure database configuration.
+
+db
+
+Directs audit records to the database audit trail (the SYS.AUD$ table), except for records that are always written to the operating system audit trail. Use this setting for a general database for manageability.
+
+If the database was started in read-only mode with AUDIT_TRAIL set to db, then Oracle Database internally sets AUDIT_TRAIL to os. Check the alert log for details.
+
+db, extended
+
+Performs all actions of AUDIT_TRAIL=db, and also populates the SQL bind and SQL text CLOB-type columns of the SYS.AUD$ table, when available. These two columns are populated only when this parameter is specified.
+
+If the database was started in read-only mode with AUDIT_TRAIL set to db, extended, then Oracle Database internally sets AUDIT_TRAIL to os. Check the alert log for details.
+
+xml
+
+Writes to the operating system audit record file in XML format. Records all elements of the AuditRecord node except Sql_Text and Sql_Bind to the operating system XML audit file.
+
+xml, extended
+
+Performs all actions of AUDIT_TRAIL=xml, and populates the SQL bind and SQL text CLOB-type columns of the SYS.AUD$table, wherever possible. These columns are populated only when this parameter is specified.
+
+You can use the SQL AUDIT statement to set auditing options regardless of the setting of this parameter.

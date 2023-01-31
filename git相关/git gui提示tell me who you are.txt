@@ -1,0 +1,16 @@
+*** Please tell me who you are.
+ 4 
+ 5 Run
+ 6 
+ 7   git config --global user.email "you@example.com"
+ 8   git config --global user.name "Your Name"
+ 9 
+10 to set your account's default identity.
+11 Omit --global to set the identity only in this repository.
+
+
+
+git gui提示tell me who you are
+通过“同时”设置以下两个变量解决
+git config --global user.email "you@example.com"
+git config --global user.name "Your Name"

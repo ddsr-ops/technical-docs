@@ -1,0 +1,1 @@
+yum -y install cyrus-sasl cyrus-sasl-devel cyrus-sasl-lib

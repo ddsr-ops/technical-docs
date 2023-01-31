@@ -1,0 +1,3 @@
+No suitable driver found
+
+一般是connect-distributed.properties配置文件中plugin.path目录中无ojdbc8-12.2.0.1.jar

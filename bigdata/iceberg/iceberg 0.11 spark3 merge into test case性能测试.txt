@@ -1,0 +1,34 @@
+spark3 iceberg 0.11 merge into 测试
+
+merge into ...
+   on .. and data_dt = data_dt
+ when matched and data_dt = data_dt then ...
+
+data_dt为分区字段
+
+【CASE 1】
+total core 40，内核和内存比1:1， spark.sql.shuffle.partitions(sql并行度) 600
+所有地方不带分区字段耗时：30分钟
+on关键字后带分区字段耗时：25分钟
+matched关键字后带分区字段耗时：21分钟
+on和matched关键字后带分区字段耗时：20分钟
+
+【CASE 2】
+total core 80，内核和内存比1:1， spark.sql.shuffle.partitions(sql并行度) 600
+所有地方不带分区字段耗时：30分钟
+on关键字后带分区字段耗时：20分钟
+matched关键字后带分区字段耗时：16.5分钟
+on和matched关键字后带分区字段耗时：16分钟
+
+【CASE 3】
+total core 20，内核和内存比1:1， spark.sql.shuffle.partitions(sql并行度) 600
+matched关键字后带分区字段耗时：36分钟
+
+
+
+************************************************************
+The statement `merge into` has two bad side effects.
+1. Before joining,  It will sort the whole target table by the joining columns. By the time, the target table size becomes big.
+   It is more slow to sort the whole target table.
+2. `Merge into`, in fact, it overwrites the influenced partition. The size of overwritten partitions becomes more big as of snapshots in iceberg.
+   Because the partition was written once, the size of partition is bigger.

@@ -1,0 +1,1683 @@
+MySQL物理物理备份与还原工具xtraBackup
+（一）xtraBackup简介
+
+xtraBackup是Percona公司开发的一款MySQL数据库备份软件，在备份模式中属于物理备份。其显著特点是开源、免费、备份执行过程中不会阻塞事物、备份可压缩、支持全备和增量备份。
+
+ 
+
+（二）下载安装xtraBackup工具
+
+xtraBackup并没有随着MySQL安装包一起下载，需要单独到percona官网下载。注意，最新版的Percona XtraBackup 8.0不适用于MySQL 8.0以前的版本，我的数据库是MySQL5.7，因此下载2.4版本。
+
+（2.1）离线安装
+
+大部分公司服务器都不连接外网，离线安装是使用最多的方式。xtraBackup rpm包下载地址为：https://www.percona.com/downloads/Percona-XtraBackup-2.4/LATEST/。以下过程是在断网情况下执行的。
+
+STEP1：将rpm安装包传到服务器上
+
+[root@mysqlserver ~]# ls -l |grep percona
+-rw-r--r--  1 root root   7935884 Feb 11 16:19 percona-xtrabackup-24-2.4.18-1.el7.x86_64.rpm
+STEP2：安装rpm包，这里不要使用rpm -ivh去安装，因为该安装包需要其他依赖包，直接使用yum解决依赖问题
+
+[root@mysqlserver ~]# yum install -y percona-xtrabackup-24-2.4.18-1.el7.x86_64.rpm
+STEP3：确认安装结果
+
+[root@mysqlserver ~]# which xtrabackup
+/usr/bin/xtrabackup
+[root@mysqlserver ~]# which innobackupex
+/usr/bin/innobackupex
+ 
+
+（2.2）在线安装
+
+如果机器联网，可以直接使用yum源安装，这里以centos7服务器为例。
+
+STEP1:安装xtraBackup的yum源
+
+[root@mysqlserver /root]# yum install -y https://repo.percona.com/yum/percona-release-latest.noarch.rpm
+STEP2：确认xtrabackup安装包（可跳过）
+
+
+[root@mysqlserver /root]# yum list | grep percona
+...
+percona-xtrabackup-22-debuginfo.x86_64      2.2.13-1.el7               percona-release-x86_64
+percona-xtrabackup-24.x86_64                2.4.18-1.el7               percona-release-x86_64
+percona-xtrabackup-24-debuginfo.x86_64      2.4.18-1.el7               percona-release-x86_64
+percona-xtrabackup-80.x86_64                8.0.9-1.el7                percona-release-x86_64
+percona-xtrabackup-80-debuginfo.x86_64      8.0.9-1.el7                percona-release-x86_64
+percona-xtrabackup-debuginfo.x86_64         2.3.10-1.el7               percona-release-x86_64
+percona-xtrabackup-test.x86_64              2.3.10-1.el7               percona-release-x86_64
+percona-xtrabackup-test-22.x86_64           2.2.13-1.el7               percona-release-x86_64
+percona-xtrabackup-test-24.x86_64           2.4.18-1.el7               percona-release-x86_64
+percona-xtrabackup-test-80.x86_64           8.0.9-1.el7                percona-release-x86_64
+percona-zabbix-templates.noarch             1.1.8-1                    percona-release-noarch
+...
+
+STEP3：安装xtraBackup
+
+[root@mysqlserver /root]# yum install -y percona-xtrabackup-24
+STEP4：确认安装结果
+
+[root@mysqlserver /root]# which xtrabackup
+/usr/bin/xtrabackup
+[root@mysqlserver /root]# which innobackupex
+/usr/bin/innobackupex
+ 
+
+xtraBackup包含2个主要的工具：xtrabackup和innobackupex。两者区别如下：
+
+xtrbackup只能备份innodb和xtradb引擎的表，对于其他引擎的表则无能为力，包括MYISAM。
+innobackupex是一个封装了xtrbackup的Perl脚本，除了支持xtrabackup工具可以备份的表以外，还支持MYISAM、CSV、memory(仅表结构)等，比xtrabackup强大。
+因为innobackupex工具更为强大，所以后续直接使用innobackupex来执行备份和恢复。
+
+ 
+
+（三）使用innobackupex备份数据库
+
+innobackupex支持全备和增量备份，对于该工具的用法，可以直接使用“--help”命令查看
+
+[root@mysqlserver ~]# innobackupex --help
+ 
+
+（3.1）使用innobackupex来执行全备
+
+执行全备的命令如下：
+
+[root@mysqlserver ~]# innobackupex --user=root --password='123456' --default-file='/etc/my.cnf' /backup 
+ 参数信息：
+
+--user                  ：连接数据库使用的用户名
+
+--password          ：连接数据库使用的密码
+
+--default-file         ：指出MySQL的参数配置文件路径
+
+[backup_dir]        ：备份集存放地址
+
+ 
+
+innobackupex备份执行过程如下：
+
+
+
+[root@mysqlserver ~]# innobackupex --user=root --password='123456' --default-file='/etc/my.cnf' /backup 
+xtrabackup: recognized server arguments: --datadir=/usr/local/mysql/data 
+xtrabackup: recognized client arguments: 
+200211 16:42:47 innobackupex: Starting the backup operation
+
+IMPORTANT: Please check that the backup run completes successfully.
+           At the end of a successful backup run innobackupex
+           prints "completed OK!".
+
+200211 16:42:47  version_check Connecting to MySQL server with DSN 'dbi:mysql:;mysql_read_default_group=xtrabackup;mysql_socket=/tmp/mysql.soc' as 'root'  (using password: YES).
+200211 16:42:47  version_check Connected to MySQL server
+200211 16:42:47  version_check Executing a version check against the server...
+200211 16:42:47  version_check Done.
+200211 16:42:47 Connecting to MySQL server host: localhost, user: root, password: set, port: not set, socket: /tmp/mysql.soc
+Using server version 5.7.27
+innobackupex version 2.4.18 based on MySQL server 5.7.26 Linux (x86_64) (revision id: 29b4ca5)
+xtrabackup: uses posix_fadvise().
+xtrabackup: cd to /usr/local/mysql/data
+xtrabackup: open files limit requested 0, set to 1024
+xtrabackup: using the following InnoDB configuration:
+xtrabackup:   innodb_data_home_dir = .
+xtrabackup:   innodb_data_file_path = ibdata1:12M:autoextend
+xtrabackup:   innodb_log_group_home_dir = ./
+xtrabackup:   innodb_log_files_in_group = 2
+xtrabackup:   innodb_log_file_size = 50331648
+InnoDB: Number of pools: 1
+200211 16:42:47 >> log scanned up to (2625691)
+xtrabackup: Generating a list of tablespaces
+InnoDB: Allocated tablespace ID 2 for mysql/plugin, old maximum was 0
+200211 16:42:47 [01] Copying ./ibdata1 to /backup/2020-02-11_16-42-47/ibdata1
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/plugin.ibd to /backup/2020-02-11_16-42-47/mysql/plugin.ibd
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/servers.ibd to /backup/2020-02-11_16-42-47/mysql/servers.ibd
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/help_topic.ibd to /backup/2020-02-11_16-42-47/mysql/help_topic.ibd
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/help_category.ibd to /backup/2020-02-11_16-42-47/mysql/help_category.ibd
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/help_relation.ibd to /backup/2020-02-11_16-42-47/mysql/help_relation.ibd
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/help_keyword.ibd to /backup/2020-02-11_16-42-47/mysql/help_keyword.ibd
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/time_zone_name.ibd to /backup/2020-02-11_16-42-47/mysql/time_zone_name.ibd
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/time_zone.ibd to /backup/2020-02-11_16-42-47/mysql/time_zone.ibd
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/time_zone_transition.ibd to /backup/2020-02-11_16-42-47/mysql/time_zone_transition.ibd
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/time_zone_transition_type.ibd to /backup/2020-02-11_16-42-47/mysql/time_zone_transition_type.ibd
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/time_zone_leap_second.ibd to /backup/2020-02-11_16-42-47/mysql/time_zone_leap_second.ibd
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/innodb_table_stats.ibd to /backup/2020-02-11_16-42-47/mysql/innodb_table_stats.ibd
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/innodb_index_stats.ibd to /backup/2020-02-11_16-42-47/mysql/innodb_index_stats.ibd
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/slave_relay_log_info.ibd to /backup/2020-02-11_16-42-47/mysql/slave_relay_log_info.ibd
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/slave_master_info.ibd to /backup/2020-02-11_16-42-47/mysql/slave_master_info.ibd
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/slave_worker_info.ibd to /backup/2020-02-11_16-42-47/mysql/slave_worker_info.ibd
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/gtid_executed.ibd to /backup/2020-02-11_16-42-47/mysql/gtid_executed.ibd
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/server_cost.ibd to /backup/2020-02-11_16-42-47/mysql/server_cost.ibd
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/engine_cost.ibd to /backup/2020-02-11_16-42-47/mysql/engine_cost.ibd
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/sys_config.ibd to /backup/2020-02-11_16-42-47/sys/sys_config.ibd
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./test_database/test01.ibd to /backup/2020-02-11_16-42-47/test_database/test01.ibd
+200211 16:42:48 [01]        ...done
+200211 16:42:48 >> log scanned up to (2625691)
+200211 16:42:48 Executing FLUSH NO_WRITE_TO_BINLOG TABLES...
+200211 16:42:48 Executing FLUSH TABLES WITH READ LOCK...
+200211 16:42:48 Starting to backup non-InnoDB tables and files
+200211 16:42:48 [01] Copying ./mysql/db.opt to /backup/2020-02-11_16-42-47/mysql/db.opt
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/db.frm to /backup/2020-02-11_16-42-47/mysql/db.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/db.MYI to /backup/2020-02-11_16-42-47/mysql/db.MYI
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/db.MYD to /backup/2020-02-11_16-42-47/mysql/db.MYD
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/user.frm to /backup/2020-02-11_16-42-47/mysql/user.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/user.MYI to /backup/2020-02-11_16-42-47/mysql/user.MYI
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/user.MYD to /backup/2020-02-11_16-42-47/mysql/user.MYD
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/func.frm to /backup/2020-02-11_16-42-47/mysql/func.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/func.MYI to /backup/2020-02-11_16-42-47/mysql/func.MYI
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/func.MYD to /backup/2020-02-11_16-42-47/mysql/func.MYD
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/plugin.frm to /backup/2020-02-11_16-42-47/mysql/plugin.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/servers.frm to /backup/2020-02-11_16-42-47/mysql/servers.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/tables_priv.frm to /backup/2020-02-11_16-42-47/mysql/tables_priv.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/tables_priv.MYI to /backup/2020-02-11_16-42-47/mysql/tables_priv.MYI
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/tables_priv.MYD to /backup/2020-02-11_16-42-47/mysql/tables_priv.MYD
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/columns_priv.frm to /backup/2020-02-11_16-42-47/mysql/columns_priv.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/columns_priv.MYI to /backup/2020-02-11_16-42-47/mysql/columns_priv.MYI
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/columns_priv.MYD to /backup/2020-02-11_16-42-47/mysql/columns_priv.MYD
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/help_topic.frm to /backup/2020-02-11_16-42-47/mysql/help_topic.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/help_category.frm to /backup/2020-02-11_16-42-47/mysql/help_category.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/help_relation.frm to /backup/2020-02-11_16-42-47/mysql/help_relation.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/help_keyword.frm to /backup/2020-02-11_16-42-47/mysql/help_keyword.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/time_zone_name.frm to /backup/2020-02-11_16-42-47/mysql/time_zone_name.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/time_zone.frm to /backup/2020-02-11_16-42-47/mysql/time_zone.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/time_zone_transition.frm to /backup/2020-02-11_16-42-47/mysql/time_zone_transition.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/time_zone_transition_type.frm to /backup/2020-02-11_16-42-47/mysql/time_zone_transition_type.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/time_zone_leap_second.frm to /backup/2020-02-11_16-42-47/mysql/time_zone_leap_second.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/proc.frm to /backup/2020-02-11_16-42-47/mysql/proc.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/proc.MYI to /backup/2020-02-11_16-42-47/mysql/proc.MYI
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/proc.MYD to /backup/2020-02-11_16-42-47/mysql/proc.MYD
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/procs_priv.frm to /backup/2020-02-11_16-42-47/mysql/procs_priv.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/procs_priv.MYI to /backup/2020-02-11_16-42-47/mysql/procs_priv.MYI
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/procs_priv.MYD to /backup/2020-02-11_16-42-47/mysql/procs_priv.MYD
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/general_log.frm to /backup/2020-02-11_16-42-47/mysql/general_log.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/general_log.CSM to /backup/2020-02-11_16-42-47/mysql/general_log.CSM
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/general_log.CSV to /backup/2020-02-11_16-42-47/mysql/general_log.CSV
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/slow_log.frm to /backup/2020-02-11_16-42-47/mysql/slow_log.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/slow_log.CSM to /backup/2020-02-11_16-42-47/mysql/slow_log.CSM
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/slow_log.CSV to /backup/2020-02-11_16-42-47/mysql/slow_log.CSV
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/event.frm to /backup/2020-02-11_16-42-47/mysql/event.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/event.MYI to /backup/2020-02-11_16-42-47/mysql/event.MYI
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/event.MYD to /backup/2020-02-11_16-42-47/mysql/event.MYD
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/ndb_binlog_index.frm to /backup/2020-02-11_16-42-47/mysql/ndb_binlog_index.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/ndb_binlog_index.MYI to /backup/2020-02-11_16-42-47/mysql/ndb_binlog_index.MYI
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/ndb_binlog_index.MYD to /backup/2020-02-11_16-42-47/mysql/ndb_binlog_index.MYD
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/innodb_table_stats.frm to /backup/2020-02-11_16-42-47/mysql/innodb_table_stats.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/innodb_index_stats.frm to /backup/2020-02-11_16-42-47/mysql/innodb_index_stats.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/slave_relay_log_info.frm to /backup/2020-02-11_16-42-47/mysql/slave_relay_log_info.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/slave_master_info.frm to /backup/2020-02-11_16-42-47/mysql/slave_master_info.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/slave_worker_info.frm to /backup/2020-02-11_16-42-47/mysql/slave_worker_info.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/gtid_executed.frm to /backup/2020-02-11_16-42-47/mysql/gtid_executed.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/server_cost.frm to /backup/2020-02-11_16-42-47/mysql/server_cost.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/engine_cost.frm to /backup/2020-02-11_16-42-47/mysql/engine_cost.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/proxies_priv.frm to /backup/2020-02-11_16-42-47/mysql/proxies_priv.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/proxies_priv.MYI to /backup/2020-02-11_16-42-47/mysql/proxies_priv.MYI
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./mysql/proxies_priv.MYD to /backup/2020-02-11_16-42-47/mysql/proxies_priv.MYD
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/db.opt to /backup/2020-02-11_16-42-47/sys/db.opt
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/version.frm to /backup/2020-02-11_16-42-47/sys/version.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/sys_config.frm to /backup/2020-02-11_16-42-47/sys/sys_config.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/statements_with_full_table_scans.frm to /backup/2020-02-11_16-42-47/sys/statements_with_full_table_scans.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/sys_config_insert_set_user.TRN to /backup/2020-02-11_16-42-47/sys/sys_config_insert_set_user.TRN
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/processlist.frm to /backup/2020-02-11_16-42-47/sys/processlist.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/sys_config.TRG to /backup/2020-02-11_16-42-47/sys/sys_config.TRG
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/statements_with_sorting.frm to /backup/2020-02-11_16-42-47/sys/statements_with_sorting.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/sys_config_update_set_user.TRN to /backup/2020-02-11_16-42-47/sys/sys_config_update_set_user.TRN
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024statements_with_sorting.frm to /backup/2020-02-11_16-42-47/sys/x@0024statements_with_sorting.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/innodb_buffer_stats_by_schema.frm to /backup/2020-02-11_16-42-47/sys/innodb_buffer_stats_by_schema.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/schema_index_statistics.frm to /backup/2020-02-11_16-42-47/sys/schema_index_statistics.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024innodb_buffer_stats_by_schema.frm to /backup/2020-02-11_16-42-47/sys/x@0024innodb_buffer_stats_by_schema.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/statements_with_temp_tables.frm to /backup/2020-02-11_16-42-47/sys/statements_with_temp_tables.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/innodb_buffer_stats_by_table.frm to /backup/2020-02-11_16-42-47/sys/innodb_buffer_stats_by_table.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024ps_schema_table_statistics_io.frm to /backup/2020-02-11_16-42-47/sys/x@0024ps_schema_table_statistics_io.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024innodb_buffer_stats_by_table.frm to /backup/2020-02-11_16-42-47/sys/x@0024innodb_buffer_stats_by_table.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/host_summary.frm to /backup/2020-02-11_16-42-47/sys/host_summary.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/innodb_lock_waits.frm to /backup/2020-02-11_16-42-47/sys/innodb_lock_waits.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024host_summary.frm to /backup/2020-02-11_16-42-47/sys/x@0024host_summary.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024innodb_lock_waits.frm to /backup/2020-02-11_16-42-47/sys/x@0024innodb_lock_waits.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/waits_by_user_by_latency.frm to /backup/2020-02-11_16-42-47/sys/waits_by_user_by_latency.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/schema_object_overview.frm to /backup/2020-02-11_16-42-47/sys/schema_object_overview.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/user_summary_by_file_io_type.frm to /backup/2020-02-11_16-42-47/sys/user_summary_by_file_io_type.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/schema_auto_increment_columns.frm to /backup/2020-02-11_16-42-47/sys/schema_auto_increment_columns.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/user_summary_by_file_io.frm to /backup/2020-02-11_16-42-47/sys/user_summary_by_file_io.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024schema_flattened_keys.frm to /backup/2020-02-11_16-42-47/sys/x@0024schema_flattened_keys.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024user_summary_by_file_io.frm to /backup/2020-02-11_16-42-47/sys/x@0024user_summary_by_file_io.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/schema_redundant_indexes.frm to /backup/2020-02-11_16-42-47/sys/schema_redundant_indexes.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/user_summary_by_statement_type.frm to /backup/2020-02-11_16-42-47/sys/user_summary_by_statement_type.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/ps_check_lost_instrumentation.frm to /backup/2020-02-11_16-42-47/sys/ps_check_lost_instrumentation.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/latest_file_io.frm to /backup/2020-02-11_16-42-47/sys/latest_file_io.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/waits_by_host_by_latency.frm to /backup/2020-02-11_16-42-47/sys/waits_by_host_by_latency.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024latest_file_io.frm to /backup/2020-02-11_16-42-47/sys/x@0024latest_file_io.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/waits_global_by_latency.frm to /backup/2020-02-11_16-42-47/sys/waits_global_by_latency.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/io_by_thread_by_latency.frm to /backup/2020-02-11_16-42-47/sys/io_by_thread_by_latency.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/user_summary_by_stages.frm to /backup/2020-02-11_16-42-47/sys/user_summary_by_stages.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024io_by_thread_by_latency.frm to /backup/2020-02-11_16-42-47/sys/x@0024io_by_thread_by_latency.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024user_summary_by_stages.frm to /backup/2020-02-11_16-42-47/sys/x@0024user_summary_by_stages.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/io_global_by_file_by_bytes.frm to /backup/2020-02-11_16-42-47/sys/io_global_by_file_by_bytes.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024schema_index_statistics.frm to /backup/2020-02-11_16-42-47/sys/x@0024schema_index_statistics.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024io_global_by_file_by_bytes.frm to /backup/2020-02-11_16-42-47/sys/x@0024io_global_by_file_by_bytes.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/user_summary.frm to /backup/2020-02-11_16-42-47/sys/user_summary.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/io_global_by_file_by_latency.frm to /backup/2020-02-11_16-42-47/sys/io_global_by_file_by_latency.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/schema_table_statistics.frm to /backup/2020-02-11_16-42-47/sys/schema_table_statistics.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024io_global_by_file_by_latency.frm to /backup/2020-02-11_16-42-47/sys/x@0024io_global_by_file_by_latency.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024user_summary.frm to /backup/2020-02-11_16-42-47/sys/x@0024user_summary.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/io_global_by_wait_by_bytes.frm to /backup/2020-02-11_16-42-47/sys/io_global_by_wait_by_bytes.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024schema_table_statistics.frm to /backup/2020-02-11_16-42-47/sys/x@0024schema_table_statistics.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024io_global_by_wait_by_bytes.frm to /backup/2020-02-11_16-42-47/sys/x@0024io_global_by_wait_by_bytes.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/host_summary_by_file_io_type.frm to /backup/2020-02-11_16-42-47/sys/host_summary_by_file_io_type.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/io_global_by_wait_by_latency.frm to /backup/2020-02-11_16-42-47/sys/io_global_by_wait_by_latency.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/schema_table_statistics_with_buffer.frm to /backup/2020-02-11_16-42-47/sys/schema_table_statistics_with_buffer.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024io_global_by_wait_by_latency.frm to /backup/2020-02-11_16-42-47/sys/x@0024io_global_by_wait_by_latency.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/host_summary_by_file_io.frm to /backup/2020-02-11_16-42-47/sys/host_summary_by_file_io.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/memory_by_user_by_current_bytes.frm to /backup/2020-02-11_16-42-47/sys/memory_by_user_by_current_bytes.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/schema_table_lock_waits.frm to /backup/2020-02-11_16-42-47/sys/schema_table_lock_waits.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024memory_by_user_by_current_bytes.frm to /backup/2020-02-11_16-42-47/sys/x@0024memory_by_user_by_current_bytes.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024host_summary_by_file_io.frm to /backup/2020-02-11_16-42-47/sys/x@0024host_summary_by_file_io.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/memory_by_host_by_current_bytes.frm to /backup/2020-02-11_16-42-47/sys/memory_by_host_by_current_bytes.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024schema_table_lock_waits.frm to /backup/2020-02-11_16-42-47/sys/x@0024schema_table_lock_waits.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024memory_by_host_by_current_bytes.frm to /backup/2020-02-11_16-42-47/sys/x@0024memory_by_host_by_current_bytes.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/statement_analysis.frm to /backup/2020-02-11_16-42-47/sys/statement_analysis.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/memory_by_thread_by_current_bytes.frm to /backup/2020-02-11_16-42-47/sys/memory_by_thread_by_current_bytes.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024statement_analysis.frm to /backup/2020-02-11_16-42-47/sys/x@0024statement_analysis.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024memory_by_thread_by_current_bytes.frm to /backup/2020-02-11_16-42-47/sys/x@0024memory_by_thread_by_current_bytes.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/host_summary_by_statement_type.frm to /backup/2020-02-11_16-42-47/sys/host_summary_by_statement_type.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/memory_global_by_current_bytes.frm to /backup/2020-02-11_16-42-47/sys/memory_global_by_current_bytes.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/statements_with_errors_or_warnings.frm to /backup/2020-02-11_16-42-47/sys/statements_with_errors_or_warnings.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024memory_global_by_current_bytes.frm to /backup/2020-02-11_16-42-47/sys/x@0024memory_global_by_current_bytes.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/metrics.frm to /backup/2020-02-11_16-42-47/sys/metrics.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/memory_global_total.frm to /backup/2020-02-11_16-42-47/sys/memory_global_total.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/host_summary_by_stages.frm to /backup/2020-02-11_16-42-47/sys/host_summary_by_stages.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024memory_global_total.frm to /backup/2020-02-11_16-42-47/sys/x@0024memory_global_total.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/session.frm to /backup/2020-02-11_16-42-47/sys/session.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024schema_table_statistics_with_buffer.frm to /backup/2020-02-11_16-42-47/sys/x@0024schema_table_statistics_with_buffer.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024statements_with_errors_or_warnings.frm to /backup/2020-02-11_16-42-47/sys/x@0024statements_with_errors_or_warnings.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/schema_tables_with_full_table_scans.frm to /backup/2020-02-11_16-42-47/sys/schema_tables_with_full_table_scans.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/schema_unused_indexes.frm to /backup/2020-02-11_16-42-47/sys/schema_unused_indexes.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024schema_tables_with_full_table_scans.frm to /backup/2020-02-11_16-42-47/sys/x@0024schema_tables_with_full_table_scans.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024host_summary_by_stages.frm to /backup/2020-02-11_16-42-47/sys/x@0024host_summary_by_stages.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024statements_with_full_table_scans.frm to /backup/2020-02-11_16-42-47/sys/x@0024statements_with_full_table_scans.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024ps_digest_avg_latency_distribution.frm to /backup/2020-02-11_16-42-47/sys/x@0024ps_digest_avg_latency_distribution.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024ps_digest_95th_percentile_by_avg_us.frm to /backup/2020-02-11_16-42-47/sys/x@0024ps_digest_95th_percentile_by_avg_us.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/statements_with_runtimes_in_95th_percentile.frm to /backup/2020-02-11_16-42-47/sys/statements_with_runtimes_in_95th_percentile.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024statements_with_runtimes_in_95th_percentile.frm to /backup/2020-02-11_16-42-47/sys/x@0024statements_with_runtimes_in_95th_percentile.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024statements_with_temp_tables.frm to /backup/2020-02-11_16-42-47/sys/x@0024statements_with_temp_tables.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024user_summary_by_file_io_type.frm to /backup/2020-02-11_16-42-47/sys/x@0024user_summary_by_file_io_type.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024user_summary_by_statement_type.frm to /backup/2020-02-11_16-42-47/sys/x@0024user_summary_by_statement_type.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/user_summary_by_statement_latency.frm to /backup/2020-02-11_16-42-47/sys/user_summary_by_statement_latency.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024user_summary_by_statement_latency.frm to /backup/2020-02-11_16-42-47/sys/x@0024user_summary_by_statement_latency.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024host_summary_by_file_io_type.frm to /backup/2020-02-11_16-42-47/sys/x@0024host_summary_by_file_io_type.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024host_summary_by_statement_type.frm to /backup/2020-02-11_16-42-47/sys/x@0024host_summary_by_statement_type.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/host_summary_by_statement_latency.frm to /backup/2020-02-11_16-42-47/sys/host_summary_by_statement_latency.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024host_summary_by_statement_latency.frm to /backup/2020-02-11_16-42-47/sys/x@0024host_summary_by_statement_latency.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/wait_classes_global_by_avg_latency.frm to /backup/2020-02-11_16-42-47/sys/wait_classes_global_by_avg_latency.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024wait_classes_global_by_avg_latency.frm to /backup/2020-02-11_16-42-47/sys/x@0024wait_classes_global_by_avg_latency.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/wait_classes_global_by_latency.frm to /backup/2020-02-11_16-42-47/sys/wait_classes_global_by_latency.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024wait_classes_global_by_latency.frm to /backup/2020-02-11_16-42-47/sys/x@0024wait_classes_global_by_latency.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024waits_by_user_by_latency.frm to /backup/2020-02-11_16-42-47/sys/x@0024waits_by_user_by_latency.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024waits_by_host_by_latency.frm to /backup/2020-02-11_16-42-47/sys/x@0024waits_by_host_by_latency.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024waits_global_by_latency.frm to /backup/2020-02-11_16-42-47/sys/x@0024waits_global_by_latency.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024processlist.frm to /backup/2020-02-11_16-42-47/sys/x@0024processlist.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/x@0024session.frm to /backup/2020-02-11_16-42-47/sys/x@0024session.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./sys/session_ssl_status.frm to /backup/2020-02-11_16-42-47/sys/session_ssl_status.frm
+200211 16:42:48 [01]        ...done
+200211 16:42:48 [01] Copying ./test_database/db.opt to /backup/2020-02-11_16-42-47/test_database/db.opt
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./test_database/test01.frm to /backup/2020-02-11_16-42-47/test_database/test01.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/db.opt to /backup/2020-02-11_16-42-47/performance_schema/db.opt
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/cond_instances.frm to /backup/2020-02-11_16-42-47/performance_schema/cond_instances.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/events_waits_current.frm to /backup/2020-02-11_16-42-47/performance_schema/events_waits_current.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/events_waits_history.frm to /backup/2020-02-11_16-42-47/performance_schema/events_waits_history.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/events_waits_history_long.frm to /backup/2020-02-11_16-42-47/performance_schema/events_waits_history_long.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/events_waits_summary_by_instance.frm to /backup/2020-02-11_16-42-47/performance_schema/events_waits_summary_by_instance.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/events_waits_summary_by_host_by_event_name.frm to /backup/2020-02-11_16-42-47/performance_schema/events_waits_summary_by_host_by_event_name.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/events_waits_summary_by_user_by_event_name.frm to /backup/2020-02-11_16-42-47/performance_schema/events_waits_summary_by_user_by_event_name.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/events_waits_summary_by_account_by_event_name.frm to /backup/2020-02-11_16-42-47/performance_schema/events_waits_summary_by_account_by_event_name.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/events_waits_summary_by_thread_by_event_name.frm to /backup/2020-02-11_16-42-47/performance_schema/events_waits_summary_by_thread_by_event_name.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/events_waits_summary_global_by_event_name.frm to /backup/2020-02-11_16-42-47/performance_schema/events_waits_summary_global_by_event_name.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/file_instances.frm to /backup/2020-02-11_16-42-47/performance_schema/file_instances.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/file_summary_by_event_name.frm to /backup/2020-02-11_16-42-47/performance_schema/file_summary_by_event_name.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/file_summary_by_instance.frm to /backup/2020-02-11_16-42-47/performance_schema/file_summary_by_instance.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/socket_instances.frm to /backup/2020-02-11_16-42-47/performance_schema/socket_instances.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/socket_summary_by_instance.frm to /backup/2020-02-11_16-42-47/performance_schema/socket_summary_by_instance.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/socket_summary_by_event_name.frm to /backup/2020-02-11_16-42-47/performance_schema/socket_summary_by_event_name.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/host_cache.frm to /backup/2020-02-11_16-42-47/performance_schema/host_cache.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/mutex_instances.frm to /backup/2020-02-11_16-42-47/performance_schema/mutex_instances.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/objects_summary_global_by_type.frm to /backup/2020-02-11_16-42-47/performance_schema/objects_summary_global_by_type.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/performance_timers.frm to /backup/2020-02-11_16-42-47/performance_schema/performance_timers.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/rwlock_instances.frm to /backup/2020-02-11_16-42-47/performance_schema/rwlock_instances.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/setup_actors.frm to /backup/2020-02-11_16-42-47/performance_schema/setup_actors.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/setup_consumers.frm to /backup/2020-02-11_16-42-47/performance_schema/setup_consumers.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/setup_instruments.frm to /backup/2020-02-11_16-42-47/performance_schema/setup_instruments.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/setup_objects.frm to /backup/2020-02-11_16-42-47/performance_schema/setup_objects.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/setup_timers.frm to /backup/2020-02-11_16-42-47/performance_schema/setup_timers.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/table_io_waits_summary_by_index_usage.frm to /backup/2020-02-11_16-42-47/performance_schema/table_io_waits_summary_by_index_usage.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/table_io_waits_summary_by_table.frm to /backup/2020-02-11_16-42-47/performance_schema/table_io_waits_summary_by_table.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/table_lock_waits_summary_by_table.frm to /backup/2020-02-11_16-42-47/performance_schema/table_lock_waits_summary_by_table.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/threads.frm to /backup/2020-02-11_16-42-47/performance_schema/threads.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/events_stages_current.frm to /backup/2020-02-11_16-42-47/performance_schema/events_stages_current.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/events_stages_history.frm to /backup/2020-02-11_16-42-47/performance_schema/events_stages_history.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/events_stages_history_long.frm to /backup/2020-02-11_16-42-47/performance_schema/events_stages_history_long.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/events_stages_summary_by_thread_by_event_name.frm to /backup/2020-02-11_16-42-47/performance_schema/events_stages_summary_by_thread_by_event_name.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/events_stages_summary_by_host_by_event_name.frm to /backup/2020-02-11_16-42-47/performance_schema/events_stages_summary_by_host_by_event_name.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/events_stages_summary_by_user_by_event_name.frm to /backup/2020-02-11_16-42-47/performance_schema/events_stages_summary_by_user_by_event_name.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/events_stages_summary_by_account_by_event_name.frm to /backup/2020-02-11_16-42-47/performance_schema/events_stages_summary_by_account_by_event_name.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/events_stages_summary_global_by_event_name.frm to /backup/2020-02-11_16-42-47/performance_schema/events_stages_summary_global_by_event_name.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/events_statements_current.frm to /backup/2020-02-11_16-42-47/performance_schema/events_statements_current.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/events_statements_history.frm to /backup/2020-02-11_16-42-47/performance_schema/events_statements_history.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/events_statements_history_long.frm to /backup/2020-02-11_16-42-47/performance_schema/events_statements_history_long.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/events_statements_summary_by_thread_by_event_name.frm to /backup/2020-02-11_16-42-47/performance_schema/events_statements_summary_by_thread_by_event_name.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/events_statements_summary_by_host_by_event_name.frm to /backup/2020-02-11_16-42-47/performance_schema/events_statements_summary_by_host_by_event_name.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/events_statements_summary_by_user_by_event_name.frm to /backup/2020-02-11_16-42-47/performance_schema/events_statements_summary_by_user_by_event_name.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/events_statements_summary_by_account_by_event_name.frm to /backup/2020-02-11_16-42-47/performance_schema/events_statements_summary_by_account_by_event_name.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/events_statements_summary_global_by_event_name.frm to /backup/2020-02-11_16-42-47/performance_schema/events_statements_summary_global_by_event_name.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/events_transactions_current.frm to /backup/2020-02-11_16-42-47/performance_schema/events_transactions_current.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/events_transactions_history.frm to /backup/2020-02-11_16-42-47/performance_schema/events_transactions_history.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/events_transactions_history_long.frm to /backup/2020-02-11_16-42-47/performance_schema/events_transactions_history_long.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/events_transactions_summary_by_thread_by_event_name.frm to /backup/2020-02-11_16-42-47/performance_schema/events_transactions_summary_by_thread_by_event_name.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/events_transactions_summary_by_host_by_event_name.frm to /backup/2020-02-11_16-42-47/performance_schema/events_transactions_summary_by_host_by_event_name.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/events_transactions_summary_by_user_by_event_name.frm to /backup/2020-02-11_16-42-47/performance_schema/events_transactions_summary_by_user_by_event_name.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/events_transactions_summary_by_account_by_event_name.frm to /backup/2020-02-11_16-42-47/performance_schema/events_transactions_summary_by_account_by_event_name.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/events_transactions_summary_global_by_event_name.frm to /backup/2020-02-11_16-42-47/performance_schema/events_transactions_summary_global_by_event_name.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/hosts.frm to /backup/2020-02-11_16-42-47/performance_schema/hosts.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/users.frm to /backup/2020-02-11_16-42-47/performance_schema/users.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/accounts.frm to /backup/2020-02-11_16-42-47/performance_schema/accounts.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/memory_summary_global_by_event_name.frm to /backup/2020-02-11_16-42-47/performance_schema/memory_summary_global_by_event_name.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/memory_summary_by_thread_by_event_name.frm to /backup/2020-02-11_16-42-47/performance_schema/memory_summary_by_thread_by_event_name.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/memory_summary_by_account_by_event_name.frm to /backup/2020-02-11_16-42-47/performance_schema/memory_summary_by_account_by_event_name.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/memory_summary_by_host_by_event_name.frm to /backup/2020-02-11_16-42-47/performance_schema/memory_summary_by_host_by_event_name.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/memory_summary_by_user_by_event_name.frm to /backup/2020-02-11_16-42-47/performance_schema/memory_summary_by_user_by_event_name.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/events_statements_summary_by_digest.frm to /backup/2020-02-11_16-42-47/performance_schema/events_statements_summary_by_digest.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/events_statements_summary_by_program.frm to /backup/2020-02-11_16-42-47/performance_schema/events_statements_summary_by_program.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/prepared_statements_instances.frm to /backup/2020-02-11_16-42-47/performance_schema/prepared_statements_instances.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/replication_connection_configuration.frm to /backup/2020-02-11_16-42-47/performance_schema/replication_connection_configuration.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/replication_group_member_stats.frm to /backup/2020-02-11_16-42-47/performance_schema/replication_group_member_stats.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/replication_group_members.frm to /backup/2020-02-11_16-42-47/performance_schema/replication_group_members.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/replication_connection_status.frm to /backup/2020-02-11_16-42-47/performance_schema/replication_connection_status.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/replication_applier_configuration.frm to /backup/2020-02-11_16-42-47/performance_schema/replication_applier_configuration.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/replication_applier_status.frm to /backup/2020-02-11_16-42-47/performance_schema/replication_applier_status.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/replication_applier_status_by_coordinator.frm to /backup/2020-02-11_16-42-47/performance_schema/replication_applier_status_by_coordinator.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/replication_applier_status_by_worker.frm to /backup/2020-02-11_16-42-47/performance_schema/replication_applier_status_by_worker.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/session_connect_attrs.frm to /backup/2020-02-11_16-42-47/performance_schema/session_connect_attrs.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/session_account_connect_attrs.frm to /backup/2020-02-11_16-42-47/performance_schema/session_account_connect_attrs.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/table_handles.frm to /backup/2020-02-11_16-42-47/performance_schema/table_handles.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/metadata_locks.frm to /backup/2020-02-11_16-42-47/performance_schema/metadata_locks.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/user_variables_by_thread.frm to /backup/2020-02-11_16-42-47/performance_schema/user_variables_by_thread.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/variables_by_thread.frm to /backup/2020-02-11_16-42-47/performance_schema/variables_by_thread.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/global_variables.frm to /backup/2020-02-11_16-42-47/performance_schema/global_variables.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/session_variables.frm to /backup/2020-02-11_16-42-47/performance_schema/session_variables.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/status_by_thread.frm to /backup/2020-02-11_16-42-47/performance_schema/status_by_thread.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/status_by_user.frm to /backup/2020-02-11_16-42-47/performance_schema/status_by_user.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/status_by_host.frm to /backup/2020-02-11_16-42-47/performance_schema/status_by_host.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/status_by_account.frm to /backup/2020-02-11_16-42-47/performance_schema/status_by_account.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/global_status.frm to /backup/2020-02-11_16-42-47/performance_schema/global_status.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [01] Copying ./performance_schema/session_status.frm to /backup/2020-02-11_16-42-47/performance_schema/session_status.frm
+200211 16:42:49 [01]        ...done
+200211 16:42:49 [00] Writing /backup/2020-02-11_16-42-47/2019-11-06_22-32-57/db.opt
+200211 16:42:49 [00]        ...done
+200211 16:42:49 [00] Writing /backup/2020-02-11_16-42-47/2019-11-06_22-33-49/db.opt
+200211 16:42:49 [00]        ...done
+200211 16:42:49 [00] Writing /backup/2020-02-11_16-42-47/2019-11-06_22-35-29/db.opt
+200211 16:42:49 [00]        ...done
+200211 16:42:49 [00] Writing /backup/2020-02-11_16-42-47/2019-11-06_22-35-36/db.opt
+200211 16:42:49 [00]        ...done
+200211 16:42:49 [00] Writing /backup/2020-02-11_16-42-47/2019-11-06_22-36-57/db.opt
+200211 16:42:49 [00]        ...done
+200211 16:42:49 [00] Writing /backup/2020-02-11_16-42-47/2019-11-06_22-37-24/db.opt
+200211 16:42:49 [00]        ...done
+200211 16:42:49 [00] Writing /backup/2020-02-11_16-42-47/2019-11-06_22-38-11/db.opt
+200211 16:42:49 [00]        ...done
+200211 16:42:49 Finished backing up non-InnoDB tables and files
+200211 16:42:49 Executing FLUSH NO_WRITE_TO_BINLOG ENGINE LOGS...
+xtrabackup: The latest check point (for incremental): '2625682'
+xtrabackup: Stopping log copying thread.
+.200211 16:42:49 >> log scanned up to (2625691)
+
+200211 16:42:49 Executing UNLOCK TABLES
+200211 16:42:49 All tables unlocked
+200211 16:42:49 [00] Copying ib_buffer_pool to /backup/2020-02-11_16-42-47/ib_buffer_pool
+200211 16:42:49 [00]        ...done
+200211 16:42:49 Backup created in directory '/backup/2020-02-11_16-42-47/'
+200211 16:42:49 [00] Writing /backup/2020-02-11_16-42-47/backup-my.cnf
+200211 16:42:49 [00]        ...done
+200211 16:42:49 [00] Writing /backup/2020-02-11_16-42-47/xtrabackup_info
+200211 16:42:49 [00]        ...done
+xtrabackup: Transaction log of lsn (2625682) to (2625691) was copied.
+200211 16:42:49 completed OK!
+
+ 
+
+最终会在备份路径下生成一个以时间"yyyy-mm-dd_hh:mi:ss"的文件。
+
+[root@mysqlserver backup]# pwd
+/backup
+[root@mysqlserver backup]# ls
+2020-02-11_16-42-47
+ 
+
+（3.2）使用innobackupex执行增量备份
+
+MySQL的增量备份与Oracle RMAN增量备份十分相似，仅仅备份那些发生过改变的块(MySQL叫页，page)，Oracle是通过SCN(system changer number)号来记录数据块的改变的，而MySQL是通过LSN(Log Sequence Number)来记录页的改变。每次全备或增量备份时，innobackupex都会在备份集中创建一个名为"xtrabackup_checkpoints"的文件，里面记录了最后修改的LSN号，在后续增量备份中，只要备份比该LSN大的page和二进制日志即可。
+
+执行增量备份的命令如下：
+
+[root@mysqlserver backup]# innobackupex --user=root --password='123456' --default-file='/etc/my.cnf' --incremental --incremental-basedir=2020-02-11_16-42-47 /backup/increm
+ 相对于全备来说，新增了2个参数：
+
+--incremental                ：代表创建增量备份
+
+--incremental-basedir   ：增量备份需要依赖于某次全备，该参数指定了全备的路径
+
+ 
+
+innobackupex增量备份执行过程如下：
+
+
+
+[root@mysqlserver backup]# innobackupex --user=root --password='123456' --default-file='/etc/my.cnf' --incremental --incremental-basedir=2020-02-11_16-42-47 /backup/increment
+xtrabackup: recognized server arguments: --datadir=/usr/local/mysql/data 
+xtrabackup: recognized client arguments: 
+200211 17:08:13 innobackupex: Starting the backup operation
+
+IMPORTANT: Please check that the backup run completes successfully.
+           At the end of a successful backup run innobackupex
+           prints "completed OK!".
+
+200211 17:08:13  version_check Connecting to MySQL server with DSN 'dbi:mysql:;mysql_read_default_group=xtrabackup;mysql_socket=/tmp/mysql.soc' as 'root'  (using password: YES).
+200211 17:08:13  version_check Connected to MySQL server
+200211 17:08:13  version_check Executing a version check against the server...
+200211 17:08:13  version_check Done.
+200211 17:08:13 Connecting to MySQL server host: localhost, user: root, password: set, port: not set, socket: /tmp/mysql.soc
+Using server version 5.7.27
+innobackupex version 2.4.18 based on MySQL server 5.7.26 Linux (x86_64) (revision id: 29b4ca5)
+incremental backup from 2625682 is enabled.
+xtrabackup: uses posix_fadvise().
+xtrabackup: cd to /usr/local/mysql/data
+xtrabackup: open files limit requested 0, set to 1024
+xtrabackup: using the following InnoDB configuration:
+xtrabackup:   innodb_data_home_dir = .
+xtrabackup:   innodb_data_file_path = ibdata1:12M:autoextend
+xtrabackup:   innodb_log_group_home_dir = ./
+xtrabackup:   innodb_log_files_in_group = 2
+xtrabackup:   innodb_log_file_size = 50331648
+InnoDB: Number of pools: 1
+200211 17:08:13 >> log scanned up to (2625691)
+xtrabackup: Generating a list of tablespaces
+InnoDB: Allocated tablespace ID 2 for mysql/plugin, old maximum was 0
+xtrabackup: using the full scan for incremental backup
+200211 17:08:13 [01] Copying ./ibdata1 to /backup/increment/2020-02-11_17-08-13/ibdata1.delta
+200211 17:08:13 [01]        ...done
+200211 17:08:13 [01] Copying ./mysql/plugin.ibd to /backup/increment/2020-02-11_17-08-13/mysql/plugin.ibd.delta
+200211 17:08:13 [01]        ...done
+200211 17:08:13 [01] Copying ./mysql/servers.ibd to /backup/increment/2020-02-11_17-08-13/mysql/servers.ibd.delta
+200211 17:08:13 [01]        ...done
+200211 17:08:13 [01] Copying ./mysql/help_topic.ibd to /backup/increment/2020-02-11_17-08-13/mysql/help_topic.ibd.delta
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/help_category.ibd to /backup/increment/2020-02-11_17-08-13/mysql/help_category.ibd.delta
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/help_relation.ibd to /backup/increment/2020-02-11_17-08-13/mysql/help_relation.ibd.delta
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/help_keyword.ibd to /backup/increment/2020-02-11_17-08-13/mysql/help_keyword.ibd.delta
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/time_zone_name.ibd to /backup/increment/2020-02-11_17-08-13/mysql/time_zone_name.ibd.delta
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/time_zone.ibd to /backup/increment/2020-02-11_17-08-13/mysql/time_zone.ibd.delta
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/time_zone_transition.ibd to /backup/increment/2020-02-11_17-08-13/mysql/time_zone_transition.ibd.delta
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/time_zone_transition_type.ibd to /backup/increment/2020-02-11_17-08-13/mysql/time_zone_transition_type.ibd.delta
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/time_zone_leap_second.ibd to /backup/increment/2020-02-11_17-08-13/mysql/time_zone_leap_second.ibd.delta
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/innodb_table_stats.ibd to /backup/increment/2020-02-11_17-08-13/mysql/innodb_table_stats.ibd.delta
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/innodb_index_stats.ibd to /backup/increment/2020-02-11_17-08-13/mysql/innodb_index_stats.ibd.delta
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/slave_relay_log_info.ibd to /backup/increment/2020-02-11_17-08-13/mysql/slave_relay_log_info.ibd.delta
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/slave_master_info.ibd to /backup/increment/2020-02-11_17-08-13/mysql/slave_master_info.ibd.delta
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/slave_worker_info.ibd to /backup/increment/2020-02-11_17-08-13/mysql/slave_worker_info.ibd.delta
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/gtid_executed.ibd to /backup/increment/2020-02-11_17-08-13/mysql/gtid_executed.ibd.delta
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/server_cost.ibd to /backup/increment/2020-02-11_17-08-13/mysql/server_cost.ibd.delta
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/engine_cost.ibd to /backup/increment/2020-02-11_17-08-13/mysql/engine_cost.ibd.delta
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/sys_config.ibd to /backup/increment/2020-02-11_17-08-13/sys/sys_config.ibd.delta
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./test_database/test01.ibd to /backup/increment/2020-02-11_17-08-13/test_database/test01.ibd.delta
+200211 17:08:14 [01]        ...done
+200211 17:08:14 >> log scanned up to (2625691)
+200211 17:08:14 Executing FLUSH NO_WRITE_TO_BINLOG TABLES...
+200211 17:08:14 Executing FLUSH TABLES WITH READ LOCK...
+200211 17:08:14 Starting to backup non-InnoDB tables and files
+200211 17:08:14 [01] Copying ./mysql/db.opt to /backup/increment/2020-02-11_17-08-13/mysql/db.opt
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/db.frm to /backup/increment/2020-02-11_17-08-13/mysql/db.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/db.MYI to /backup/increment/2020-02-11_17-08-13/mysql/db.MYI
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/db.MYD to /backup/increment/2020-02-11_17-08-13/mysql/db.MYD
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/user.frm to /backup/increment/2020-02-11_17-08-13/mysql/user.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/user.MYI to /backup/increment/2020-02-11_17-08-13/mysql/user.MYI
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/user.MYD to /backup/increment/2020-02-11_17-08-13/mysql/user.MYD
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/func.frm to /backup/increment/2020-02-11_17-08-13/mysql/func.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/func.MYI to /backup/increment/2020-02-11_17-08-13/mysql/func.MYI
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/func.MYD to /backup/increment/2020-02-11_17-08-13/mysql/func.MYD
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/plugin.frm to /backup/increment/2020-02-11_17-08-13/mysql/plugin.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/servers.frm to /backup/increment/2020-02-11_17-08-13/mysql/servers.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/tables_priv.frm to /backup/increment/2020-02-11_17-08-13/mysql/tables_priv.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/tables_priv.MYI to /backup/increment/2020-02-11_17-08-13/mysql/tables_priv.MYI
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/tables_priv.MYD to /backup/increment/2020-02-11_17-08-13/mysql/tables_priv.MYD
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/columns_priv.frm to /backup/increment/2020-02-11_17-08-13/mysql/columns_priv.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/columns_priv.MYI to /backup/increment/2020-02-11_17-08-13/mysql/columns_priv.MYI
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/columns_priv.MYD to /backup/increment/2020-02-11_17-08-13/mysql/columns_priv.MYD
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/help_topic.frm to /backup/increment/2020-02-11_17-08-13/mysql/help_topic.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/help_category.frm to /backup/increment/2020-02-11_17-08-13/mysql/help_category.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/help_relation.frm to /backup/increment/2020-02-11_17-08-13/mysql/help_relation.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/help_keyword.frm to /backup/increment/2020-02-11_17-08-13/mysql/help_keyword.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/time_zone_name.frm to /backup/increment/2020-02-11_17-08-13/mysql/time_zone_name.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/time_zone.frm to /backup/increment/2020-02-11_17-08-13/mysql/time_zone.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/time_zone_transition.frm to /backup/increment/2020-02-11_17-08-13/mysql/time_zone_transition.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/time_zone_transition_type.frm to /backup/increment/2020-02-11_17-08-13/mysql/time_zone_transition_type.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/time_zone_leap_second.frm to /backup/increment/2020-02-11_17-08-13/mysql/time_zone_leap_second.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/proc.frm to /backup/increment/2020-02-11_17-08-13/mysql/proc.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/proc.MYI to /backup/increment/2020-02-11_17-08-13/mysql/proc.MYI
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/proc.MYD to /backup/increment/2020-02-11_17-08-13/mysql/proc.MYD
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/procs_priv.frm to /backup/increment/2020-02-11_17-08-13/mysql/procs_priv.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/procs_priv.MYI to /backup/increment/2020-02-11_17-08-13/mysql/procs_priv.MYI
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/procs_priv.MYD to /backup/increment/2020-02-11_17-08-13/mysql/procs_priv.MYD
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/general_log.frm to /backup/increment/2020-02-11_17-08-13/mysql/general_log.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/general_log.CSM to /backup/increment/2020-02-11_17-08-13/mysql/general_log.CSM
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/general_log.CSV to /backup/increment/2020-02-11_17-08-13/mysql/general_log.CSV
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/slow_log.frm to /backup/increment/2020-02-11_17-08-13/mysql/slow_log.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/slow_log.CSM to /backup/increment/2020-02-11_17-08-13/mysql/slow_log.CSM
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/slow_log.CSV to /backup/increment/2020-02-11_17-08-13/mysql/slow_log.CSV
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/event.frm to /backup/increment/2020-02-11_17-08-13/mysql/event.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/event.MYI to /backup/increment/2020-02-11_17-08-13/mysql/event.MYI
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/event.MYD to /backup/increment/2020-02-11_17-08-13/mysql/event.MYD
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/ndb_binlog_index.frm to /backup/increment/2020-02-11_17-08-13/mysql/ndb_binlog_index.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/ndb_binlog_index.MYI to /backup/increment/2020-02-11_17-08-13/mysql/ndb_binlog_index.MYI
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/ndb_binlog_index.MYD to /backup/increment/2020-02-11_17-08-13/mysql/ndb_binlog_index.MYD
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/innodb_table_stats.frm to /backup/increment/2020-02-11_17-08-13/mysql/innodb_table_stats.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/innodb_index_stats.frm to /backup/increment/2020-02-11_17-08-13/mysql/innodb_index_stats.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/slave_relay_log_info.frm to /backup/increment/2020-02-11_17-08-13/mysql/slave_relay_log_info.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/slave_master_info.frm to /backup/increment/2020-02-11_17-08-13/mysql/slave_master_info.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/slave_worker_info.frm to /backup/increment/2020-02-11_17-08-13/mysql/slave_worker_info.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/gtid_executed.frm to /backup/increment/2020-02-11_17-08-13/mysql/gtid_executed.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/server_cost.frm to /backup/increment/2020-02-11_17-08-13/mysql/server_cost.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/engine_cost.frm to /backup/increment/2020-02-11_17-08-13/mysql/engine_cost.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/proxies_priv.frm to /backup/increment/2020-02-11_17-08-13/mysql/proxies_priv.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/proxies_priv.MYI to /backup/increment/2020-02-11_17-08-13/mysql/proxies_priv.MYI
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./mysql/proxies_priv.MYD to /backup/increment/2020-02-11_17-08-13/mysql/proxies_priv.MYD
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/db.opt to /backup/increment/2020-02-11_17-08-13/sys/db.opt
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/version.frm to /backup/increment/2020-02-11_17-08-13/sys/version.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/sys_config.frm to /backup/increment/2020-02-11_17-08-13/sys/sys_config.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/statements_with_full_table_scans.frm to /backup/increment/2020-02-11_17-08-13/sys/statements_with_full_table_scans.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/sys_config_insert_set_user.TRN to /backup/increment/2020-02-11_17-08-13/sys/sys_config_insert_set_user.TRN
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/processlist.frm to /backup/increment/2020-02-11_17-08-13/sys/processlist.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/sys_config.TRG to /backup/increment/2020-02-11_17-08-13/sys/sys_config.TRG
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/statements_with_sorting.frm to /backup/increment/2020-02-11_17-08-13/sys/statements_with_sorting.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/sys_config_update_set_user.TRN to /backup/increment/2020-02-11_17-08-13/sys/sys_config_update_set_user.TRN
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024statements_with_sorting.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024statements_with_sorting.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/innodb_buffer_stats_by_schema.frm to /backup/increment/2020-02-11_17-08-13/sys/innodb_buffer_stats_by_schema.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/schema_index_statistics.frm to /backup/increment/2020-02-11_17-08-13/sys/schema_index_statistics.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024innodb_buffer_stats_by_schema.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024innodb_buffer_stats_by_schema.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/statements_with_temp_tables.frm to /backup/increment/2020-02-11_17-08-13/sys/statements_with_temp_tables.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/innodb_buffer_stats_by_table.frm to /backup/increment/2020-02-11_17-08-13/sys/innodb_buffer_stats_by_table.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024ps_schema_table_statistics_io.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024ps_schema_table_statistics_io.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024innodb_buffer_stats_by_table.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024innodb_buffer_stats_by_table.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/host_summary.frm to /backup/increment/2020-02-11_17-08-13/sys/host_summary.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/innodb_lock_waits.frm to /backup/increment/2020-02-11_17-08-13/sys/innodb_lock_waits.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024host_summary.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024host_summary.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024innodb_lock_waits.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024innodb_lock_waits.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/waits_by_user_by_latency.frm to /backup/increment/2020-02-11_17-08-13/sys/waits_by_user_by_latency.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/schema_object_overview.frm to /backup/increment/2020-02-11_17-08-13/sys/schema_object_overview.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/user_summary_by_file_io_type.frm to /backup/increment/2020-02-11_17-08-13/sys/user_summary_by_file_io_type.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/schema_auto_increment_columns.frm to /backup/increment/2020-02-11_17-08-13/sys/schema_auto_increment_columns.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/user_summary_by_file_io.frm to /backup/increment/2020-02-11_17-08-13/sys/user_summary_by_file_io.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024schema_flattened_keys.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024schema_flattened_keys.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024user_summary_by_file_io.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024user_summary_by_file_io.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/schema_redundant_indexes.frm to /backup/increment/2020-02-11_17-08-13/sys/schema_redundant_indexes.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/user_summary_by_statement_type.frm to /backup/increment/2020-02-11_17-08-13/sys/user_summary_by_statement_type.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/ps_check_lost_instrumentation.frm to /backup/increment/2020-02-11_17-08-13/sys/ps_check_lost_instrumentation.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/latest_file_io.frm to /backup/increment/2020-02-11_17-08-13/sys/latest_file_io.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/waits_by_host_by_latency.frm to /backup/increment/2020-02-11_17-08-13/sys/waits_by_host_by_latency.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024latest_file_io.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024latest_file_io.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/waits_global_by_latency.frm to /backup/increment/2020-02-11_17-08-13/sys/waits_global_by_latency.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/io_by_thread_by_latency.frm to /backup/increment/2020-02-11_17-08-13/sys/io_by_thread_by_latency.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/user_summary_by_stages.frm to /backup/increment/2020-02-11_17-08-13/sys/user_summary_by_stages.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024io_by_thread_by_latency.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024io_by_thread_by_latency.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024user_summary_by_stages.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024user_summary_by_stages.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/io_global_by_file_by_bytes.frm to /backup/increment/2020-02-11_17-08-13/sys/io_global_by_file_by_bytes.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024schema_index_statistics.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024schema_index_statistics.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024io_global_by_file_by_bytes.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024io_global_by_file_by_bytes.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/user_summary.frm to /backup/increment/2020-02-11_17-08-13/sys/user_summary.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/io_global_by_file_by_latency.frm to /backup/increment/2020-02-11_17-08-13/sys/io_global_by_file_by_latency.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/schema_table_statistics.frm to /backup/increment/2020-02-11_17-08-13/sys/schema_table_statistics.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024io_global_by_file_by_latency.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024io_global_by_file_by_latency.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024user_summary.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024user_summary.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/io_global_by_wait_by_bytes.frm to /backup/increment/2020-02-11_17-08-13/sys/io_global_by_wait_by_bytes.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024schema_table_statistics.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024schema_table_statistics.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024io_global_by_wait_by_bytes.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024io_global_by_wait_by_bytes.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/host_summary_by_file_io_type.frm to /backup/increment/2020-02-11_17-08-13/sys/host_summary_by_file_io_type.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/io_global_by_wait_by_latency.frm to /backup/increment/2020-02-11_17-08-13/sys/io_global_by_wait_by_latency.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/schema_table_statistics_with_buffer.frm to /backup/increment/2020-02-11_17-08-13/sys/schema_table_statistics_with_buffer.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024io_global_by_wait_by_latency.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024io_global_by_wait_by_latency.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/host_summary_by_file_io.frm to /backup/increment/2020-02-11_17-08-13/sys/host_summary_by_file_io.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/memory_by_user_by_current_bytes.frm to /backup/increment/2020-02-11_17-08-13/sys/memory_by_user_by_current_bytes.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/schema_table_lock_waits.frm to /backup/increment/2020-02-11_17-08-13/sys/schema_table_lock_waits.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024memory_by_user_by_current_bytes.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024memory_by_user_by_current_bytes.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024host_summary_by_file_io.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024host_summary_by_file_io.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/memory_by_host_by_current_bytes.frm to /backup/increment/2020-02-11_17-08-13/sys/memory_by_host_by_current_bytes.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024schema_table_lock_waits.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024schema_table_lock_waits.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024memory_by_host_by_current_bytes.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024memory_by_host_by_current_bytes.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/statement_analysis.frm to /backup/increment/2020-02-11_17-08-13/sys/statement_analysis.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/memory_by_thread_by_current_bytes.frm to /backup/increment/2020-02-11_17-08-13/sys/memory_by_thread_by_current_bytes.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024statement_analysis.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024statement_analysis.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024memory_by_thread_by_current_bytes.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024memory_by_thread_by_current_bytes.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/host_summary_by_statement_type.frm to /backup/increment/2020-02-11_17-08-13/sys/host_summary_by_statement_type.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/memory_global_by_current_bytes.frm to /backup/increment/2020-02-11_17-08-13/sys/memory_global_by_current_bytes.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/statements_with_errors_or_warnings.frm to /backup/increment/2020-02-11_17-08-13/sys/statements_with_errors_or_warnings.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024memory_global_by_current_bytes.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024memory_global_by_current_bytes.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/metrics.frm to /backup/increment/2020-02-11_17-08-13/sys/metrics.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/memory_global_total.frm to /backup/increment/2020-02-11_17-08-13/sys/memory_global_total.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/host_summary_by_stages.frm to /backup/increment/2020-02-11_17-08-13/sys/host_summary_by_stages.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024memory_global_total.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024memory_global_total.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/session.frm to /backup/increment/2020-02-11_17-08-13/sys/session.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024schema_table_statistics_with_buffer.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024schema_table_statistics_with_buffer.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024statements_with_errors_or_warnings.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024statements_with_errors_or_warnings.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/schema_tables_with_full_table_scans.frm to /backup/increment/2020-02-11_17-08-13/sys/schema_tables_with_full_table_scans.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/schema_unused_indexes.frm to /backup/increment/2020-02-11_17-08-13/sys/schema_unused_indexes.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024schema_tables_with_full_table_scans.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024schema_tables_with_full_table_scans.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024host_summary_by_stages.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024host_summary_by_stages.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024statements_with_full_table_scans.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024statements_with_full_table_scans.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024ps_digest_avg_latency_distribution.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024ps_digest_avg_latency_distribution.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024ps_digest_95th_percentile_by_avg_us.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024ps_digest_95th_percentile_by_avg_us.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/statements_with_runtimes_in_95th_percentile.frm to /backup/increment/2020-02-11_17-08-13/sys/statements_with_runtimes_in_95th_percentile.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024statements_with_runtimes_in_95th_percentile.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024statements_with_runtimes_in_95th_percentile.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024statements_with_temp_tables.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024statements_with_temp_tables.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024user_summary_by_file_io_type.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024user_summary_by_file_io_type.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024user_summary_by_statement_type.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024user_summary_by_statement_type.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/user_summary_by_statement_latency.frm to /backup/increment/2020-02-11_17-08-13/sys/user_summary_by_statement_latency.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024user_summary_by_statement_latency.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024user_summary_by_statement_latency.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024host_summary_by_file_io_type.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024host_summary_by_file_io_type.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024host_summary_by_statement_type.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024host_summary_by_statement_type.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/host_summary_by_statement_latency.frm to /backup/increment/2020-02-11_17-08-13/sys/host_summary_by_statement_latency.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024host_summary_by_statement_latency.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024host_summary_by_statement_latency.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/wait_classes_global_by_avg_latency.frm to /backup/increment/2020-02-11_17-08-13/sys/wait_classes_global_by_avg_latency.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024wait_classes_global_by_avg_latency.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024wait_classes_global_by_avg_latency.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/wait_classes_global_by_latency.frm to /backup/increment/2020-02-11_17-08-13/sys/wait_classes_global_by_latency.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024wait_classes_global_by_latency.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024wait_classes_global_by_latency.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024waits_by_user_by_latency.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024waits_by_user_by_latency.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024waits_by_host_by_latency.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024waits_by_host_by_latency.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024waits_global_by_latency.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024waits_global_by_latency.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024processlist.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024processlist.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/x@0024session.frm to /backup/increment/2020-02-11_17-08-13/sys/x@0024session.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./sys/session_ssl_status.frm to /backup/increment/2020-02-11_17-08-13/sys/session_ssl_status.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./test_database/db.opt to /backup/increment/2020-02-11_17-08-13/test_database/db.opt
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./test_database/test01.frm to /backup/increment/2020-02-11_17-08-13/test_database/test01.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./performance_schema/db.opt to /backup/increment/2020-02-11_17-08-13/performance_schema/db.opt
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./performance_schema/cond_instances.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/cond_instances.frm
+200211 17:08:14 [01]        ...done
+200211 17:08:14 [01] Copying ./performance_schema/events_waits_current.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/events_waits_current.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/events_waits_history.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/events_waits_history.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/events_waits_history_long.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/events_waits_history_long.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/events_waits_summary_by_instance.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/events_waits_summary_by_instance.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/events_waits_summary_by_host_by_event_name.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/events_waits_summary_by_host_by_event_name.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/events_waits_summary_by_user_by_event_name.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/events_waits_summary_by_user_by_event_name.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/events_waits_summary_by_account_by_event_name.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/events_waits_summary_by_account_by_event_name.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/events_waits_summary_by_thread_by_event_name.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/events_waits_summary_by_thread_by_event_name.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/events_waits_summary_global_by_event_name.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/events_waits_summary_global_by_event_name.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/file_instances.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/file_instances.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/file_summary_by_event_name.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/file_summary_by_event_name.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/file_summary_by_instance.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/file_summary_by_instance.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/socket_instances.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/socket_instances.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/socket_summary_by_instance.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/socket_summary_by_instance.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/socket_summary_by_event_name.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/socket_summary_by_event_name.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/host_cache.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/host_cache.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/mutex_instances.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/mutex_instances.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/objects_summary_global_by_type.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/objects_summary_global_by_type.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/performance_timers.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/performance_timers.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/rwlock_instances.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/rwlock_instances.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/setup_actors.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/setup_actors.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/setup_consumers.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/setup_consumers.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/setup_instruments.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/setup_instruments.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/setup_objects.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/setup_objects.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/setup_timers.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/setup_timers.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/table_io_waits_summary_by_index_usage.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/table_io_waits_summary_by_index_usage.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/table_io_waits_summary_by_table.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/table_io_waits_summary_by_table.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/table_lock_waits_summary_by_table.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/table_lock_waits_summary_by_table.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/threads.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/threads.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/events_stages_current.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/events_stages_current.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/events_stages_history.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/events_stages_history.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/events_stages_history_long.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/events_stages_history_long.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/events_stages_summary_by_thread_by_event_name.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/events_stages_summary_by_thread_by_event_name.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/events_stages_summary_by_host_by_event_name.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/events_stages_summary_by_host_by_event_name.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/events_stages_summary_by_user_by_event_name.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/events_stages_summary_by_user_by_event_name.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/events_stages_summary_by_account_by_event_name.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/events_stages_summary_by_account_by_event_name.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/events_stages_summary_global_by_event_name.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/events_stages_summary_global_by_event_name.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/events_statements_current.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/events_statements_current.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/events_statements_history.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/events_statements_history.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/events_statements_history_long.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/events_statements_history_long.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/events_statements_summary_by_thread_by_event_name.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/events_statements_summary_by_thread_by_event_name.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/events_statements_summary_by_host_by_event_name.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/events_statements_summary_by_host_by_event_name.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/events_statements_summary_by_user_by_event_name.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/events_statements_summary_by_user_by_event_name.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/events_statements_summary_by_account_by_event_name.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/events_statements_summary_by_account_by_event_name.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/events_statements_summary_global_by_event_name.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/events_statements_summary_global_by_event_name.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/events_transactions_current.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/events_transactions_current.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/events_transactions_history.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/events_transactions_history.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/events_transactions_history_long.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/events_transactions_history_long.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/events_transactions_summary_by_thread_by_event_name.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/events_transactions_summary_by_thread_by_event_name.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/events_transactions_summary_by_host_by_event_name.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/events_transactions_summary_by_host_by_event_name.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/events_transactions_summary_by_user_by_event_name.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/events_transactions_summary_by_user_by_event_name.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/events_transactions_summary_by_account_by_event_name.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/events_transactions_summary_by_account_by_event_name.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/events_transactions_summary_global_by_event_name.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/events_transactions_summary_global_by_event_name.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/hosts.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/hosts.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/users.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/users.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/accounts.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/accounts.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/memory_summary_global_by_event_name.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/memory_summary_global_by_event_name.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/memory_summary_by_thread_by_event_name.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/memory_summary_by_thread_by_event_name.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/memory_summary_by_account_by_event_name.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/memory_summary_by_account_by_event_name.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/memory_summary_by_host_by_event_name.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/memory_summary_by_host_by_event_name.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/memory_summary_by_user_by_event_name.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/memory_summary_by_user_by_event_name.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/events_statements_summary_by_digest.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/events_statements_summary_by_digest.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/events_statements_summary_by_program.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/events_statements_summary_by_program.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/prepared_statements_instances.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/prepared_statements_instances.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/replication_connection_configuration.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/replication_connection_configuration.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/replication_group_member_stats.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/replication_group_member_stats.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/replication_group_members.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/replication_group_members.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/replication_connection_status.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/replication_connection_status.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/replication_applier_configuration.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/replication_applier_configuration.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/replication_applier_status.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/replication_applier_status.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/replication_applier_status_by_coordinator.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/replication_applier_status_by_coordinator.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/replication_applier_status_by_worker.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/replication_applier_status_by_worker.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/session_connect_attrs.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/session_connect_attrs.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/session_account_connect_attrs.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/session_account_connect_attrs.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/table_handles.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/table_handles.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/metadata_locks.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/metadata_locks.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/user_variables_by_thread.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/user_variables_by_thread.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/variables_by_thread.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/variables_by_thread.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/global_variables.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/global_variables.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/session_variables.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/session_variables.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/status_by_thread.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/status_by_thread.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/status_by_user.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/status_by_user.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/status_by_host.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/status_by_host.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/status_by_account.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/status_by_account.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/global_status.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/global_status.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [01] Copying ./performance_schema/session_status.frm to /backup/increment/2020-02-11_17-08-13/performance_schema/session_status.frm
+200211 17:08:15 [01]        ...done
+200211 17:08:15 [00] Writing /backup/increment/2020-02-11_17-08-13/2019-11-06_22-32-57/db.opt
+200211 17:08:15 [00]        ...done
+200211 17:08:15 [00] Writing /backup/increment/2020-02-11_17-08-13/2019-11-06_22-33-49/db.opt
+200211 17:08:15 [00]        ...done
+200211 17:08:15 [00] Writing /backup/increment/2020-02-11_17-08-13/2019-11-06_22-35-29/db.opt
+200211 17:08:15 [00]        ...done
+200211 17:08:15 [00] Writing /backup/increment/2020-02-11_17-08-13/2019-11-06_22-35-36/db.opt
+200211 17:08:15 [00]        ...done
+200211 17:08:15 [00] Writing /backup/increment/2020-02-11_17-08-13/2019-11-06_22-36-57/db.opt
+200211 17:08:15 [00]        ...done
+200211 17:08:15 [00] Writing /backup/increment/2020-02-11_17-08-13/2019-11-06_22-37-24/db.opt
+200211 17:08:15 [00]        ...done
+200211 17:08:15 [00] Writing /backup/increment/2020-02-11_17-08-13/2019-11-06_22-38-11/db.opt
+200211 17:08:15 [00]        ...done
+200211 17:08:15 Finished backing up non-InnoDB tables and files
+200211 17:08:15 Executing FLUSH NO_WRITE_TO_BINLOG ENGINE LOGS...
+xtrabackup: The latest check point (for incremental): '2625682'
+xtrabackup: Stopping log copying thread.
+.200211 17:08:15 >> log scanned up to (2625691)
+
+200211 17:08:15 Executing UNLOCK TABLES
+200211 17:08:15 All tables unlocked
+200211 17:08:15 [00] Copying ib_buffer_pool to /backup/increment/2020-02-11_17-08-13/ib_buffer_pool
+200211 17:08:15 [00]        ...done
+200211 17:08:15 Backup created in directory '/backup/increment/2020-02-11_17-08-13/'
+200211 17:08:15 [00] Writing /backup/increment/2020-02-11_17-08-13/backup-my.cnf
+200211 17:08:15 [00]        ...done
+200211 17:08:15 [00] Writing /backup/increment/2020-02-11_17-08-13/xtrabackup_info
+200211 17:08:15 [00]        ...done
+xtrabackup: Transaction log of lsn (2625682) to (2625691) was copied.
+200211 17:08:15 completed OK!
+
+ 
+
+与全备一样，会在备份路径下生成一个以时间"yyyy-mm-dd_hh:mi:ss"的文件。
+
+[root@mysqlserver increment]# pwd
+/backup/increment
+[root@mysqlserver increment]# ls
+2020-02-11_17-08-13
+ 
+
+（四）使用innobackupex恢复数据库
+
+从恢复类别上来看，在使innobackupex来恢复数据库时，有全量恢复和增量恢复2种，全量恢复就是恢复全备后的数据库，增量恢复则是先做全量恢复，在对增量备份的数据进行恢复。不管是全量恢复还是增量恢复。都需要执行2个步骤：
+
+准备恢复(prepare)。在执行完备份后，数据集是不能直接拿来使用的，因为备份的数据文件中可能包含未提交的事物或者已经提交但数据还未保存到数据文件中的事物，准备恢复的过程就是先前滚redo日志中发生的改变，再回滚未提交的事物，总而使数据文件达到一致性状态。对于innobackupex来说，准备恢复对应的参数是"--apply-log"。
+执行恢复(copy-back)。将已经准备好的备份集，恢复到指定的路径(datadir参数)下。对于innobackupex来说，准备恢复对应的参数是"--copy-back"。
+（4.1）使用innobackupex执行全量恢复
+
+执行全量恢复的命令如下：
+
+# 准备恢复
+innobackupex --default-file=/etc/my.cnf --apply-log /path/to/BACKUP-DIR
+
+# 执行恢复
+innobackupex --default-file=/etc/my.cnf --copy-back /path/to/BACKUP-DIR
+ 
+
+全量恢复例子：
+
+
+STEP1：执行完整备份
+[root@mysqlserver backup]#innobackupex --user=root --password='123456' --default-file='/etc/my.cnf' /backup/
+
+STEP2：删除测试数据库lijiamandb，并关闭数据库
+[root@mysqlserver backup]# mysql -uroot -p123456
+mysql: [Warning] Using a password on the command line interface can be insecure.
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 26
+Server version: 5.7.27 MySQL Community Server (GPL)
+
+mysql> drop database lijiamandb;
+Query OK, 2 rows affected (0.01 sec)
+
+mysql> exit
+Bye
+[root@mysqlserver backup]# service mysqld stop
+Shutting down MySQL.... SUCCESS!
+
+STEP3：准备还原数据库
+[root@mysqlserver backup]# innobackupex --default-file=/etc/my.cnf --apply-log /backup/2020-02-11_18-46-01
+xtrabackup: recognized server arguments: --innodb_checksum_algorithm=crc32 --innodb_log_checksum_algorithm=strict_crc32 --innodb_data_file_path=ibdata1:12M:autoextend 
+--innodb_log_files_in_group=2 --innodb_log_file_size=50331648 --innodb_fast_checksum=0 --innodb_page_size=16384 --innodb_log_block_size=512 --innodb_undo_directory=./ 
+--innodb_undo_tablespaces=0 --server-id=0 --redo-log-version=1 
+xtrabackup: recognized client arguments: 
+18:55:19 innobackupex: Starting the apply-log operation
+
+IMPORTANT: Please check that the apply-log run completes successfully.
+           At the end of a successful apply-log run innobackupex
+           prints "completed OK!".
+
+innobackupex version 2.4.18 based on MySQL server 5.7.26 Linux (x86_64) (revision id: 29b4ca5)
+xtrabackup: cd to /backup/2020-02-11_18-46-01/
+...省略
+InnoDB: File './ibtmp1' size is now 12 MB.
+InnoDB: 96 redo rollback segment(s) found. 1 redo rollback segment(s) are active.
+InnoDB: 32 non-redo rollback segment(s) are active.
+InnoDB: 5.7.26 started; log sequence number 78175765
+xtrabackup: starting shutdown with innodb_fast_shutdown = 1
+InnoDB: FTS optimize thread exiting.
+InnoDB: Starting shutdown...
+InnoDB: Shutdown completed; log sequence number 78175784
+18:55:22 completed OK!
+
+STEP4：开始还原数据库  
+# 注意：在开始还原之前，需要保证数据文件存放位置(datadir)文件为空，否则会报错
+[root@mysqlserver backup]# innobackupex --default-file=/etc/my.cnf --copy-back /backup/2020-02-11_18-46-01
+xtrabackup: recognized server arguments: --datadir=/usr/local/mysql/data 
+xtrabackup: recognized client arguments: 
+18:55:35 innobackupex: Starting the copy-back operation
+
+IMPORTANT: Please check that the copy-back run completes successfully.
+           At the end of a successful copy-back run innobackupex
+           prints "completed OK!".
+
+innobackupex version 2.4.18 based on MySQL server 5.7.26 Linux (x86_64) (revision id: 29b4ca5)
+Original data directory /usr/local/mysql/data is not empty!
+
+[root@mysqlserver data]# rm -rf *
+ 
+# 开始还原数据库
+[root@mysqlserver backup]# innobackupex --default-file=/etc/my.cnf --copy-back /backup/2020-02-11_18-46-01
+xtrabackup: recognized server arguments: --datadir=/usr/local/mysql/data 
+xtrabackup: recognized client arguments: 
+18:56:14 innobackupex: Starting the copy-back operation
+
+IMPORTANT: Please check that the copy-back run completes successfully.
+           At the end of a successful copy-back run innobackupex
+           prints "completed OK!".
+
+innobackupex version 2.4.18 based on MySQL server 5.7.26 Linux (x86_64) (revision id: 29b4ca5)
+18:56:14 [01] Copying ib_logfile0 to /usr/local/mysql/data/ib_logfile0
+18:56:14 [01]        ...done
+...省略
+18:56:14 [01]        ...done
+18:56:14 [01] Copying ./xtrabackup_info to /usr/local/mysql/data/xtrabackup_info
+18:56:14 [01]        ...done
+18:56:14 [01] Copying ./xtrabackup_master_key_id to /usr/local/mysql/data/xtrabackup_master_key_id
+18:56:14 [01]        ...done
+18:56:14 [01] Copying ./ibtmp1 to /usr/local/mysql/data/ibtmp1
+18:56:14 [01]        ...done
+18:56:14 completed OK!
+
+STEP5：修改还原文件的权限为mysql:mysql 
+[root@mysqlserver data]# ls -l
+total 122920
+-rw-r----- 1 root root      284 Feb 11 18:56 ib_buffer_pool
+-rw-r----- 1 root root 12582912 Feb 11 18:56 ibdata1
+-rw-r----- 1 root root 50331648 Feb 11 18:56 ib_logfile0
+-rw-r----- 1 root root 50331648 Feb 11 18:56 ib_logfile1
+-rw-r----- 1 root root 12582912 Feb 11 18:56 ibtmp1
+drwxr-x--- 2 root root       92 Feb 11 18:56 lijiamandb
+drwxr-x--- 2 root root     4096 Feb 11 18:56 mysql
+drwxr-x--- 2 root root     8192 Feb 11 18:56 performance_schema
+drwxr-x--- 2 root root     8192 Feb 11 18:56 sys
+-rw-r----- 1 root root      447 Feb 11 18:56 xtrabackup_info
+-rw-r----- 1 root root        1 Feb 11 18:56 xtrabackup_master_key_id
+[root@mysqlserver data]# cd ..
+[root@mysqlserver mysql]# pwd
+/usr/local/mysql
+[root@mysqlserver mysql]# chown -R mysql:mysql data/
+
+STEP6：重启数据库
+[root@mysqlserver backup]# service mysqld start
+Starting MySQL.Logging to '/usr/local/mysql/data/mysqlserver.err'.
+ SUCCESS!
+
+STEP7：确认数据库是否恢复
+[root@mysqlserver backup]# mysql -uroot -p123456
+
+Server version: 5.7.27 MySQL Community Server (GPL)
+
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| lijiamandb         |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+5 rows in set (0.00 sec)
+
+ 
+
+ （4.2）使用innobackupex执行增量恢复
+
+执行增量恢复的命令如下：
+
+
+# 对全量备份执行恢复准备
+innobackupex --default-file=/etc/my.cnf --apply-log --redo-only /path/to/FULL_BACKUP-DIR
+
+# 对增量备份1执行恢复准备
+innobackupex --default-file=/etc/my.cnf --apply-log --redo-only /path/to/FULL_BACKUP-DIR --incremental-dir=/path/to/INCR_BACKUP-DIR_1
+
+# 对增量备份2执行恢复准备
+# 需要注意的是，这里没有了--redo-log,在应用增量备份时，最后一份增量备份集不需要指定该参数
+innobackupex --default-file=/etc/my.cnf --apply-log /path/to/FULL_BACKUP-DIR --incremental-dir=/path/to/INCR_BACKUP-DIR_2
+
+# 执行恢复
+innobackupex --default-file=/etc/my.cnf --copy-back /path/to/FULL_BACKUP-DIR
+
+ 
+
+ 增量恢复例子：
+
+
+STEP1:执行全量备份
+[root@mysqlserver backup]# innobackupex --user=root --password='123456' --default-file='/etc/my.cnf' /backup/
+
+STEP2：在全量备份的基础上执行增量备份
+[root@mysqlserver backup]# innobackupex --user=root --password='123456' --default-file='/etc/my.cnf' --incremental --incremental-basedir=2020-02-11_20-13-54 /backup/
+
+STEP3：删除测试数据，看最终是否可以恢复回来
+[root@mysqlserver backup]# mysql -uroot -p123456
+
+
+mysql> use lijiamandb;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+ 
+mysql> select count(*) from test01;
++----------+
+| count(*) |
++----------+
+|    10000 |
++----------+
+1 row in set (0.01 sec)
+
+mysql> select count(*) from test02;
++----------+
+| count(*) |
++----------+
+|    10000 |
++----------+
+1 row in set (0.00 sec)
+
+mysql> truncate table test01;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> delete table test02;
+
+mysql> delete from test02;
+Query OK, 10000 rows affected (0.02 sec)
+
+mysql> select count(*) from test01;
++----------+
+| count(*) |
++----------+
+|        0 |
++----------+
+1 row in set (0.00 sec)
+
+mysql> select count(*) from test02;
++----------+
+| count(*) |
++----------+
+|        0 |
++----------+
+1 row in set (0.00 sec)
+
+mysql> exit
+Bye
+
+
+STEP4：关闭数据库
+[root@mysqlserver backup]# service mysqld status
+ SUCCESS! MySQL running (2004)
+
+[root@mysqlserver backup]# service mysqld stop
+Shutting down MySQL.... SUCCESS!
+
+STEP5：准备全量备份
+[root@mysqlserver backup]# ls -lrt
+total 0
+drwxr-x--- 6 root root 211 Feb 11 20:13 2020-02-11_20-13-54     #全量备份
+drwxr-x--- 6 root root 237 Feb 11 20:15 2020-02-11_20-15-04     #增量备份
+
+[root@mysqlserver backup]# innobackupex --default-file=/etc/my.cnf --apply-log --redo-only /backup/2020-02-11_20-13-54
+b_fast_checksum=0 --innodb_page_size=16384 --innodb_log_block_size=512 --innodb_undo_directory=./ --innodb_undo_tablespaces=0 --server-id=0 --redo-log-version=1 
+xtrabackup: recognized client arguments: 
+...省略
+InnoDB: Doing recovery: scanned up to log sequence number 5054779 (0%)
+InnoDB: Database was not shutdown normally!
+InnoDB: Starting crash recovery.
+
+xtrabackup: starting shutdown with innodb_fast_shutdown = 1
+InnoDB: Starting shutdown...
+InnoDB: Shutdown completed; log sequence number 5054788
+InnoDB: Number of pools: 1
+200211 20:18:14 completed OK!
+
+STEP6：准备增量备份
+[root@mysqlserver backup]# innobackupex --default-file=/etc/my.cnf --apply-log /backup/2020-02-11_20-13-54  --incremental-dir=/backup/2020-02-11_20-15-04
+b_fast_checksum=0 --innodb_page_size=16384 --innodb_log_block_size=512 --innodb_undo_directory=./ --innodb_undo_tablespaces=0 --server-id=0 --redo-log-version=1 
+xtrabackup: recognized client arguments: 
+200211 20:18:26 innobackupex: Starting the apply-log operation
+...省略
+xtrabackup: starting shutdown with innodb_fast_shutdown = 1
+InnoDB: FTS optimize thread exiting.
+InnoDB: Starting shutdown...
+InnoDB: Shutdown completed; log sequence number 5055528
+200211 20:18:31 completed OK!
+
+STEP7：执行还原
+# 删除data目录并重建
+[root@mysqlserver backup]# cd /usr/local/mysql/
+[root@mysqlserver mysql]# rm -rf data/
+[root@mysqlserver mysql]# mkdir data
+
+
+[root@mysqlserver mysql]# innobackupex --default-file=/etc/my.cnf --copy-back /backup/2020-02-11_20-13-54
+xtrabackup: recognized server arguments: --datadir=/usr/local/mysql/data 
+xtrabackup: recognized client arguments: 
+200211 20:20:58 innobackupex: Starting the copy-back operation
+...省略
+200211 20:20:58 [01]        ...done
+200211 20:20:58 [01] Copying ./ibtmp1 to /usr/local/mysql/data/ibtmp1
+200211 20:20:58 [01]        ...done
+200211 20:20:58 completed OK!
+
+STEP8：修改data目录的权限
+[root@mysqlserver mysql]# chown -R mysql:mysql data/
+
+STEP9：重启数据库，确认数据已经恢复回来
+[root@mysqlserver mysql]# service mysqld start
+Starting MySQL.Logging to '/usr/local/mysql/data/mysqlserver.err'.
+ SUCCESS! 
+
+
+[root@mysqlserver mysql]# mysql -uroot -p123456
+mysql> use lijiamandb;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> select count(*) from test01;
++----------+
+| count(*) |
++----------+
+|    10000 |
++----------+
+1 row in set (0.00 sec)
+
+mysql> select count(*) from test02;
++----------+
+| count(*) |
++----------+
+|    10000 |
++----------+
+1 row in set (0.01 sec)
+
+mysql> exit
+Bye

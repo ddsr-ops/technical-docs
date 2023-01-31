@@ -1,0 +1,6 @@
+Spark job log
+
+Connection to /10.19.65.135:34963 has been quiet for 120000 ms while there are outstanding requests. Assuming connection is dead; please adjust spark.network.timeout if this is wrong.
+
+Solution:
+--conf spark.network.timeout=5m --conf spark.executor.heartbeatInterval=1m

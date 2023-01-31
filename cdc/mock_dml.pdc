@@ -1,0 +1,67 @@
+BEGIN
+  FOR I IN 1 .. 100000 LOOP
+    DBMS_LOCK.SLEEP(0.3);
+    --DBMS_OUTPUT.PUT_LINE(to_char(i));
+		INSERT INTO dba_test.tb_test VALUES(i, '�츮ͨ'||to_char(i));
+		COMMIT;
+  END LOOP;
+END;
+/
+
+
+
+Declare
+  v_min number;
+BEGIN
+	select max(id) + 1 into v_min from tb_test ;
+
+  FOR I IN v_min .. 100000 LOOP
+    DBMS_LOCK.SLEEP(0.3);
+    --DBMS_OUTPUT.PUT_LINE(to_char(i));
+    insert into tb_test values(to_char(i), 'tft'||to_char(i), sysdate, sysdate, sysdate, sysdate);
+    COMMIT;
+  END LOOP;
+END;
+/
+
+create table TB_TEST15
+(
+  id   NUMBER,
+  name VARCHAR2(2048),
+  dt   DATE default SYSDATE,
+  ts   TIMESTAMP(6) default SYSDATE,
+  ts1  TIMESTAMP(6) WITH TIME ZONE,
+  ts2  TIMESTAMP(6) WITH LOCAL TIME ZONE
+);
+
+
+
+Declare
+  v_min number;
+	v_scn varchar2(40);
+	v_cnt number := 0;
+	v_max number := 10;
+BEGIN
+
+  select current_scn - 1 into v_scn from v$database;
+	dbms_output.put_line(v_scn);
+
+	select nvl(max(id),0) + 1 into v_min from tb_test ;
+
+  FOR I IN v_min .. 999999999 LOOP
+    --DBMS_LOCK.SLEEP(0.5);
+    --DBMS_OUTPUT.PUT_LINE(to_char(i));
+    insert into tb_test values(to_char(i), 'tft'||to_char(i), sysdate, sysdate, sysdate, sysdate);
+    COMMIT;
+		v_cnt := v_cnt + 1;
+
+		if v_cnt = v_max then
+			exit;
+		end if;
+  END LOOP;
+
+	select current_scn into v_scn from v$database;
+	dbms_output.put_line(v_scn);
+
+END;
+/

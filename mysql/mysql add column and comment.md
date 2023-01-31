@@ -1,0 +1,1 @@
+ alter table tft_annual_bill_res_2021 add column user_flag char(2) not null comment '用户标签: 00 - 普通用户， 01 - 尝鲜用户， 02 - 早起晚归用户，03 - 通勤达人';

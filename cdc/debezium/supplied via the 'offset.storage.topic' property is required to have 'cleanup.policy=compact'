@@ -1,0 +1,11 @@
+supplied via the 'offset.storage.topic' property is required to have 'cleanup.policy=compact'
+
+
+bin/kafka-topics.sh  --zookeeper localhost:2182 --delete --topic connect-offsets
+bin/kafka-topics.sh  --zookeeper localhost:2182 --create --topic connect-offsets --replication-factor 1 --partitions 1 --config cleanup.policy=compact
+
+bin/kafka-topics.sh  --zookeeper localhost:2182 --delete --topic connect-status
+bin/kafka-topics.sh  --zookeeper localhost:2182 --create --topic connect-status --replication-factor 1 --partitions 1 --config cleanup.policy=compact
+
+bin/kafka-topics.sh  --zookeeper localhost:2182 --delete --topic connect-configs
+bin/kafka-topics.sh  --zookeeper localhost:218e2 --create --topic connect-configs --replication-factor 1 --partitions 1 --config cleanup.policy=compact

@@ -1,0 +1,4 @@
+IDEA开发SparkSQL报错：org.apache.spark.SparkException: A master URL must be set in your configuration
+
+idea 编辑运行配置（edit configurations）
+ -- vm options -- 添加-Dspark.master=local

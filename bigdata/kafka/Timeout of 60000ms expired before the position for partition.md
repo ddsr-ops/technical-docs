@@ -1,0 +1,1 @@
+Commonly, the broker is down or in progress of restarting.

@@ -1,0 +1,26 @@
+搜索相关问题：
+https://issues.redhat.com/projects/DBZ/issues/DBZ-3645?filter=allopenissues
+网页右上方有个search框，输入以下关键字：
+oracle alter table which does not exist
+
+问题关键字：
+io.debezium.text.ParsingException: Trying to alter table XXX, which does not exist
+
+https://issues.redhat.com/browse/DBZ-3554
+
+问题解决搜索关键字
+Unfortunately since you're specifying a table.include.list expression, you cannot provide a table.exclude.list expression since these options are mutually exclusive. I will however add an exclusion for these statistics tables to the LogMiner query in Beta2 so they're no longer observed in the mined results. The only workaround that currently exists would be to enable the database.history.skip.unparseable.ddl=true temporarily to get past the failure but I would advise that once you have you remove that option & restart as to avoid any potential problems with the database history topic in the future.
+
+根本原因：oracle connector在cdc时捕捉了无关的ddl语句，将在1.6.0beta2进行修复。
+
+
+解决：
+在https://debezium.io/releases/1.6/#installation下载1.6.0beta2的oracle插件包
+https://repo1.maven.org/maven2/io/debezium/debezium-connector-oracle/1.6.0.Beta2/debezium-connector-oracle-1.6.0.Beta2-plugin.tar.gz
+
+停止connector服务(kill -9)
+将上述插件包解压到connect-distributed.properties配置文件中plugin.path目录
+并将ojdbc8-12.2.0.1.jar驱动包放到解压后的目录中
+
+重新启动connector服务
+bin/connect-distributed.sh -daemon config/connect-distributed-my.properties
