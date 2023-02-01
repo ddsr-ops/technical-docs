@@ -106,11 +106,8 @@ Todo: ingest StarRocks metadata and profile ?
 
 system setting permanently
 
-每日凌晨00:00-00:15, `UPDATE DC_USER_DIS_CARD_RESTRICT T SET T.DAY_USE_TIMES = 0`
-
-source /root/airflow_env/bin/activate  
-airflow celery worker -c 6 -q ge -D  
-airflow celery stop
+during 00:00-00:15 every morning, `UPDATE DC_USER_DIS_CARD_RESTRICT T SET T.DAY_USE_TIMES = 0`
+Fix has been done, but not published.
 
 create expectation suite >> profile >> add checkpoint >> dag file creation
 
