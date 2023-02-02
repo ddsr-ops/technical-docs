@@ -44,11 +44,17 @@ todo: 凡影响生产流水线的复杂脚本，上线前需经过测试和脚�
 
 1月工作计划：
 1. 完成年度账单数据跑批和数据上线工作
-2. 推进实时数仓的硬件服务器的验收工作，尤其是网络部分回归测试
+2. 完成实时数仓的硬件服务器回归测试，网络仍存在性能问题
 3. 配合新用户系统的上线工作
-4. 交行隐私计算：① 需要再补一次数据求交，扩大匹配量级；② 第二阶段联合建模。
-5. 推进唯品富邦消金联合建模（金融贷款营销模型）
+4. 完成人脸对比项目开源算法平台调研
 
+2月工作计划：
+1. 完成Kafka集群的迁移方案制定，并完成迁移？
+2. 完成服务器主机资源监控，纳入Grafana管理
+3. 推进老年卡年审人脸比对，包括开发计划、照片采集策略
+4. 
+
+doris  --> starrocks， StarRocks官方针对0.14 doris版本，没有迁移方案
 
 smart eyes:   
 https://my2ylp9qe3.feishu.cn/sheets/shtcnnbIqeW2swlRIAiORPywuOw
@@ -69,8 +75,6 @@ Specify the worker to special tasks : https://blog.csdn.net/doublezsx/article/de
 1. Supply a dummy data
 2. Estimate how long to work around it  
 
-annual bill: 2022/12/12	2022/12/27, test start on 2023-01-04  
-
 https://www.processon.com/view/6347c6f57d9c080c4253287d?fromnew=1
 
 Dictionary built in the log mining session, session use it track the schema evolution . 
@@ -82,12 +86,6 @@ Scalable, long-term storage for Prometheus, Influx, Graphite, and Datadog metric
 todo: check one source, one destination, three etls 
 
 todo: need quality check of adm layer
-
-todo: what to do with GE
-1. local files merge? can not be merged
-2. on which airflow node ge jobs run
-3. engage python operator to run ge jobs
-4. dags(solved) and ge work directory
 
 https://juejin.cn/post/7096426868848459806
 
@@ -108,14 +106,6 @@ system setting permanently
 
 during 00:00-00:15 every morning, `UPDATE DC_USER_DIS_CARD_RESTRICT T SET T.DAY_USE_TIMES = 0`
 Fix has been done, but not published.
-
-create expectation suite >> profile >> add checkpoint >> dag file creation
-
-1. 完成GE与Airflow的ExternalPythonOperator的集成测试，可以正常集成
-2. 调整DAG工程目录结构，利于IDE开发，顶级目录下增加etls/great_expectations/tools等目录
-3. 撰写GE操作说明文档生成度量规则部分
-4. 审阅Kafka集群迁移方案
-
 
 1. 撰写GE操作说明文档质量规则上线部署部分
 2. 针对已审阅的Kafka集群迁移方案，整理整改意见
@@ -140,7 +130,7 @@ https://github.com/apache/airflow/issues/27232, manually fixed it in the prod en
 
 datahub.action && sqllineage==1.3.6
 
-configurator.py in the GE
+configurator.py in the GE && custom_actions.py located at Plugin dir
 
 https://airflow.apache.org/docs/apache-airflow/stable/concepts/timetable.html#
 https://airflow.apache.org/docs/apache-airflow/stable/faq.html#faq-what-does-execution-date-mean
@@ -160,3 +150,5 @@ producers --> kafka cluster --> consumers
 connectors                      ss, flink, java programs
 
 todo: 151 network card
+
+January，February，March，April，May，June，July，August，September，October，November，December
