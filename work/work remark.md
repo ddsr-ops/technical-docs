@@ -9,7 +9,6 @@ es scripting, lang - painless
 DataX/core/src/main/java/com/alibaba/datax/core/transport/channel/Channel.java
 
 ENV: batch and streaming, metadata, data quality
-todo: (column) lineage, doris lineage ?  
 
 todo: check sdm and dictionary table to judge whether new dict value appears, essential to notify us via sms?  
 checked it, but there are some codes in sql statements and no notification to us.  
@@ -154,3 +153,10 @@ todo: 151 network card
 January，February，March，April，May，June，July，August，September，October，November，December
 
 https://github.com/open-falcon/falcon-plus
+
+todo: (column) lineage, doris lineage ?
+
+todo: supervisor webhook api
+
+https://blog.csdn.net/woloqun/article/details/128649833
+
