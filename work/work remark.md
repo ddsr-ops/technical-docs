@@ -41,17 +41,11 @@ todo: engage supervisor to manage doris or starrocks processes.
 
 todo: 凡影响生产流水线的复杂脚本，上线前需经过测试和脚本审计，大家看下pipeline如何制定合适？不拘泥于形式，但过程必须有。
 
-1月工作计划：
-1. 完成年度账单数据跑批和数据上线工作
-2. 完成实时数仓的硬件服务器回归测试，网络仍存在性能问题
-3. 配合新用户系统的上线工作
-4. 完成人脸对比项目开源算法平台调研
-
 2月工作计划：
-1. 完成Kafka集群的迁移方案制定，并完成迁移？
+1. 完成Kafka集群的迁移方案制定，并完成迁移
 2. 完成服务器主机资源监控，纳入Grafana管理
 3. 推进老年卡年审人脸比对，包括开发计划、照片采集策略
-4. 
+4. 设计StarRocks内部ETL血缘信息采集架构
 
 doris  --> starrocks， StarRocks官方针对0.14 doris版本，没有迁移方案
 
@@ -156,7 +150,21 @@ https://github.com/open-falcon/falcon-plus
 
 todo: (column) lineage, doris lineage ?
 
-todo: supervisor webhook api
-
 https://blog.csdn.net/woloqun/article/details/128649833
 
+https://juejin.cn/post/7169910747810496543
+
+https://blog.csdn.net/weixin_39894473/article/details/112076395?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-0-112076395-blog-51308695.pc_relevant_3mothn_strategy_and_data_recovery&spm=1001.2101.3001.4242.1&utm_relevant_index=3
+
+Inner dataset lineage:
+
+Flume1 on FE1    ----\
+Flume2 on FE2    ----\
+Flume3 on FE3    ----> One topic In kafka ----> Flink ----> DATAHUB
+Flume4 on FE4    ----/
+......           ----/
+
+
+https://www.cnblogs.com/shanfeng1000/p/14691301.html
+
+[禁止分片的分配](https://blog.csdn.net/weixin_28906733/article/details/106282464)
