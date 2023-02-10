@@ -1,239 +1,37 @@
-# HTTP 代理端口
-port: 7890
-# SOCKS5 代理端口
-socks-port: 7891
-# Linux 和 macOS 的 redir 代理端口
-redir-port: 7892
-# 允许局域网的连接
-allow-lan: true
-
-# 规则模式：Rule（规则） / Global（全局代理）/ Direct（全局直连）
-mode: Rule
-
-# 设置日志输出级别 (默认级别：silent，即不输出任何内容，以避免因日志内容过大而导致程序内存溢出）。
-# 5 个级别：silent / info / warning / error / debug。级别越高日志输出量越大，越倾向于调试，若需要请自行开启。
-log-level: silent
-# Clash 的 RESTful API
-external-controller: '0.0.0.0:9090'
-
-# RESTful API 的口令
-secret: ''
-
-# 您可以将静态网页资源（如 clash-dashboard）放置在一个目录中，clash 将会服务于 `RESTful API/ui`
-# 参数应填写配置目录的相对路径或绝对路径。
-# external-ui: folder
-
-
-proxies:
-- {"name":"HK01","type":"ss","server":"hk01-l1-g41.shadowflyurl.com","port":32737,"cipher":"rc4-md5","password":"jWzLgU","udp":true}
-- {"name":"HK02","type":"ss","server":"hk02-l1-g41.shadowflyurl.com","port":32737,"cipher":"rc4-md5","password":"jWzLgU","udp":true}
-- {"name":"HK03","type":"ss","server":"hk03-l1-g41.shadowflyurl.com","port":32737,"cipher":"rc4-md5","password":"jWzLgU","udp":true}
-- {"name":"HK04","type":"ss","server":"hk04-l1-g41.shadowflyurl.com","port":32737,"cipher":"rc4-md5","password":"jWzLgU","udp":true}
-- {"name":"HK05","type":"ss","server":"hk05-l1-g41.shadowflyurl.com","port":32737,"cipher":"rc4-md5","password":"jWzLgU","udp":true}
-- {"name":"HK06","type":"ss","server":"hk06-l1-g41.shadowflyurl.com","port":32737,"cipher":"rc4-md5","password":"jWzLgU","udp":true}
-- {"name":"HK07","type":"ssr","server":"hk07-l1-g41.shadowflyurl.com","port":"845","cipher":"aes-256-cfb","password":"oygerioasd","protocol":"auth_aes128_md5","protocolparam":"67786:jWzLgU","obfs":"tls1.2_ticket_auth","obfsparam":"2e89867786.microsoft.com"}
-- {"name":"HK08","type":"ssr","server":"hk08-l1-g41.shadowflyurl.com","port":"845","cipher":"aes-256-cfb","password":"oygerioasd","protocol":"auth_aes128_md5","protocolparam":"67786:jWzLgU","obfs":"tls1.2_ticket_auth","obfsparam":"2e89867786.microsoft.com"}
-- {"name":"HK09","type":"ssr","server":"hk09-l1-g41.shadowflyurl.com","port":"845","cipher":"aes-256-cfb","password":"oygerioasd","protocol":"auth_aes128_md5","protocolparam":"67786:jWzLgU","obfs":"tls1.2_ticket_auth","obfsparam":"2e89867786.microsoft.com"}
-- {"name":"HK10","type":"ssr","server":"hk10-l1-g41.shadowflyurl.com","port":"845","cipher":"aes-256-cfb","password":"oygerioasd","protocol":"auth_aes128_md5","protocolparam":"67786:jWzLgU","obfs":"tls1.2_ticket_auth","obfsparam":"2e89867786.microsoft.com"}
-- {"name":"HK11","type":"ssr","server":"hk11-l1-g41.shadowflyurl.com","port":"845","cipher":"aes-256-cfb","password":"oygerioasd","protocol":"auth_aes128_md5","protocolparam":"67786:jWzLgU","obfs":"tls1.2_ticket_auth","obfsparam":"2e89867786.microsoft.com"}
-- {"name":"HK12","type":"ssr","server":"hk12-l1-g41.shadowflyurl.com","port":"845","cipher":"aes-256-cfb","password":"oygerioasd","protocol":"auth_aes128_md5","protocolparam":"67786:jWzLgU","obfs":"tls1.2_ticket_auth","obfsparam":"2e89867786.microsoft.com"}
-- {"name":"HK13","type":"ssr","server":"hk13-l1-sn308290S000.shadowflyurl.com","port":"7000","cipher":"aes-256-cfb","password":"sfeddddd","protocol":"auth_aes128_md5","protocolparam":"67786:jWzLgU","obfs":"tls1.2_ticket_auth","obfsparam":"2e89867786.microsoft.com"}
-- {"name":"HK14","type":"vmess","server":"hk14-ipt-sn672833882.shadowflycn.com","port":8000,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/v2ray","ws-headers":{"Host":"hk14-sn11988122.urltosub.com"},"tls":true}
-- {"name":"HK15","type":"vmess","server":"hk15-ipt-sn67283329393.shadowflycn.com","port":8000,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/v2ray","ws-headers":{"Host":"hk14-sn11988122.urltosub.com"},"tls":true}
-- {"name":"HK16","type":"vmess","server":"hk16-ipt-sn672833000.shadowflycn.com","port":8000,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/v2ray","ws-headers":{"Host":"hk14-sn11988122.urltosub.com"},"tls":true}
-- {"name":"JP01","type":"vmess","server":"jp01-ipt-sn537484.shadowflycn.com","port":6666,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"v2jp1.urltosub.com"},"tls":true}
-- {"name":"JP02","type":"vmess","server":"jp01-ipt-sn537484.shadowflycn.com","port":4007,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"v2jp7.urltosub.com"},"tls":true}
-- {"name":"JP03","type":"vmess","server":"jp01-ipt-sn537484.shadowflycn.com","port":4008,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"v2jp8.urltosub.com"},"tls":true}
-- {"name":"JP04","type":"vmess","server":"jp01-ipt-sn537484.shadowflycn.com","port":4009,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"v2jp9.urltosub.com"},"tls":true}
-- {"name":"JP05","type":"vmess","server":"jp01-ipt-sn537484.shadowflycn.com","port":4010,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"v2jp10.urltosub.com"},"tls":true}
-- {"name":"JP06","type":"vmess","server":"jp01-ipt-sn537484.shadowflycn.com","port":4011,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"v2jp11.urltosub.com"},"tls":true}
-- {"name":"JP07","type":"vmess","server":"jp01-ipt-sn537484.shadowflycn.com","port":5670,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"v2jp2.urltosub.com"},"tls":true}
-- {"name":"JP08","type":"vmess","server":"JP03-ipt-sn539992.shadowflycn.com","port":6668,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"v2jp3.urltosub.com"},"tls":true}
-- {"name":"JP09","type":"vmess","server":"JP04-ipt-sn5346757.shadowflycn.com","port":6669,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"v2jp4.urltosub.com"},"tls":true}
-- {"name":"JP10","type":"vmess","server":"JP05-ipt-sn538394.shadowflycn.com","port":6670,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"v2jp5.urltosub.com"},"tls":true}
-- {"name":"JP11","type":"vmess","server":"JP06-ipt-sn53745.shadowflycn.com","port":6671,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"v2jp6.urltosub.com"},"tls":true}
-- {"name":"JP12","type":"vmess","server":"jp01-ipt-sn537484.shadowflycn.com","port":4012,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"v2jp12.urltosub.com"},"tls":true}
-- {"name":"JP13","type":"vmess","server":"jp01-ipt-sn537484.shadowflycn.com","port":4013,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"v2jp13.urltosub.com"},"tls":true}
-- {"name":"JP14","type":"vmess","server":"jp14-ipt-sn37480.shadowflycn.com","port":5014,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"v2jp14.urltosub.com"},"tls":true}
-- {"name":"KR01","type":"vmess","server":"kr01-ipt-sn338692.shadowflycn.com","port":7800,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"kr01-sn11988122.urltosub.com"},"tls":true}
-- {"name":"KR02","type":"vmess","server":"kr02-ipt-sn338682.shadowflycn.com","port":7800,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"kr01-sn11988122.urltosub.com"},"tls":true}
-- {"name":"KR03","type":"vmess","server":"kr03-ipt-sn338675.shadowflycn.com","port":7800,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"kr01-sn11988122.urltosub.com"},"tls":true}
-- {"name":"NL01","type":"vmess","server":"nl01-ipt-sn0092111.shadowflycn.com","port":5057,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"nl01-sn2928833.urltosub.com"},"tls":true}
-- {"name":"NL02","type":"vmess","server":"nl02-ipt-sn102922.shadowflycn.com","port":5057,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"nl01-sn2928833.urltosub.com"},"tls":true}
-- {"name":"NL03","type":"vmess","server":"nl03-ipt-sn8010001.shadowflycn.com","port":5057,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"nl01-sn2928833.urltosub.com"},"tls":true}
-- {"name":"RU01","type":"vmess","server":"ru01-ipt-sn738894.shadowflycn.com","port":7200,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/v2ray","ws-headers":{"Host":"ru01-sn11988122.urltosub.com"},"tls":true}
-- {"name":"RU02","type":"vmess","server":"ru02-ipt-sn738838.shadowflycn.com","port":7200,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/v2ray","ws-headers":{"Host":"ru01-sn11988122.urltosub.com"},"tls":true}
-- {"name":"RU03","type":"vmess","server":"ru03-ipt-sn738840.shadowflycn.com","port":7200,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/v2ray","ws-headers":{"Host":"ru01-sn11988122.urltosub.com"},"tls":true}
-- {"name":"SF-AU01","type":"vmess","server":"au01-ipt-sn183999494.shadowflycn.com","port":8500,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"au01-sn1238123712.urltosub.com"},"tls":true}
-- {"name":"SF-AU02","type":"vmess","server":"au02-ipt-sn1833899911.shadowflycn.com","port":8500,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"au01-sn1238123712.urltosub.com"},"tls":true}
-- {"name":"SF-AU03","type":"vmess","server":"au03-ipt-sn910022222.shadowflycn.com","port":8500,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"au01-sn1238123712.urltosub.com"},"tls":true}
-- {"name":"SF-CA01","type":"vmess","server":"ca01-ipt-sn1232222.shadowflycn.com","port":8600,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"ca01-sn29499494.urltosub.com"},"tls":true}
-- {"name":"SF-CA02","type":"vmess","server":"ca02-ipt-sn123393994.shadowflycn.com","port":8600,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"ca01-sn29499494.urltosub.com"},"tls":true}
-- {"name":"SF-CA03","type":"vmess","server":"ca03-ipt-sn137848800.shadowflycn.com","port":8600,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"ca01-sn29499494.urltosub.com"},"tls":true}
-- {"name":"SF-FR01","type":"vmess","server":"fr01-ipt-sn7738884.shadowflycn.com","port":8872,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"fr01-sn92883956.urltosub.com"},"tls":true}
-- {"name":"SF-FR02","type":"vmess","server":"fr02-ipt-sn7790082.shadowflycn.com","port":8872,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"fr01-sn92883956.urltosub.com"},"tls":true}
-- {"name":"SF-FR03","type":"vmess","server":"fr03-ipt-sn7799922.shadowflycn.com","port":8872,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"fr01-sn92883956.urltosub.com"},"tls":true}
-- {"name":"SF-GM01","type":"vmess","server":"gm01-ipt-sn72992291.shadowflycn.com","port":8700,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"gm01-sn2943556.urltosub.com"},"tls":true}
-- {"name":"SF-GM02","type":"vmess","server":"gm02-ipt-sn90200222.shadowflycn.com","port":8700,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"gm01-sn2943556.urltosub.com"},"tls":true}
-- {"name":"SF-GM03","type":"vmess","server":"gm03-ipt-sn9920000022.shadowflycn.com","port":8700,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"gm01-sn2943556.urltosub.com"},"tls":true}
-- {"name":"SF-IT01","type":"vmess","server":"it01-ipt-sn2788256.shadowflycn.com","port":5056,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"it01-sn292200.urltosub.com"},"tls":true}
-- {"name":"SF-IT02","type":"vmess","server":"it02-ipt-sn289201.shadowflycn.com","port":5056,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"it01-sn292200.urltosub.com"},"tls":true}
-- {"name":"SF-IT03","type":"vmess","server":"it03-ipt-sn9192000.shadowflycn.com","port":5056,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"it01-sn292200.urltosub.com"},"tls":true}
-- {"name":"SG01","type":"vmess","server":"sg01-ipt-sn920332.shadowflycn.com","port":6800,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/v2ray","ws-headers":{"Host":"sg01-sn11390290.urltosub.com"},"tls":true}
-- {"name":"SG02","type":"vmess","server":"sg01-ipt-sn920332.shadowflycn.com","port":6800,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/v2ray","ws-headers":{"Host":"sg01-sn11390290.urltosub.com"},"tls":true}
-- {"name":"SG03","type":"vmess","server":"sg01-ipt-sn920332.shadowflycn.com","port":6800,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/v2ray","ws-headers":{"Host":"sg01-sn11390290.urltosub.com"},"tls":true}
-- {"name":"TH01","type":"vmess","server":"th01-ipt-sn928323.shadowflycn.com","port":8100,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"th01-sn11982993.urltosub.com"},"tls":true}
-- {"name":"TH02","type":"vmess","server":"th02-ipt-sn983099.shadowflycn.com","port":8100,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"th01-sn11982993.urltosub.com"},"tls":true}
-- {"name":"TH03","type":"vmess","server":"th03-ipt-sn9839939.shadowflycn.com","port":8100,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"th01-sn11982993.urltosub.com"},"tls":true}
-- {"name":"TR01","type":"vmess","server":"tr01-ipt-sn728940.shadowflycn.com","port":7300,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/v2ray","ws-headers":{"Host":"tr01-sn11988122.urltosub.com"},"tls":true}
-- {"name":"TR02","type":"vmess","server":"tr02-ipt-sn726911.shadowflycn.com","port":7300,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/v2ray","ws-headers":{"Host":"tr01-sn11988122.urltosub.com"},"tls":true}
-- {"name":"TR03","type":"vmess","server":"tr03-ipt-sn738970.shadowflycn.com","port":7300,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/v2ray","ws-headers":{"Host":"tr01-sn11988122.urltosub.com"},"tls":true}
-- {"name":"TW01","type":"vmess","server":"tw01-ipt-sn672833.shadowflycn.com","port":7600,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/v2ray","ws-headers":{"Host":"tw01-sn11988122.urltosub.com"},"tls":true}
-- {"name":"TW02","type":"vmess","server":"tw02-ipt-sn672850.shadowflycn.com","port":7600,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/v2ray","ws-headers":{"Host":"tw01-sn11988122.urltosub.com"},"tls":true}
-- {"name":"TW03","type":"vmess","server":"tw03-ipt-sn672893.shadowflycn.com","port":7600,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/v2ray","ws-headers":{"Host":"tw01-sn11988122.urltosub.com"},"tls":true}
-- {"name":"UK01","type":"vmess","server":"uk01-ipt-sn378922.shadowflycn.com","port":6900,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/v2ray","ws-headers":{"Host":"uk01-sn11988122.urltosub.com"},"tls":true}
-- {"name":"UK02","type":"vmess","server":"uk01-ipt-sn378922.shadowflycn.com","port":6900,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/v2ray","ws-headers":{"Host":"uk01-sn11988122.urltosub.com"},"tls":true}
-- {"name":"UK03","type":"vmess","server":"uk01-ipt-sn378922.shadowflycn.com","port":6900,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/v2ray","ws-headers":{"Host":"uk01-sn11988122.urltosub.com"},"tls":true}
-- {"name":"US01","type":"vmess","server":"us01-ipt-sn11389090.urltosub.com","port":6700,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/v2ray","ws-headers":{"Host":"us01-sn11389090.urltosub.com"},"tls":true}
-- {"name":"US02","type":"vmess","server":"us01-ipt-sn11389090.urltosub.com","port":6803,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"us02-sn3888490.urltosub.com"},"tls":true}
-- {"name":"US03","type":"vmess","server":"us01-ipt-sn11389090.urltosub.com","port":6803,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"us02-sn3888490.urltosub.com"},"tls":true}
-- {"name":"US04","type":"vmess","server":"us01-ipt-sn11389090.urltosub.com","port":6803,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"us02-sn3888490.urltosub.com"},"tls":true}
-- {"name":"US05","type":"vmess","server":"us01-ipt-sn11389090.urltosub.com","port":6803,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"us02-sn3888490.urltosub.com"},"tls":true}
-- {"name":"US06","type":"ssr","server":"us06-l1-sn8988929S000.shadowflycn.com","port":"910","cipher":"aes-256-cfb","password":"gskhd89jsh","protocol":"auth_aes128_md5","protocolparam":"67786:jWzLgU","obfs":"tls1.2_ticket_auth","obfsparam":"2e89867786.microsoft.com"}
-- {"name":"US07","type":"ssr","server":"us06-l1-sn8988929S000.shadowflycn.com","port":"910","cipher":"aes-256-cfb","password":"gskhd89jsh","protocol":"auth_aes128_md5","protocolparam":"67786:jWzLgU","obfs":"tls1.2_ticket_auth","obfsparam":"2e89867786.microsoft.com"}
-- {"name":"US08","type":"ssr","server":"us06-l1-sn8988929S000.shadowflycn.com","port":"910","cipher":"aes-256-cfb","password":"gskhd89jsh","protocol":"auth_aes128_md5","protocolparam":"67786:jWzLgU","obfs":"tls1.2_ticket_auth","obfsparam":"2e89867786.microsoft.com"}
-- {"name":"VN01","type":"vmess","server":"vn01-ipt-sn127727290.shadowflycn.com","port":5055,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"vn01-sn2389933.urltosub.com"},"tls":true}
-- {"name":"VN02","type":"vmess","server":"vn02-ipt-sn127789.shadowflycn.com","port":5055,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"vn01-sn2389933.urltosub.com"},"tls":true}
-- {"name":"VN03","type":"vmess","server":"vn03-ipt-sn1277829.shadowflycn.com","port":5055,"uuid":"3859fb61-60e1-3e92-8b47-4fe0bac80955","alterId":0,"cipher":"auto","udp":true,"network":"ws","ws-path":"/baidu","ws-headers":{"Host":"vn01-sn2389933.urltosub.com"},"tls":true}
-
-proxy-groups:
--
-  name: Proxy
-  type: select
-  proxies:
-    - HK01
-    - HK02
-    - HK03
-    - HK04
-    - HK05
-    - HK06
-    - HK07
-    - HK08
-    - HK09
-    - HK10
-    - HK11
-    - HK12
-    - HK13
-    - HK14
-    - HK15
-    - HK16
-    - JP01
-    - JP02
-    - JP03
-    - JP04
-    - JP05
-    - JP06
-    - JP07
-    - JP08
-    - JP09
-    - JP10
-    - JP11
-    - JP12
-    - JP13
-    - JP14
-    - KR01
-    - KR02
-    - KR03
-    - NL01
-    - NL02
-    - NL03
-    - RU01
-    - RU02
-    - RU03
-    - SF-AU01
-    - SF-AU02
-    - SF-AU03
-    - SF-CA01
-    - SF-CA02
-    - SF-CA03
-    - SF-FR01
-    - SF-FR02
-    - SF-FR03
-    - SF-GM01
-    - SF-GM02
-    - SF-GM03
-    - SF-IT01
-    - SF-IT02
-    - SF-IT03
-    - SG01
-    - SG02
-    - SG03
-    - TH01
-    - TH02
-    - TH03
-    - TR01
-    - TR02
-    - TR03
-    - TW01
-    - TW02
-    - TW03
-    - UK01
-    - UK02
-    - UK03
-    - US01
-    - US02
-    - US03
-    - US04
-    - US05
-    - US06
-    - US07
-    - US08
-    - VN01
-    - VN02
-    - VN03
-
-
-# 规则
-rules:
-  # (Proxy)
-  # When modifying the file, MUST modify the file in C:\Software\Clash\ClashR for Windows\resources\static\files\profiles simultaneously
-  # When modifying the file, MUST modify the file in C:\Software\Clash\ClashR for Windows\resources\static\files\profiles simultaneously
-  # When modifying the file, MUST modify the file in C:\Software\Clash\ClashR for Windows\resources\static\files\profiles simultaneously
-  # (Proxy)
-  # > ABC Diff --> Update
-  - 'DOMAIN-KEYWORD,github,Proxy'
-  - 'DOMAIN-KEYWORD,algolia,Proxy'
-  - 'DOMAIN-KEYWORD,grafana,Proxy'
-  - 'DOMAIN-KEYWORD,python,Proxy'
-  - 'DOMAIN-KEYWORD,bootstrapcdn,Proxy'
-  - 'DOMAIN-KEYWORD,cloudflare,Proxy'
-  - 'IP-CIDR,88.0.0.0/8,DIRECT'
-  - 'IP-CIDR,10.0.0.0/8,DIRECT'
-  - 'DOMAIN-KEYWORD,programcreek,Proxy'
-  - 'DOMAIN-KEYWORD,redhat,Proxy'
-  - 'DOMAIN-KEYWORD,streamsets,Proxy'
-  - 'DOMAIN-KEYWORD,cloudera,Proxy'
-  - 'DOMAIN-KEYWORD,amundsen,Proxy'
-  - 'DOMAIN-KEYWORD,delta,Proxy'
-  - 'DOMAIN-KEYWORD,datahub,Proxy'
-  - 'DOMAIN-KEYWORD,apache,Proxy'
-  - 'DOMAIN-KEYWORD,debezium,Proxy'
-  - 'DOMAIN-KEYWORD,elastic,Proxy'
-  - 'DOMAIN-KEYWORD,jetbrains,Proxy'
-  - 'DOMAIN-KEYWORD,infinispan,Proxy'
-  - 'DOMAIN-KEYWORD,asktom,Proxy'
-  - 'DOMAIN-SUFFIX,elastic.co,Proxy'
-  - 'DOMAIN-SUFFIX,edgedatg.com,Proxy'
-  - 'DOMAIN-SUFFIX,go.com,Proxy'
-  - 'DOMAIN-SUFFIX,edgedatg.com,Proxy'
-  - 'DOMAIN-SUFFIX,go.com,Proxy'
-  - 'DOMAIN-KEYWORD,mysqltutorial,Proxy'
-  - 'DOMAIN-KEYWORD,linkedin,Proxy'
-  - 'DOMAIN-KEYWORD,mongodb,Proxy'
-  - 'DOMAIN-KEYWORD,gradle,Proxy'
-  - 'DOMAIN-KEYWORD,metabase,Proxy'
-  - 'DOMAIN-KEYWORD,greatexpectations,Proxy'
-  - 'DOMAIN-SUFFIX,pypi.org,DIRECT'
-  - 'DOMAIN-KEYWORD,prometheus.io,Proxy'
-  - 'DOMAIN,usersub.urltosub.com,DIRECT'
-  - 'DOMAIN,n3.leensasf.us,DIRECT'
+- 'DOMAIN-KEYWORD,github,Proxy'
+- 'DOMAIN-KEYWORD,readthedocs,Proxy'
+- 'DOMAIN-KEYWORD,algolia,Proxy'
+- 'DOMAIN-KEYWORD,grafana,Proxy'
+- 'DOMAIN-KEYWORD,python,Proxy'
+- 'DOMAIN-KEYWORD,bootstrapcdn,Proxy'
+- 'DOMAIN-KEYWORD,cloudflare,Proxy'
+- 'IP-CIDR,88.0.0.0/8,DIRECT'
+- 'IP-CIDR,10.0.0.0/8,DIRECT'
+- 'DOMAIN-KEYWORD,programcreek,Proxy'
+- 'DOMAIN-KEYWORD,redhat,Proxy'
+- 'DOMAIN-KEYWORD,streamsets,Proxy'
+- 'DOMAIN-KEYWORD,cloudera,Proxy'
+- 'DOMAIN-KEYWORD,amundsen,Proxy'
+- 'DOMAIN-KEYWORD,delta,Proxy'
+- 'DOMAIN-KEYWORD,datahub,Proxy'
+- 'DOMAIN-KEYWORD,apache,Proxy'
+- 'DOMAIN-KEYWORD,debezium,Proxy'
+- 'DOMAIN-KEYWORD,elastic,Proxy'
+- 'DOMAIN-KEYWORD,jetbrains,Proxy'
+- 'DOMAIN-KEYWORD,infinispan,Proxy'
+- 'DOMAIN-KEYWORD,asktom,Proxy'
+- 'DOMAIN-SUFFIX,elastic.co,Proxy'
+- 'DOMAIN-SUFFIX,edgedatg.com,Proxy'
+- 'DOMAIN-SUFFIX,go.com,Proxy'
+- 'DOMAIN-SUFFIX,edgedatg.com,Proxy'
+- 'DOMAIN-SUFFIX,go.com,Proxy'
+- 'DOMAIN-KEYWORD,mysqltutorial,Proxy'
+- 'DOMAIN-KEYWORD,linkedin,Proxy'
+- 'DOMAIN-KEYWORD,mongodb,Proxy'
+- 'DOMAIN-KEYWORD,gradle,Proxy'
+- 'DOMAIN-KEYWORD,metabase,Proxy'
+- 'DOMAIN-KEYWORD,greatexpectations,Proxy'
+- 'DOMAIN-SUFFIX,pypi.org,DIRECT'
+- 'DOMAIN-KEYWORD,prometheus.io,Proxy'
+- 'DOMAIN,usersub.urltosub.com,DIRECT'
+- 'DOMAIN,n3.leensasf.us,DIRECT'

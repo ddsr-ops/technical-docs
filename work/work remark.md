@@ -142,8 +142,6 @@ todo: **Star product**
 producers --> kafka cluster --> consumers  
 connectors                      ss, flink, java programs
 
-todo: 151 network card
-
 January，February，March，April，May，June，July，August，September，October，November，December
 
 https://github.com/open-falcon/falcon-plus
@@ -160,7 +158,7 @@ Inner dataset lineage:
 
 Flume1 on FE1    ----\
 Flume2 on FE2    ----\
-Flume3 on FE3    ----> One topic In kafka ----> Flink ----> DATAHUB
+Flume3 on FE3    ----> One topic In kafka ----> Flink(Py) ----> DATAHUB
 Flume4 on FE4    ----/
 ......           ----/
 
