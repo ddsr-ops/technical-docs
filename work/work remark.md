@@ -1,14 +1,9 @@
 * **MILESTONE** 
 * **NOTABLE DETAILS**
-
-datahub roadmap中，明确表示支持三大数据湖  
-
 ***************************************************************************************************************************************************************************************************
 es scripting, lang - painless
 
 DataX/core/src/main/java/com/alibaba/datax/core/transport/channel/Channel.java
-
-ENV: batch and streaming, metadata, data quality
 
 todo: check sdm and dictionary table to judge whether new dict value appears, essential to notify us via sms?  
 checked it, but there are some codes in sql statements and no notification to us.  
@@ -17,11 +12,7 @@ sql audit : yearning, soar, sql advisor, sqlE
 
 operation and maintenance management platform : spug
 
-在既有的github url前面添加`https://github.91chi.fun/`实现加速克隆
-
 todo: new features of maxscale 
-
-column lineage is accessible via datahub api, but invisible in ui. 
 
 https://www.runoob.com/w3cnote/java-annotation.html
 
@@ -36,8 +27,7 @@ https://www.runoob.com/w3cnote/java-annotation.html
 
 todo: ingest griffin result to visualize in the grafana.
 If great_expectations will be engaged to manage data quality, griffin could be deprecated.
-
-todo: engage supervisor to manage doris or starrocks processes.
+GE job running overview
 
 todo: 凡影响生产流水线的复杂脚本，上线前需经过测试和脚本审计，大家看下pipeline如何制定合适？不拘泥于形式，但过程必须有。
 
@@ -47,19 +37,15 @@ todo: 凡影响生产流水线的复杂脚本，上线前需经过测试和脚�
 3. 推进老年卡年审人脸比对，包括开发计划、照片采集策略
 4. 设计StarRocks内部ETL血缘信息采集架构
 
-doris  --> starrocks， StarRocks官方针对0.14 doris版本，没有迁移方案
-
 smart eyes:   
 https://my2ylp9qe3.feishu.cn/sheets/shtcnnbIqeW2swlRIAiORPywuOw
 
 https://www.it610.com/article/1297799168231809024.htm
 
 [利用jemalloc解决flink的内存溢出问题](https://blog.csdn.net/Deepexi_Date/article/details/125396199)
-todo: flink 1.11.3 job no metrics
+todo: flink 1.11.3 job no metrics, consider upgrading flink version
 
 https://www.cnblogs.com/huxi2b/p/6223228.html
-
-down to the bottom fo development
 
 https://www.astronomer.io/blog/apache-nifi-vs-airflow/
 
@@ -91,11 +77,7 @@ https://blog.csdn.net/weixin_43991475/article/details/124980475
 
 https://blog.csdn.net/lovetechlovelife/article/details/112471839
 
-todo: inet speed, StarRocks server net speed abnormal
-
 Todo: ingest StarRocks metadata and profile ?
-
-system setting permanently
 
 during 00:00-00:15 every morning, `UPDATE DC_USER_DIS_CARD_RESTRICT T SET T.DAY_USE_TIMES = 0`
 Fix has been done, but not published.
@@ -139,9 +121,6 @@ https://github.com/didi/KnowStreaming
 
 todo: **Star product**
 
-producers --> kafka cluster --> consumers  
-connectors                      ss, flink, java programs
-
 January，February，March，April，May，June，July，August，September，October，November，December
 
 https://github.com/open-falcon/falcon-plus
@@ -162,7 +141,25 @@ Flume3 on FE3    ----> One topic In kafka ----> Flink(Py) ----> DATAHUB
 Flume4 on FE4    ----/
 ......           ----/
 
+todo: kafka schema and connect schema
 
 https://www.cnblogs.com/shanfeng1000/p/14691301.html
 
 [禁止分片的分配](https://blog.csdn.net/weixin_28906733/article/details/106282464)
+
+1、跟进kafka集群迁移工作, 老集群数据迁移完成，相关应用迁移完成
+2、推动GE线上量产工作
+3、梳理NFC交易订单类中间状态保留细节，重构NFC对比分析数据源部分
+4、改造grafana dashboard，纳管新机器资源
+5、修复新用户数据库user_base表生日字段
+
+todo: make three dashboards to get overview infos of separated clusters,
+hadoop cluster(including spark), flink cluster, starrocks and kafka cluster?  
+
+todo: metro mlc diff analysis, deadline date: 2023-02-22
+
+todo: nfc trade status evolution
+
+https://blog.csdn.net/du18020126395/article/details/124443829
+
+todo: kafka connect schema ingestion
