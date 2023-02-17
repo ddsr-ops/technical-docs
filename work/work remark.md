@@ -160,6 +160,4 @@ todo: metro mlc diff analysis, deadline date: 2023-02-22
 
 todo: nfc trade status evolution
 
-https://blog.csdn.net/du18020126395/article/details/124443829
-
 todo: kafka connect schema ingestion
