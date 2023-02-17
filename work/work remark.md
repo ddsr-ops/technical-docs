@@ -153,11 +153,22 @@ https://www.cnblogs.com/shanfeng1000/p/14691301.html
 4、改造grafana dashboard，纳管新机器资源
 5、修复新用户数据库user_base表生日字段
 
-todo: make three dashboards to get overview infos of separated clusters,
+done: make three dashboards to get overview infos of separated clusters,
 hadoop cluster(including spark), flink cluster, starrocks and kafka cluster?  
+
+Yeah, three clusters are divided into three jobs which job names might be specified by cluster name other than 'node_exporter' 
+
 
 todo: metro mlc diff analysis, deadline date: 2023-02-22
 
 todo: nfc trade status evolution
 
 todo: kafka connect schema ingestion
+
+mysql_tftactdb_master
+
+1、地铁MLC差异分析程序在新清算的配置和上线
+2、Kafka及Kafka Connect元数据摄入数据治理平台
+3、推进GE量产工作, TSM数据库
+
+provided_configs, refer to kafka_connect_to_file.yml

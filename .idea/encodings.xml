@@ -3,5 +3,6 @@
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$/cdc/当grafana图表中存在相同度量名称Label却不同.md" charset="GBK" />
     <file url="file://$PROJECT_DIR$/monitor/node_exporter/生产环境部署node_exporter.md" charset="GBK" />
+    <file url="PROJECT" charset="GBK" />
   </component>
 </project>
