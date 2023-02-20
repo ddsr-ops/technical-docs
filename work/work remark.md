@@ -145,30 +145,34 @@ todo: kafka schema and connect schema
 
 https://www.cnblogs.com/shanfeng1000/p/14691301.html
 
-[禁止分片的分配](https://blog.csdn.net/weixin_28906733/article/details/106282464)
-
-1、跟进kafka集群迁移工作, 老集群数据迁移完成，相关应用迁移完成
-2、推动GE线上量产工作
-3、梳理NFC交易订单类中间状态保留细节，重构NFC对比分析数据源部分
-4、改造grafana dashboard，纳管新机器资源
-5、修复新用户数据库user_base表生日字段
-
 done: make three dashboards to get overview infos of separated clusters,
 hadoop cluster(including spark), flink cluster, starrocks and kafka cluster?  
 
 Yeah, three clusters are divided into three jobs which job names might be specified by cluster name other than 'node_exporter' 
 
-
 todo: metro mlc diff analysis, deadline date: 2023-02-22
 
-todo: nfc trade status evolution
-
-todo: kafka connect schema ingestion
-
-mysql_tftactdb_master
+todo: nfc trade status evolution <<< prerequisites
 
 1、地铁MLC差异分析程序在新清算的配置和上线
 2、Kafka及Kafka Connect元数据摄入数据治理平台
 3、推进GE量产工作, TSM数据库
 
-provided_configs, refer to kafka_connect_to_file.yml
+mysql_tftactdb_master  - provided_configs, refer to kafka_connect_to_file.yml
+
+1. Database configuration and get real time of frms to be online
+2. Let liuyi explain what script of GE to make
+3. nfc trade status evolution <<< prerequisites
+4. doris --> starrocks, they serve together ? incremental migration
+
+todo: Migrate flink jobs
+
+下周 csr 上线之后 MLC相关表结构就和frms生产环境一致了
+
+待确认事项如下:
+1. 明确CSR的MLC相关表结构具备时间
+2. 提供CSR项目数据库生产环境IP、端口、用户密码（写权限）等连接相关信息
+
+注：MLC相关数据，只可写入CSR上线次日后的数据，不做历史补数处理。
+
+Deploy software on SSD disk?
