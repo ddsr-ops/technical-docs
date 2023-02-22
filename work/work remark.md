@@ -150,13 +150,14 @@ hadoop cluster(including spark), flink cluster, starrocks and kafka cluster?
 
 Yeah, three clusters are divided into three jobs which job names might be specified by cluster name other than 'node_exporter' 
 
-todo: metro mlc diff analysis, deadline date: 2023-02-22
+todo: metro mlc diff analysis, deadline date: 2023-02-24
 
 todo: nfc trade status evolution <<< prerequisites
 
 1、地铁MLC差异分析程序在新清算的配置和上线
 2、Kafka及Kafka Connect元数据摄入数据治理平台
 3、推进GE量产工作, TSM数据库
+4、参与个人统计信息收集V1.0.0数据库审计
 
 mysql_tftactdb_master  - provided_configs, refer to kafka_connect_to_file.yml
 
@@ -167,12 +168,7 @@ mysql_tftactdb_master  - provided_configs, refer to kafka_connect_to_file.yml
 
 todo: Migrate flink jobs
 
-下周 csr 上线之后 MLC相关表结构就和frms生产环境一致了
-
-待确认事项如下:
-1. 明确CSR的MLC相关表结构具备时间
-2. 提供CSR项目数据库生产环境IP、端口、用户密码（写权限）等连接相关信息
-
-注：MLC相关数据，只可写入CSR上线次日后的数据，不做历史补数处理。
-
 Deploy software on SSD disk?
+
+todo: Wi-Fi of original home 
+todo: micro computer power adapter

@@ -1,6 +1,12 @@
-import re
+class Pconfig:
+    # provider: str
+    # path_key: str
 
-topic = "mysql_93_base_test1.msx_online.user_base"
-topic_naming_pattern = r"({0})\.(\w+\.\w+)".format("mysql_93_base_test2")
-found = re.search(re.compile(topic_naming_pattern), topic)
-print(found.group(2))
+    def __init__(self, provider, path_key):
+        self.provider = provider
+        self.path_key = path_key
+
+
+pconfig = Pconfig("p", "k")
+
+print(f"${{{pconfig.provider}:{pconfig.path_key}}}")
