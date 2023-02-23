@@ -171,4 +171,3 @@ todo: Migrate flink jobs
 Deploy software on SSD disk?
 
 todo: Wi-Fi of original home 
-todo: micro computer power adapter
