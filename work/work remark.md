@@ -154,10 +154,11 @@ todo: metro mlc diff analysis, deadline date: 2023-02-24
 
 todo: nfc trade status evolution <<< prerequisites
 
-1、地铁MLC差异分析程序在新清算的配置和上线
-2、Kafka及Kafka Connect元数据摄入数据治理平台
+1、地铁MLC差异分析程序在新清算的配置和上线，因CSR
+2、Kafka及Kafka Connect元数据摄入数据治理平台，Ingestion rollback存在异常，官方尚未解决
 3、推进GE量产工作, TSM数据库
 4、参与个人统计信息收集V1.0.0数据库审计
+5、复审APP6.1.0数据库操作
 
 mysql_tftactdb_master  - provided_configs, refer to kafka_connect_to_file.yml
 
@@ -171,3 +172,9 @@ todo: Migrate flink jobs
 Deploy software on SSD disk?
 
 todo: Wi-Fi of original home 
+
+todo: knowstreaming
+
+todo: review database manipulation of 6.3 
+
+when rollback kafka or kafka-connect ingestion, some problems appear, refer to https://github.com/datahub-project/datahub/issues/6733. 

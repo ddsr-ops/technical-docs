@@ -2,3 +2,8 @@ select biz_id,trip_no,fellow_no,raw_trip_no,raw_fellow_no,user_id,in_voucher_no,
 select biz_id,trip_no,fellow_no,raw_trip_no,raw_fellow_no,user_id,in_voucher_no,app_id,in_line_no,in_line_name,in_station_no,in_station_name,in_time,in_status,out_voucher_no,in_confirm_type,out_line_no,out_line_name,out_station_no,out_station_name,out_time,out_status,out_confirm_type,mileage,trip_sts,op_id,service_id,order_no,raw_order_no,fee_mode,trans_time,trans_amount,base_amount,discount_amount,fine_amount,discount_desc,fine_desc,payment_status,refund_no,raw_refund_no,refund_time,refund_type,refund_amount,claim_push_status,reserved1,reserved2,reserved3,create_time,update_time,data_dt,row_number() over (partition by trip_no, fellow_no order by update_time desc) as rk from hadoop_catalog.sdm.s_tft_xcgl_j_trip_open i where data_dt = '20230221'
 
 biz_id,trip_no,fellow_no,raw_trip_no,raw_fellow_no,user_id,in_voucher_no,app_id,in_line_no,in_line_name,in_station_no,in_station_name,in_time,in_status,out_voucher_no,in_confirm_type,out_line_no,out_line_name,out_station_no,out_station_name,out_time,out_status,out_confirm_type,mileage,trip_sts,op_id,service_id,order_no,raw_order_no,fee_mode,trans_time,trans_amount,base_amount,discount_amount,fine_amount,discount_desc,fine_desc,payment_status,refund_no,raw_refund_no,refund_time,refund_type,refund_amount,claim_push_status,reserved1,reserved2,reserved3,create_time,update_time,data_dt,rk
+
+
+datahub delete --platform kafka-connect --entity_type=dataset --hard
+datahub delete --platform kafka-connect --entity_type=dataflow --hard
+datahub delete --platform kafka-connect --entity_type=datajob --hard # task
