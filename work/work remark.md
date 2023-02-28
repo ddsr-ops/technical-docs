@@ -193,3 +193,12 @@ inhibit fxq connector alertor 2023-2-24 23:36:57 >> delete fxq connector 2023-2-
 redo + no mode skip scn  : insert config table before create connector
 when skipped , revert mode : delete and recreate 
 recover sms
+
+insert into debezium_signal values('ad-hoc-2','execute-snapshot', '{"data-collections": ["msx_online.user_base"],"type":"incremental"}');
+
+1. create connector and init data
+2. mock some dmls, ensure them are ingested
+3. stop connector and stop one node, but dmls are stopped at the same time
+4. start nodes , then start connector
+
+
