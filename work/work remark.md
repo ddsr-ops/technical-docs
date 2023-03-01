@@ -202,3 +202,4 @@ insert into debezium_signal values('ad-hoc-2','execute-snapshot', '{"data-collec
 4. start nodes , then start connector
 
 
+

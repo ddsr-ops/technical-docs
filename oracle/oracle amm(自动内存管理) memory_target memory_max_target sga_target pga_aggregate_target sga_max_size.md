@@ -137,3 +137,4 @@ alter system set sga_target = 0 scope=both;
 
 alter system set pga_aggregate_target = 0 scope=both;
 
+如果不能正常设置， 则只有通过修改pfile文件后重启实例。
