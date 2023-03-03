@@ -161,10 +161,10 @@ todo: nfc trade status evolution <<< prerequisites
 5、复审APP6.1.0数据库操作
 6、配合运维重启fxq数据库，oracle cdc链路疑似触发oracle bug，本周予以调查
 
-1、地铁MLC差异分析程序在新清算的配置和上线
-2、在生产环境安装datahub cli工具
+1、完成地铁MLC差异分析程序在新清算的配置和上线
+2、完成在生产环境安装datahub cli工具
 3、继续推进GE量产工作, TSM数据库
-4、调查oracle数据库重启后，cdc链路无法正常摄取日志的问题。在虚拟机环境中，仅发生日志切换和checkpoint动作后，便复现该问题。
+4、调查oracle数据库重启后，cdc链路无法正常摄取日志的问题。在虚拟机环境中，仅发生数据库内存参数调整后，便复现该问题。
 该问题触发Oracle内部BUG，经查官方称该BUG已在11.2.0.4版本（生产环境版本同此）中得以解决，但实际仍然触发该BUG。
 
 mysql_tftactdb_master  - provided_configs, refer to kafka_connect_to_file.yml
@@ -203,11 +203,6 @@ insert into debezium_signal values('ad-hoc-2','execute-snapshot', '{"data-collec
 4. start nodes , then start connector
 
 
-`alter system switch logfile;`, `alter system checkpoint`, 数据库的重启都不会出发CDC关于logmnr的BUG。
-但是调整了数据库的内存参数，如`memory_target, memory_max_target, sga_target, pga_aggregate_target`, 则会触发BUG。
-已遇见的BUG列表：
-* 13507159 logminer raises ORA-600 [krvxread001]
-* 14458322 ORA-600 [krvxrrts05] from LogMiner during SQL apply in RAC 
 
 
 
