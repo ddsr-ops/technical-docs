@@ -16,6 +16,7 @@ tar -zxf apache-maven-3.8.2-bin.tar.gz
 echo "export PATH=$PATH:/root/apache-maven-3.8.2/bin:$JAVA_HOME/bin" >> /etc/profile
 source /etc/profile
 ```
+Note: Maven of version 3.9.0 not works
 
 # install oracle-instant-client
 download:  https://www.oracle.com/cn/database/technologies/instant-client/linux-x86-64-downloads.html  

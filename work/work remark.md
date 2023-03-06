@@ -35,7 +35,22 @@ todo: 凡影响生产流水线的复杂脚本，上线前需经过测试和脚�
 1. 完成Kafka集群的迁移方案制定，并完成迁移
 2. 完成服务器主机资源监控，纳入Grafana管理
 3. 推进老年卡年审人脸比对，包括开发计划、照片采集策略
-4. 设计StarRocks内部ETL血缘信息采集架构
+4. 完成StarRocks内部ETL血缘信息采集架构设计工作
+
+3月工作计划：
+1. 编写StarRocks安装文档，完成在新硬件环境的安装调试
+2. 改进数据总线Oracle CDC组件，提高其日志挖掘分析的灵活性
+3. 推进数据质量度量组件在数据湖Iceberg的投产应用
+
+
+2月内容
+1. 人脸比对项目：① 完成模型训练、上线服务化两条链路；② 基于外部36W人脸数据清洗老年人照片共2k人
+2. 联邦学习平台：调研并搭建基于FATE开源、Cluster模式的联邦学习平台，进度70%
+
+3月计划
+1. 人脸比对项目：① 基于清洗后的2k人划出阈值，并基于此样本尝试模型重训效果；② Nginx+Gunicorn并发测试
+2. 联邦学习平台：部署完成并跑通测试实例
+3. 唯品富邦联合建模：参与联合建模模型构建，完成模型上线
 
 smart eyes:   
 https://my2ylp9qe3.feishu.cn/sheets/shtcnnbIqeW2swlRIAiORPywuOw
@@ -78,14 +93,6 @@ https://blog.csdn.net/weixin_43991475/article/details/124980475
 https://blog.csdn.net/lovetechlovelife/article/details/112471839
 
 Todo: ingest StarRocks metadata and profile ?
-
-during 00:00-00:15 every morning, `UPDATE DC_USER_DIS_CARD_RESTRICT T SET T.DAY_USE_TIMES = 0`
-Fix has been done, but not published.
-
-1. 撰写GE操作说明文档质量规则上线部署部分
-2. 针对已审阅的Kafka集群迁移方案，整理整改意见
-3. 调研GE Action的定制开发，以便打通异常度量结果的告警通路
-4. 恢复研发、测试环境的数据库服务
 
 todo: GE结果能顺利投递至DATAHUB中，但是失败和成功的度量结果展示密集后，不可见, BooleanTimeline.tsx
 一般来说， 短时间内，多次投递度量结果在度量结果上可能存在显示不友好，不利于阅读。
@@ -145,64 +152,35 @@ todo: kafka schema and connect schema
 
 https://www.cnblogs.com/shanfeng1000/p/14691301.html
 
-done: make three dashboards to get overview infos of separated clusters,
-hadoop cluster(including spark), flink cluster, starrocks and kafka cluster?  
-
 Yeah, three clusters are divided into three jobs which job names might be specified by cluster name other than 'node_exporter' 
 
-todo: metro mlc diff analysis, deadline date: 2023-02-24
-
-todo: nfc trade status evolution <<< prerequisites
-
-1、地铁MLC差异分析程序在新清算的配置和上线，目前尚未配置上线
-2、Kafka及Kafka Connect元数据摄入数据治理平台，Ingestion rollback存在异常，官方尚未解决
-3、推进GE量产工作, TSM数据库
-4、参与个人统计信息收集V1.0.0数据库审计
-5、复审APP6.1.0数据库操作
-6、配合运维重启fxq数据库，oracle cdc链路疑似触发oracle bug，本周予以调查
-
-1、完成地铁MLC差异分析程序在新清算的配置和上线
-2、完成在生产环境安装datahub cli工具
 3、继续推进GE量产工作, TSM数据库
-4、调查oracle数据库重启后，cdc链路无法正常摄取日志的问题。在虚拟机环境中，仅发生数据库内存参数调整后，便复现该问题。
-该问题触发Oracle内部BUG，经查官方称该BUG已在11.2.0.4版本（生产环境版本同此）中得以解决，但实际仍然触发该BUG。
 
-mysql_tftactdb_master  - provided_configs, refer to kafka_connect_to_file.yml
+1、重新搭建Debezium Oracle Plugin编译打包环境
+2、重新设计Oracle日志挖掘控制逻辑，实现更加灵活的控制
+3、实现上述功能闭环测试，包括问题重现、控制日志补挖、数据Sink完整性验证
 
-1. Database configuration and get real time of frms to be online
-2. Let liuyi explain what script of GE to make
-3. nfc trade status evolution <<< prerequisites
 4. doris --> starrocks, they serve together ? incremental migration
 
 todo: Migrate flink jobs
 
-Deploy software on SSD disk?
+when rollback kafka or kafka-connect ingestion, some problems appear, refer to https://github.com/datahub-project/datahub/issues/6733 
 
-todo: Wi-Fi of original home 
-
-todo: knowstreaming
-
-todo: review database manipulation of 6.3 
-
-when rollback kafka or kafka-connect ingestion, some problems appear, refer to https://github.com/datahub-project/datahub/issues/6733. 
-
-https://github.com/zhixingchou/BooksPDF/tree/master/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6
-
-inhibit fxq connector alertor 2023-2-24 23:36:57 >> delete fxq connector 2023-2-24 23:40:52   >> create fxq connector 
->> recover fxq connector alertor >> check connect log and topic data
-
-redo + no mode skip scn  : insert config table before create connector
-when skipped , revert mode : delete and recreate 
-recover sms
-
-insert into debezium_signal values('ad-hoc-2','execute-snapshot', '{"data-collections": ["msx_online.user_base"],"type":"incremental"}');
-
-1. create connector and init data
-2. mock some dmls, ensure them are ingested
-3. stop connector and stop one node, but dmls are stopped at the same time
-4. start nodes , then start connector
+1 3 6
+1 2 2 5
 
 
+spark-sql> select min(cnt), max(cnt) from (select data_dt, count(0) as cnt from s_tft_ups_dc_trip_order where data_dt >= '20230101' and data_dt <= '20230302' group  by data_dt) e ; 
+3279	29786
+Time taken: 4.582 seconds, Fetched 1 row(s)
+spark-sql> select min(min_length), max(max_length) from (select data_dt, min(char_length(pay_state)) as min_length, max(char_length(pay_state)) as max_length  from s_tft_ups_dc_trip_order where data_dt >= '20230101' and data_dt <= '20230302' group  by data_dt) e ; 
+2	2
+Time taken: 4.961 seconds, Fetched 1 row(s)
+spark-sql> select min(min_length), max(max_length) from (select data_dt, min(char_length(card_use_status)) as min_length, max(char_length(card_use_status)) as max_length  from s_tft_ups_dc_trip_order where data_dt >= '20230101' and data_dt <= '20230302' group  by data_dt) e ; 
+1	1
+Time taken: 2.7 seconds, Fetched 1 row(s)
 
+todo: month report
 
-
+https://robberphex.com/how-to-disable-maven-default-http-blocker/
+change repository url from http to https
