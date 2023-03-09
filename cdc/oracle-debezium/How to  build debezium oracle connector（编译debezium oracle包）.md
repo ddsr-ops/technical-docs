@@ -39,7 +39,7 @@ modify pom.xml in debezium-parent module, in detail, comment on maven-checkstyle
 
 ```shell
 mvn clean install -pl debezium-connector-oracle -am -Poracle,quick,logminer -Dinstantclient.dir=/path/to/instant-client-dir
-mvn clean install -pl debezium-connector-oracle -am -Poracle,quick,oracle-ci,infinispan-buffer -Dcheckstyle.skip=true -Dformat.skip=true -Drevapi.skip -Dinstantclient.dir=/root/instantclient_21_3
+mvn clean install -pl debezium-connector-oracle -am -Poracle,quick,oracle-ci,infinispan-buffer -Dcheckstyle.skip=true -Dformat.skip=true -Drevapi.skip -Dinstantclient.dir=/root/debezium/instantclient_21_3
 ```
 Profile oracle-ci excludes xstream jar which needs oracle ogg license. 
 
