@@ -201,5 +201,3 @@ mining phase
 more logics to control logfile mining
 
 http://www.jslfl.cn/jslfl/?p=1097
-
-todo: 2023-03-09 user base incremental snapshot
