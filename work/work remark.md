@@ -157,9 +157,17 @@ Yeah, three clusters are divided into three jobs which job names might be specif
 
 3、继续推进GE量产工作, TSM数据库
 
-1、重新搭建Debezium Oracle Plugin编译打包环境
+1、完成搭建Debezium Oracle Plugin编译打包环境
 2、重新设计Oracle日志挖掘控制逻辑，实现更加灵活的控制
-3、实现上述功能闭环测试，包括问题重现、控制日志补挖、数据Sink完整性验证
+3、完成Oracle CDC Missing LogFile问题的重现
+4、完成Oracle CDC控制日志补挖功能的实现
+5、进行Oracle CDC控制日志补挖功能的测试
+
+1、完成Oracle CDC控制日志补挖功能的测试
+2、替换线上Oracle CDC插件，完成上线
+3、继续推进GE量产工作
+
+
 
 4. doris --> starrocks, they serve together ? incremental migration
 
@@ -181,7 +189,6 @@ spark-sql> select min(min_length), max(max_length) from (select data_dt, min(cha
 1	1
 Time taken: 2.7 seconds, Fetched 1 row(s)
 
-todo: month report
 
 [dict building] --> [logfile adding] --> start mining --> end mining(manual/pga/log-switch) --> ...
 online vs redo      add vs no add         continuous
