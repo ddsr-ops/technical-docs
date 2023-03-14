@@ -208,3 +208,10 @@ mining phase
 more logics to control logfile mining
 
 http://www.jslfl.cn/jslfl/?p=1097
+
+todo: replace oracle cdc jars on the kafka1/2 nodes
+
+todo: user_base 93 incremental snapshot
+
+todo: deploy process exporter and relevant dashboards to diagnose kafka connector ? https://grafana.com/grafana/dashboards/13882-process-exporter-dashboard-with-treemap/ 
+

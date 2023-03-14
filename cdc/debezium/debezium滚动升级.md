@@ -1,4 +1,7 @@
 # TODO: supervisor
+
+copy jar and ojdbc jar > stop sms service  > delete conn  > delete config table > stop connector service > re-create connector  > start sms 
+
 # Background
 
 If connectors are deployed in distributed mode, we can upgrade debezium jars one by one. If so, we do not
