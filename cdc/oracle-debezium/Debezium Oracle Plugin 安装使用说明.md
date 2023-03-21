@@ -150,6 +150,21 @@ UPDATE LOG_MINING_CONFIG SET NEED_RESTART_MINING_SESSION = 'YES', LOG_MINING_STR
 COMMIT;
 ```
 
+**NOTE:** 如果添加的是日志中包含字典信息（添加字典），则需保证添加的日志文件包括完整的字典信息，即要选择DICT_START和DICT_END都为YES之间的所有日志。
+
+例如日志如下：
+
+|序号|DICT_START|DICT_END|
+| :--- | :--- | :--- |
+| 1 | NO | NO |
+| 2 | YES | NO |
+| 3 | NO | YES |
+| 4 | NO | NO |
+
+如果单独添加4日志，CDC会一直报缺失日志(missing logfile)的错误。因为4日志为CDC构建字典信息后生成的，不应该单独添加该日志。
+正确的方式，仅需同时添加2,3日志即可解决，4日志不用添加。
+
+
 # 查询可用日志SQL
 
 ```
