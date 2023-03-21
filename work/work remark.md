@@ -44,15 +44,6 @@ todo: 凡影响生产流水线的复杂脚本，上线前需经过测试和脚�
 4. 推进老年人脸比对项目，包括模型重训及效果监测、服务化的并发测试
 
 
-2月内容
-1. 人脸比对项目：① 完成上线服务化技术链路的打通；② 基于外部36W人脸数据清洗老年人照片共2k人
-2. 联邦学习平台：调研并搭建基于FATE开源、Cluster模式的联邦学习平台，进度70%
-
-3月计划
-1. 人脸比对项目：① 基于清洗后的2k人划出阈值，并基于此样本尝试模型重训效果；② Nginx+Gunicorn并发测试
-2. 联邦学习平台：部署完成并跑通测试实例
-3. 唯品富邦联合建模：参与联合建模模型构建，完成模型上线
-
 smart eyes:   
 https://my2ylp9qe3.feishu.cn/sheets/shtcnnbIqeW2swlRIAiORPywuOw
 
@@ -123,7 +114,6 @@ https://airflow.apache.org/docs/apache-airflow/stable/templates-ref.html#templat
 
 The government's first concern was to augment(o) the army and auxiliary forces.
 
-[Kafka MirrorMaker](https://www.cnblogs.com/felixzh/p/11508192.html)
 
 https://github.com/didi/KnowStreaming
 
@@ -136,8 +126,9 @@ https://github.com/open-falcon/falcon-plus
 todo: (column) lineage, doris lineage ?
 
 https://blog.csdn.net/woloqun/article/details/128649833
-
-https://juejin.cn/post/7169910747810496543
+https://blog.csdn.net/woloqun/article/details/128478981
+https://blog.csdn.net/woloqun/article/details/104670976#comments_25056764
+https://blog.csdn.net/qq_31866793/article/details/115719358?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-0-115719358-blog-104670976.pc_relevant_recovery_v2&spm=1001.2101.3001.4242.1&utm_relevant_index=3
 
 https://blog.csdn.net/weixin_39894473/article/details/112076395?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-0-112076395-blog-51308695.pc_relevant_3mothn_strategy_and_data_recovery&spm=1001.2101.3001.4242.1&utm_relevant_index=3
 
@@ -151,23 +142,12 @@ Flume4 on FE4    ----/
 
 todo: kafka schema and connect schema
 
-https://www.cnblogs.com/shanfeng1000/p/14691301.html
 
 Yeah, three clusters are divided into three jobs which job names might be specified by cluster name other than 'node_exporter' 
 
-3、继续推进GE量产工作, TSM数据库
-
-1、完成搭建Debezium Oracle Plugin编译打包环境
-2、重新设计Oracle日志挖掘控制逻辑，实现更加灵活的控制
-3、完成Oracle CDC Missing LogFile问题的重现
-4、完成Oracle CDC控制日志补挖功能的实现
-5、进行Oracle CDC控制日志补挖功能的测试
-
-1、完成Oracle CDC控制日志补挖功能的测试
-2、替换线上Oracle CDC插件，完成上线
-3、继续推进GE量产工作
-
-
+1、跟进StarRocks迁移情况
+2、继续推进GE量产工作，尤其新作业
+3、自动化发布探索
 
 4. doris --> starrocks, they serve together ? incremental migration
 
@@ -179,7 +159,7 @@ when rollback kafka or kafka-connect ingestion, some problems appear, refer to h
 1 2 2 5
 
 
-spark-sql> select min(cnt), max(cnt) from (select data_dt, count(0) as cnt from s_tft_ups_dc_trip_order where data_dt >= '20230101' and data_dt <= '20230302' group  by data_dt) e ; 
+spark-sql> select min(cnt), max(cnt) from (select data_dt, count(0) as cnt from hadoop_catalog.sdm.s_tft_ups_dc_trip_order where data_dt >= '20230101' and data_dt <= '20230302' group  by data_dt) e ; 
 3279	29786
 Time taken: 4.582 seconds, Fetched 1 row(s)
 spark-sql> select min(min_length), max(max_length) from (select data_dt, min(char_length(pay_state)) as min_length, max(char_length(pay_state)) as max_length  from s_tft_ups_dc_trip_order where data_dt >= '20230101' and data_dt <= '20230302' group  by data_dt) e ; 
@@ -189,29 +169,26 @@ spark-sql> select min(min_length), max(max_length) from (select data_dt, min(cha
 1	1
 Time taken: 2.7 seconds, Fetched 1 row(s)
 
-
-[dict building] --> [logfile adding] --> start mining --> end mining(manual/pga/log-switch) --> ...
-online vs redo      add vs no add         continuous
-
-online + online  
-ONLINE + REDO  ×
-redo + redo  ...
-REDO + ONLINE  ×
-at the init phase?
-
-1 must enable continuous
-
-init phase
-
-mining phase 
-
-more logics to control logfile mining
-
-http://www.jslfl.cn/jslfl/?p=1097
-
-todo: replace oracle cdc jars on the kafka1/2 nodes
-
-todo: user_base 93 incremental snapshot
-
 todo: deploy process exporter and relevant dashboards to diagnose kafka connector ? https://grafana.com/grafana/dashboards/13882-process-exporter-dashboard-with-treemap/ 
 
+
+select min(cnt), max(cnt) from (select data_dt, count(0) as cnt from hadoop_catalog.sdm.s_tft_tsm_t_digiccy_bills where data_dt >= '20230220' group  by data_dt) e ; 
+
+select min(cnt), max(cnt), min(data_dt), max(data_dt) from (select data_dt, count(0) as cnt from hadoop_catalog.sdm.s_tft_tsm_t_trade_info where data_dt >= '20230301' group  by data_dt) e ;
+
+select count(*) from s_tft_tsm_t_ordertype_manage;
+
+select count(distinct third_channel_code), count(distinct status), count(*) from s_tft_tsm_t_black_crystal_card_data; 
+
+
+auth_type, auth_info, bind_status
+
+city_code, card_type, card_state, s_tft_tsm_t_black_crystal_card_data
+
+todo：自动化发布探索
+
+starrocks: connector
+
+spark connector read from doris, while write data into starrocks with load toolkit
+
+todo: write doc of oracle cdc deployment
