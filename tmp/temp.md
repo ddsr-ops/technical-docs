@@ -1,1 +1,30 @@
-+DATADG/ocp11g/archivelog/2023_03_02/thread_1_seq_629.691.1130405735,+DATADG/ocp11g/archivelog/2023_03_02/thread_1_seq_630.693.1130405781,+DATADG/ocp11g/archivelog/2023_03_02/thread_1_seq_631.694.1130405783,+DATADG/ocp11g/archivelog/2023_03_02/thread_1_seq_632.695.1130406377,+DATADG/ocp11g/archivelog/2023_03_02/thread_1_seq_633.696.1130406381,+DATADG/ocp11g/archivelog/2023_03_02/thread_1_seq_634.697.1130406381,+DATADG/ocp11g/archivelog/2023_03_02/thread_1_seq_635.701.1130406393,+DATADG/ocp11g/archivelog/2023_03_02/thread_1_seq_636.705.1130406395,+DATADG/ocp11g/archivelog/2023_03_02/thread_1_seq_637.708.1130407383,+DATADG/ocp11g/archivelog/2023_03_02/thread_1_seq_638.711.1130407389,+DATADG/ocp11g/archivelog/2023_03_02/thread_1_seq_639.715.1130407987,+DATADG/ocp11g/archivelog/2023_03_02/thread_1_seq_640.719.1130408115,+DATADG/ocp11g/archivelog/2023_03_02/thread_1_seq_641.723.1130410863,+DATADG/ocp11g/archivelog/2023_03_02/thread_1_seq_642.727.1130410871,+DATADG/ocp11g/archivelog/2023_03_02/thread_1_seq_643.728.1130411159,+DATADG/ocp11g/archivelog/2023_03_02/thread_1_seq_644.731.1130411165,+DATADG/ocp11g/archivelog/2023_03_02/thread_1_seq_645.734.1130411171,+DATADG/ocp11g/archivelog/2023_03_02/thread_1_seq_646.738.1130412203,+DATADG/ocp11g/archivelog/2023_03_02/thread_1_seq_647.741.1130412213,+DATADG/ocp11g/archivelog/2023_03_02/thread_1_seq_648.745.1130430955,+DATADG/ocp11g/archivelog/2023_03_02/thread_2_seq_436.698.1130406383,+DATADG/ocp11g/archivelog/2023_03_02/thread_2_seq_437.699.1130406391,+DATADG/ocp11g/archivelog/2023_03_02/thread_2_seq_438.700.1130406393,+DATADG/ocp11g/archivelog/2023_03_02/thread_2_seq_439.702.1130406393,+DATADG/ocp11g/archivelog/2023_03_02/thread_2_seq_440.703.1130406393,+DATADG/ocp11g/archivelog/2023_03_02/thread_2_seq_441.704.1130406395,+DATADG/ocp11g/archivelog/2023_03_02/thread_2_seq_442.706.1130407381,+DATADG/ocp11g/archivelog/2023_03_02/thread_2_seq_443.707.1130407383,+DATADG/ocp11g/archivelog/2023_03_02/thread_2_seq_444.709.1130407385,+DATADG/ocp11g/archivelog/2023_03_02/thread_2_seq_445.710.1130407389,+DATADG/ocp11g/archivelog/2023_03_02/thread_2_seq_446.712.1130407547,+DATADG/ocp11g/archivelog/2023_03_02/thread_2_seq_447.713.1130407841,+DATADG/ocp11g/archivelog/2023_03_02/thread_2_seq_448.714.1130407985,+DATADG/ocp11g/archivelog/2023_03_02/thread_2_seq_449.716.1130408085,+DATADG/ocp11g/archivelog/2023_03_02/thread_2_seq_450.717.1130408091,+DATADG/ocp11g/archivelog/2023_03_02/thread_2_seq_451.718.1130408115,+DATADG/ocp11g/archivelog/2023_03_02/thread_2_seq_452.720.1130408205,+DATADG/ocp11g/archivelog/2023_03_02/thread_2_seq_453.721.1130410289,+DATADG/ocp11g/archivelog/2023_03_02/thread_2_seq_454.722.1130410861,+DATADG/ocp11g/archivelog/2023_03_02/thread_2_seq_455.724.1130410865,+DATADG/ocp11g/archivelog/2023_03_02/thread_2_seq_456.725.1130410869,+DATADG/ocp11g/archivelog/2023_03_02/thread_2_seq_457.726.1130410871,+DATADG/ocp11g/archivelog/2023_03_02/thread_2_seq_458.729.1130411161,+DATADG/ocp11g/archivelog/2023_03_02/thread_2_seq_459.730.1130411165,+DATADG/ocp11g/archivelog/2023_03_02/thread_2_seq_460.732.1130411167,+DATADG/ocp11g/archivelog/2023_03_02/thread_2_seq_461.733.1130411171,+DATADG/ocp11g/archivelog/2023_03_02/thread_2_seq_462.735.1130411299,+DATADG/ocp11g/archivelog/2023_03_02/thread_2_seq_463.736.1130412201,+DATADG/ocp11g/archivelog/2023_03_02/thread_2_seq_464.737.1130412203,+DATADG/ocp11g/archivelog/2023_03_02/thread_2_seq_465.739.1130412207,+DATADG/ocp11g/archivelog/2023_03_02/thread_2_seq_466.740.1130412209,+DATADG/ocp11g/archivelog/2023_03_02/thread_2_seq_467.742.1130420315,+DATADG/ocp11g/archivelog/2023_03_02/thread_2_seq_468.743.1130420317,+DATADG/ocp11g/archivelog/2023_03_02/thread_2_seq_469.744.1130430955,+DATADG/ocp11g/archivelog/2023_03_02/thread_2_seq_470.746.1130430957,+DATADG/ocp11g/archivelog/2023_03_14/thread_1_seq_649.747.1131460277,+DATADG/ocp11g/onlinelog/group_2.258.926710109,+DATADG/ocp11g/onlinelog/group_3.265.926710867,
+```javascript
+public
+static
+void main(String[]
+args
+)
+{
+    Properties
+    kafkaProperties = new Properties();
+    kafkaProperties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
+    kafkaProperties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.ByteArrayDeserializer");
+    kafkaProperties.put("bootstrap.servers", "localhost:9092");
+    KafkaConsumer
+    consumer = new KafkaConsumer < > (kafkaProperties);
+    List
+    partitions = new ArrayList < > ();
+    partitions.add(new TopicPartition("test_topic", 0));
+    partitions.add(new TopicPartition("test_topic", 1));
+    consumer.assign(partitions);
+    while (true) {
+        ConsumerRecords
+        records = consumer.poll(Duration.ofMillis(3000));
+        for (ConsumerRecord record : records
+    )
+        {
+            System.out.printf("topic:%s, partition:%s%n", record.topic(), record.partition());
+        }
+    }
+}
+```
