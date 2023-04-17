@@ -1,0 +1,1 @@
+select * from dba_part_tables where interval is not null; 
