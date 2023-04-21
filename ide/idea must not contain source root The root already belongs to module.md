@@ -1,0 +1,1 @@
+IDEA调整模块，左边的project结构里，总是会把工程引错，工程A的它认为是工程B的root；所以我每次调整模块，就把.idea和*.iml删除，重新打开IDEA，它自己重新加载就好了。Invalidate cache试过，不好用。
