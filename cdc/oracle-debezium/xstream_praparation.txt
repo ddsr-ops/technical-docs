@@ -1,0 +1,83 @@
+== 使用sysdba用户登录
+alter system set enable_goldengate_replication=true;
+	
+-- Creating an XStream Administrator user
+
+CREATE TABLESPACE xstream_adm_tbs DATAFILE '/u01/app/oracle/oradata/ora11g/xstream_adm_tbs.dbf'
+SIZE 25M REUSE AUTOEXTEND ON MAXSIZE UNLIMITED;
+
+CREATE USER xstream_adm IDENTIFIED BY xstream_adm
+DEFAULT TABLESPACE xstream_adm_tbs
+QUOTA UNLIMITED ON xstream_adm_tbs;
+
+GRANT CREATE SESSION TO xstream_adm ;
+
+  BEGIN
+     DBMS_XSTREAM_AUTH.GRANT_ADMIN_PRIVILEGE(
+        grantee                 => 'xstream_adm',
+        privilege_type          => 'CAPTURE',
+        grant_select_privileges => TRUE
+     );
+  END;
+  /
+
+-- Creating the connector’s XStream user
+
+  CREATE TABLESPACE xstream_tbs DATAFILE '/u01/app/oracle/oradata/ora11g/xstream_tbs.dbf'
+    SIZE 25M REUSE AUTOEXTEND ON MAXSIZE UNLIMITED;
+
+  CREATE USER xstream_user IDENTIFIED BY xstream_user
+    DEFAULT TABLESPACE xstream_tbs
+    QUOTA UNLIMITED ON xstream_tbs;
+
+  GRANT CREATE SESSION TO xstream_user;
+  GRANT SELECT ON V_$DATABASE to xstream_user;
+  GRANT FLASHBACK ANY TABLE TO xstream_user;
+  GRANT SELECT_CATALOG_ROLE TO xstream_user;
+  GRANT EXECUTE_CATALOG_ROLE TO xstream_user;
+  
+  -- 授权解决无法获取DDL
+  GRANT SELECT ANY TABLE TO xstream_user;
+  
+  GRANT LOCK ANY TABLE TO xstream_user；
+  
+# 使用xstream_adm用户登录
+sqlplus xstream_adm/xstream_adm << EOF1
+DECLARE
+  tables  DBMS_UTILITY.UNCL_ARRAY;
+  schemas DBMS_UTILITY.UNCL_ARRAY;
+BEGIN
+    tables(1)  := NULL;
+    schemas(1) := 'tft_tsm';
+  DBMS_XSTREAM_ADM.CREATE_OUTBOUND(
+    server_name     =>  'dbzxout',
+    table_names     =>  tables,
+    schema_names    =>  schemas);
+END;
+/
+exit; 
+EOF1
+
+# 使用sysdba(sqlplus / as sysdba)用户登录
+sqlplus / as sysdba << EOF2
+BEGIN
+  DBMS_XSTREAM_ADM.ALTER_OUTBOUND(
+    server_name  => 'dbzxout',
+    connect_user => 'xstream_user');
+END;
+/
+exit;
+EOF2
+
+
+
+
+# 使用xstream_adm用户登录  
+sqlplus xstream_adm/xstream_adm << EOF3
+BEGIN
+  DBMS_XSTREAM_ADM.DROP_OUTBOUND(
+    server_name  => 'dbzxout');
+END;
+/
+exit;
+EOF3
