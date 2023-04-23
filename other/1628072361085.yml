@@ -1,5 +1,6 @@
+- 'DOMAIN-SUFFIX,maven.org,Proxy'
 - 'DOMAIN-KEYWORD,openai,Proxy'
-- 'DOMAIN-KEYWORD,percona,Proxy'
+- 'DOMAIN-KEYWORD,percona,DIRECT'
 - 'DOMAIN-KEYWORD,github,Proxy'
 - 'DOMAIN-KEYWORD,readthedocs,Proxy'
 - 'DOMAIN-KEYWORD,algolia,Proxy'
