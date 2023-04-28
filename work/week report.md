@@ -11,4 +11,8 @@
 
 
 1. 在生产环境部署以Xstream为引擎的Oracle CDC链路，与旧链路并行
-2. 在1的基础上，跟进T_TRADE_INFO的数据情况，形成新链路是否可行的结论
+2. 在1的基础上，跟进T_TRADE_INFO的数据情况，形成新链路是否可行的结论: 可行
+3. Xstream为引擎的Oracle CDC链路，完美解决以LogMiner为引擎的链路将U事件识别为D事件的问题
+4. 解决Oracle CDC链路中Shrink table partition失败的问题
+5. 改造Oracle CDC新Jar中的时区问题，包括Date/Timestamp/TimestampTZ
+6. 完善上述改造的测试工作，并解决其中遇到的TimestampTZ字段引起的ORA-26824问题

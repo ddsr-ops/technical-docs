@@ -18,7 +18,7 @@ revert有点像undo，会把commit2做的操作反做一遍，也就是undo，并且生成一个新的commi
 
 ## Reset
 在idea底部工具栏，点击Git工具栏，切换到Log标签页，可以看到本地commit日志和远程commit日志，
-在指定commit上右键选择Reset Current Branch to Hear就可以以reset的方式回滚到该commit上
+在指定commit上右键选择Reset Current Branch to Head就可以以reset的方式回滚到该commit上
 
 选择Hard模式，将会清除本地版本，强制回滚到指定commit状态，但是通过reset是无法进行push操作，
 因为本地的版本比远程版本要低，此时可以强制push到远程分支，但是你必须清楚该操作所带来的后果。
