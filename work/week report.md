@@ -17,5 +17,7 @@
 5. 改造Oracle CDC新Jar中的时区问题，包括Date/Timestamp/TimestampTZ
 6. 完善上述改造的测试工作，并解决其中遇到的TimestampTZ字段引起的ORA-26824问题
 
+2023-05-04
 1、基于上周就Oracle CDC的技术调研，形成是否替换线上链路的结论
 2、编写Oracle CDC新老链路切换预案，择机切换
+3、参与并完成商户中心1.0数据库审计工作
