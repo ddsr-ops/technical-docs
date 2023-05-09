@@ -1,4 +1,5 @@
 ##modify source code
+***共计修改8个文件（2.3.0）***
 涉及相关的模块：debezium-connector-oracle和debezium-core  
 关键字：ZoneOffset.UTC改为ZoneOffset.of("+8")即可  
 *Note: 全量替换，测试类可以不用替换；如果在因mysql时区问题已修改debezium-core模块，则忽略该模块修改*
