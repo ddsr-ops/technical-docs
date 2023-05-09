@@ -52,6 +52,9 @@ Profile oracle-ci excludes xstream jar which needs oracle ogg license.
 
 Debezium 2.2+
 
+Oracle version: 21.6
+Maybe this which located at the parent pom.xml is modified suitable for your version in your local repository.
+
 Modify <version.oracle.driver> of parent pom.xml file suitable for your version.
 
 ```shell
