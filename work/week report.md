@@ -29,4 +29,5 @@
 3、调研Flink/Iceberg/Spark各组件的版本兼容性，以Iceberg版本为基础
 4、配合运维处理账户系统数据库重启，维稳CDC总线
 5、解决Oracle CDC总线解析Index Partition Shrink DDL语句失败的问题
+6、撰写账户系统跑批作业迁移初步方案
 

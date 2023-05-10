@@ -15,9 +15,9 @@ on old.trade_no = new.trade_no where old.cnt <> new.cnt;
 
 select old.data_dt, old.cnt, new.cnt from 
 (select data_dt,  count(*) cnt from hadoop_catalog.stg.t_tft_tsm_t_trade_info 
-  where data_dt >= '20230505' and data_dt < '20230508' group by data_dt ) old join 
+  where data_dt >= '20230507' and data_dt < '20230510' group by data_dt ) old join 
 (select data_dt,  count(*) cnt from hadoop_catalog.stg.t_tft_tsm_t_trade_info_new 
-  where data_dt >= '20230505' and data_dt < '20230508' group by data_dt) new
+  where data_dt >= '20230507' and data_dt < '20230510' group by data_dt) new
 on old.data_dt = new.data_dt order by 1; 
 
 select count(distinct trade_no) from hadoop_catalog.stg.t_tft_tsm_t_trade_info where data_dt >= '20230424' and trade_no > '20230425000000000000' and trade_no <'20230504000000000000';
@@ -25,15 +25,15 @@ select count(distinct trade_no) from hadoop_catalog.stg.t_tft_tsm_t_trade_info_n
 
 select trade_no, trade_state, version, debezium_op, settle_trade_time, create_time, update_time, debezium_source
  from hadoop_catalog.stg.t_tft_tsm_t_trade_info 
- where data_dt >= '20230505' and debezium_op = 'd' and create_time > '2023-04-01' limit 100;
+ where data_dt >= '20230507' and debezium_op = 'd' and create_time > '2023-04-01' limit 100;
 
 select trade_no, trade_state, version, debezium_op, settle_trade_time, create_time, update_time, debezium_source
  from hadoop_catalog.stg.t_tft_tsm_t_trade_info 
- where data_dt >= '20230505' and trade_no in ('20230505184503471182') order by trade_no , kafka_offset;
+ where data_dt >= '20230505' and trade_no in ('20230510083833945561') order by trade_no , kafka_offset;
 
 select trade_no, trade_state, version, debezium_op, settle_trade_time, create_time, update_time, debezium_source
  from hadoop_catalog.stg.t_tft_tsm_t_trade_info_new 
- where data_dt >= '20230505' and trade_no in ('20230505184503471182') order by trade_no , kafka_offset;
+ where data_dt >= '20230505' and trade_no in ('20230510083833945561') order by trade_no , kafka_offset;
 
 select * 
  from hadoop_catalog.stg.t_tft_tsm_t_trade_info 
