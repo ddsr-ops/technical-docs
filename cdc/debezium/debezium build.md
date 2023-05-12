@@ -1,7 +1,12 @@
-1. Download source code from github.com
-2. Remove checkstyle plugin of pom.xml in debezium-parent module
-3. Remove docker build plugin in root pom.xml 
-4. mvn clean verify -Pquick -DskipITs -Dcheckstyle.skip=true -Dformat.skip=true -Drevapi.skip=true
+You can refer to debezium-workflow.yml for more details.
+
+1. Download source code from github.com(No need from debezium 2.2)
+2. Remove checkstyle plugin of pom.xml in debezium-parent module(No need from debezium 2.2)
+3. Remove docker build plugin in root pom.xml(No need from debezium 2.2) 
+4. mvn clean verify -Pquick -DskipITs=true -Dcheckstyle.skip=true -Dformat.skip=true -Drevapi.skip=true
+5. (Only build mysql): 
+   mvn clean install -pl debezium-connector-mysql -am -Passembly -Pquick -DskipITs=true \
+   -Dcheckstyle.skip=true -Dformat.skip=true  -Drevapi.skip=true
 
 *Note: Not set mirror in maven settings.*  
 **Note£ºMakes sure system time on building machine is right**
