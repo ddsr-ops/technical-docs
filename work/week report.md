@@ -31,3 +31,7 @@
 5、解决Oracle CDC总线解析Index Partition Shrink DDL语句失败的问题
 6、撰写账户系统跑批作业迁移初步方案
 
+2023-05-15
+1. 按照Oracle CDC新老链路切换方案，在生产环境完成切换作业
+2. 继续推进数据湖SDM层的质量检核工作
+3. 诊断MySQL CDC插件升级后无法连接MySQL的问题
