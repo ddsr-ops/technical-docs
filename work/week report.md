@@ -34,4 +34,11 @@
 2023-05-15
 1. 按照Oracle CDC新老链路切换方案，在生产环境完成切换作业
 2. 继续推进数据湖SDM层的质量检核工作
-3. 诊断MySQL CDC插件升级后无法连接MySQL的问题
+3. 诊断MySQL CDC插件升级后无法连接MySQL的问题，在2.3版本中手动禁止database.ssl.mode模式即解决问题
+4. 参与支付宝外籍人士乘车相关数据库操作文档审计
+5. 诊断Oracle CDC 2.3高额占用cpu使用率的问题
+
+2023-05-22
+1. 继续诊断Oracle CDC 2.3高额占用cpu使用率的问题
+2. 针对新版Oracle Xstream CDC链路，重新设计Grafana Dashboard和alert策略
+3. 将tft-bigdata-monitor服务拆分成告警服务和短信服务，分别部署

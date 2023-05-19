@@ -1,23 +1,23 @@
-select * from (select trade_no, count(*) as cnt from hadoop_catalog.stg.t_tft_tsm_t_trade_info where data_dt = '20230511' group by trade_no) old
+select * from (select trade_no, count(*) as cnt from hadoop_catalog.stg.t_tft_tsm_t_trade_info where data_dt = '20230515' group by trade_no) old
 left join
-(select trade_no, count(*) as cnt from hadoop_catalog.stg.t_tft_tsm_t_trade_info_new where data_dt = '20230511' group by trade_no) new
+(select trade_no, count(*) as cnt from hadoop_catalog.stg.t_tft_tsm_t_trade_info_new where data_dt = '20230515' group by trade_no) new
 on old.trade_no = new.trade_no where new.trade_no is null;  
 
-select * from (select trade_no, count(*) as cnt from hadoop_catalog.stg.t_tft_tsm_t_trade_info where data_dt = '20230511' group by trade_no) old
+select * from (select trade_no, count(*) as cnt from hadoop_catalog.stg.t_tft_tsm_t_trade_info where data_dt = '20230515' group by trade_no) old
 right join
-(select trade_no, count(*) as cnt from hadoop_catalog.stg.t_tft_tsm_t_trade_info_new where data_dt = '20230511' group by trade_no) new
+(select trade_no, count(*) as cnt from hadoop_catalog.stg.t_tft_tsm_t_trade_info_new where data_dt = '20230515' group by trade_no) new
 on old.trade_no = new.trade_no where old.trade_no is null;
 
-select * from (select trade_no, count(*) as cnt from hadoop_catalog.stg.t_tft_tsm_t_trade_info where data_dt = '20230511' group by trade_no) old
+select * from (select trade_no, count(*) as cnt from hadoop_catalog.stg.t_tft_tsm_t_trade_info where data_dt = '20230515' group by trade_no) old
 join
-(select trade_no, count(*) as cnt from hadoop_catalog.stg.t_tft_tsm_t_trade_info_new where data_dt = '20230511' group by trade_no) new
+(select trade_no, count(*) as cnt from hadoop_catalog.stg.t_tft_tsm_t_trade_info_new where data_dt = '20230515' group by trade_no) new
 on old.trade_no = new.trade_no where old.cnt <> new.cnt;
 
 select old.data_dt, old.cnt, new.cnt from 
 (select data_dt,  count(*) cnt from hadoop_catalog.stg.t_tft_tsm_t_trade_info 
-  where data_dt >= '20230510' and data_dt < '20230512' group by data_dt ) old join 
+  where data_dt >= '20230512' and data_dt < '20230516' group by data_dt ) old join 
 (select data_dt,  count(*) cnt from hadoop_catalog.stg.t_tft_tsm_t_trade_info_new 
-  where data_dt >= '20230510' and data_dt < '20230512' group by data_dt) new
+  where data_dt >= '20230512' and data_dt < '20230516' group by data_dt) new
 on old.data_dt = new.data_dt order by 1; 
 
 select count(distinct trade_no) from hadoop_catalog.stg.t_tft_tsm_t_trade_info where data_dt >= '20230424' and trade_no > '20230425000000000000' and trade_no <'20230504000000000000';
@@ -29,11 +29,11 @@ select trade_no, trade_state, version, debezium_op, settle_trade_time, create_ti
 
 select trade_no, trade_state, version, debezium_op, settle_trade_time, create_time, update_time, debezium_source
  from hadoop_catalog.stg.t_tft_tsm_t_trade_info 
- where data_dt >= '20230510' and trade_no in ('20230510172102345769') order by trade_no , kafka_offset;
+ where data_dt >= '20230515' and trade_no in ('20230515083345140821') order by trade_no , kafka_offset;
 
 select trade_no, trade_state, version, debezium_op, settle_trade_time, create_time, update_time, debezium_source
  from hadoop_catalog.stg.t_tft_tsm_t_trade_info_new 
- where data_dt >= '20230510' and trade_no in ('20230510172102345769') order by trade_no , kafka_offset;
+ where data_dt >= '20230515' and trade_no in ('20230515083345140821') order by trade_no , kafka_offset;
 
 select * 
  from hadoop_catalog.stg.t_tft_tsm_t_trade_info 
