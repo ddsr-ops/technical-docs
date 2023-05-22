@@ -11,6 +11,7 @@ Caused by: io.debezium.connector.oracle.logminer.parser.DmlParserException: DML 
 ...
 ```
 
+## 解决
 一般发生在源库不正确地执行与Connector配置中相关表的DDL语句，导致Logminer无最新字典无法识别日志中的字段。
 
 通常来说，发生此类情况，Connector无法自愈，需重建或修复Connector History topic并跳过这部分日志。
@@ -34,3 +35,156 @@ Caused by: io.debezium.connector.oracle.logminer.parser.DmlParserException: DML 
 TODO: 补数和修复受影响作业
 
 Note：如何正确实施DDL，请参考文档《oracle cdc table structure evolution.sql》
+
+
+
+## 症状表现
+```
+[2023-05-22 10:28:58,438] INFO Already applied 1861 database changes (io.debezium.relational.history.SchemaHistoryMetrics:140)
+......
+[2023-05-22 10:35:35,172] ERROR Producer failure (io.debezium.pipeline.ErrorHandler:57)
+java.lang.NullPointerException 
+        at io.debezium.connector.oracle.xstream.XStreamChangeRecordEmitter.getColumnValues(XStreamChangeRecordEmitter.java:59)
+        at io.debezium.connector.oracle.xstream.XStreamChangeRecordEmitter.<init>(XStreamChangeRecordEmitter.java:35)
+        at io.debezium.connector.oracle.xstream.LcrEventHandler.dispatchDataChangeEvent(LcrEventHandler.java:244)
+        at io.debezium.connector.oracle.xstream.LcrEventHandler.processRowLCR(LcrEventHandler.java:149) 
+        at io.debezium.connector.oracle.xstream.LcrEventHandler.processLCR(LcrEventHandler.java:117)
+        at oracle.streams.XStreamOut.XStreamOutReceiveLCRCallbackNative(Native Method)
+        at oracle.streams.XStreamOut.receiveLCRCallback(Unknown Source)
+        at io.debezium.connector.oracle.xstream.XstreamStreamingChangeEventSource.execute(XstreamStreamingChangeEventSource.java:125)
+        at io.debezium.connector.oracle.xstream.XstreamStreamingChangeEventSource.execute(XstreamStreamingChangeEventSource.java:45)
+        at io.debezium.pipeline.ChangeEventSourceCoordinator.streamEvents(ChangeEventSourceCoordinator.java:196)
+        at io.debezium.pipeline.ChangeEventSourceCoordinator.executeChangeEventSources(ChangeEventSourceCoordinator.java:163)
+        at io.debezium.pipeline.ChangeEventSourceCoordinator.lambda$start$0(ChangeEventSourceCoordinator.java:121) 
+        at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:515)
+        at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+        at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128) 
+        at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628) 
+        at java.base/java.lang.Thread.run(Thread.java:834)
+[2023-05-22 10:35:35,176] ERROR Producer failure (io.debezium.pipeline.ErrorHandler:57) 
+java.lang.NullPointerException 
+        at io.debezium.connector.oracle.xstream.XStreamChangeRecordEmitter.getColumnValues(XStreamChangeRecordEmitter.java:59)
+        at io.debezium.connector.oracle.xstream.XStreamChangeRecordEmitter.<init>(XStreamChangeRecordEmitter.java:35)
+        at io.debezium.connector.oracle.xstream.LcrEventHandler.dispatchDataChangeEvent(LcrEventHandler.java:244)
+        at io.debezium.connector.oracle.xstream.LcrEventHandler.processRowLCR(LcrEventHandler.java:149)
+        at io.debezium.connector.oracle.xstream.LcrEventHandler.processLCR(LcrEventHandler.java:117) 
+        at oracle.streams.XStreamOut.XStreamOutReceiveLCRCallbackNative(Native Method)
+        at oracle.streams.XStreamOut.receiveLCRCallback(Unknown Source)
+        at io.debezium.connector.oracle.xstream.XstreamStreamingChangeEventSource.execute(XstreamStreamingChangeEventSource.java:125)
+        at io.debezium.connector.oracle.xstream.XstreamStreamingChangeEventSource.execute(XstreamStreamingChangeEventSource.java:45)
+        at io.debezium.pipeline.ChangeEventSourceCoordinator.streamEvents(ChangeEventSourceCoordinator.java:196)
+        at io.debezium.pipeline.ChangeEventSourceCoordinator.executeChangeEventSources(ChangeEventSourceCoordinator.java:163)
+```
+
+## 解决
+检查schema变化历史topic，这里是oracle_tsm.schema-changes.inventory
+
+```
+{
+  "source" : {
+    "server" : "oracle_tsm"
+  },
+  "position" : {
+    "transaction_id" : null,
+    "lcr_position" : "0046437735fa000000010000000100464377358a000000010000000101",
+    "snapshot_scn" : "299510708387"
+  },
+  "ts_ms" : 1684722538436,
+  "databaseName" : "TFTONG",
+  "schemaName" : "TFT_TSM",
+  "ddl" : "create table temp_lcq_01 as\nselect seq,userid,userid as msisdn\n from temp_lcq_02\n where 1<>1\n;",
+  "tableChanges" : [ {
+    "type" : "CREATE",
+    "id" : "\"TFTONG\".\"TFT_TSM\".\"TEMP_LCQ_01\"",
+    "table" : {
+      "defaultCharsetName" : null,
+      "primaryKeyColumnNames" : [ ],
+      "columns" : [ ],
+      "attributes" : [ ]
+    },
+    "comment" : null
+  } ]
+}
+```
+
+这里，使用了CREATE TABLE AS SELECT ...的语句， Debezium没有获取到schema变更的字段信息（Xstream、LogMiner
+针对上述DDL均没提供字段信息）
+
+手动构造oracle_tsm.schema-changes.inventory所需的元信息，发送至topic中，重启connector task可解决这个问题，
+因为lcr_position准确，所以构造的schema-change不会造成CDC数据遗漏。
+```
+{
+  "source" : {
+    "server" : "oracle_tsm"
+  },
+  "position" : {
+    "transaction_id" : null,
+    "lcr_position" : "0046437735fa000000010000000100464377358a000000010000000101",
+    "snapshot_scn" : "299510708387"
+  },
+  "ts_ms" : 1684722538436,
+  "databaseName" : "TFTONG",
+  "schemaName" : "TFT_TSM",
+  "ddl" : "create table temp_lcq_01 as\nselect seq,userid,userid as msisdn\n from temp_lcq_02\n where 1<>1\n;",
+  "tableChanges" : [ {
+    "type" : "CREATE",
+    "id" : "\"TFTONG\".\"TFT_TSM\".\"TEMP_LCQ_01\"",
+    "table" : {
+      "defaultCharsetName" : null,
+      "primaryKeyColumnNames" : [ ],
+      "columns" : [ {
+        "name" : "SEQ",
+        "jdbcType" : 12,
+        "typeName" : "VARCHAR2",
+        "typeExpression" : "VARCHAR2",
+        "charsetName" : null,
+        "length" : 32,
+        "position" : 1,
+        "optional" : false,
+        "autoIncremented" : false,
+        "generated" : false,
+        "comment" : null,
+        "hasDefaultValue" : false,
+        "enumValues" : [ ]
+      }, {
+        "name" : "USERID",
+        "jdbcType" : 12,
+        "typeName" : "VARCHAR2",
+        "typeExpression" : "VARCHAR2",
+        "charsetName" : null,
+        "length" : 32,
+        "position" : 2,
+        "optional" : false,
+        "autoIncremented" : false,
+        "generated" : false,
+        "comment" : null,
+        "hasDefaultValue" : false,
+        "enumValues" : [ ]
+      }, {
+        "name" : "MSISDN",
+        "jdbcType" : 12,
+        "typeName" : "VARCHAR2",
+        "typeExpression" : "VARCHAR2",
+        "charsetName" : null,
+        "length" : 32,
+        "position" : 3,
+        "optional" : false,
+        "autoIncremented" : false,
+        "generated" : false,
+        "comment" : null,
+        "hasDefaultValue" : true,
+        "enumValues" : [ ]
+      }],
+      "attributes" : [ ]
+    },
+    "comment" : null
+  } ]
+}
+
+```
+
+可使用kafka-eagle工具的topics-mock，将上述信息发送至oracle_tsm.schema-changes.inventory
+
+参考：  
+https://issues.redhat.com/browse/DBZ-6373  
+https://issues.redhat.com/browse/DBZ-6370
