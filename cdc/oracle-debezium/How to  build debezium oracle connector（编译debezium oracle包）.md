@@ -56,6 +56,8 @@ Oracle version: 21.6
 Maybe this which located at the parent pom.xml is modified suitable for your version in your local repository.
 
 Modify <version.oracle.driver> of parent pom.xml file suitable for your version.
+2023-5-24 09:52:58£¬change it from 21.6 to 21.3
+
 
 ```shell
 # This compile all source
