@@ -1,0 +1,144 @@
+# 修订记录：                                                                                                 #
+# |--------------------------------------------------------------------------------------------------------| #
+# | 序号 | 版本编号 |    日期    | 修订人 |            修订内容                                            | #
+# |--------------------------------------------------------------------------------------------------------| #
+# |   1 |  V1.0.1 | 2021-08-19 |   徐勇 | 初稿                                                             | #
+# |   2 |  V1.1.0 | 2022-05-25 |   GCH | 部署oracle cdc于单独connector集群，避免可能因OOM影响其他connector | #
+# |   3 |  V1.2.0 | 2022-06-08 |   GCH | 调整tft_wallet.account_info表的key                                | #
+# |   3 |  V1.3.0 | 2022-07-14 |   GCH | Add configuration log.mining.continuous.mine=true                 | #
+# |   5 |  V1.4.0 | 2022-10-24 |   徐勇 | 新增表tft_wallet.credit_apply_log                                 | #
+# |   6 |  V1.5.0 | 2022-11-30 |   徐勇 | 新增表tft_ups.cp_activity                                        | #
+# |--------------------------------------------------------------------------------------------------------| #
+
+
+
+
+1.启动connector 命令
+
+curl -X POST  \
+-H 'Content-Type: application/json' \
+-H "Accept: application/json" \
+-d '{
+       "name": "oracle_ups",
+       "config": {
+           "connector.class" : "io.debezium.connector.oracle.OracleConnector",
+           "tasks.max" : "1",
+           "database.server.name" : "oracle_ups",
+           "database.user" : "logminer",
+           "database.password" : "Logminer#$321",
+           "database.dbname" : "tftups",
+           "database.port" : "1521",
+           "database.hostname" : "10.60.6.11",
+           "rac.nodes" : "10.60.6.11,10.60.6.12",
+           "log.mining.transaction.retention.hours" : "3",
+    	   "decimal.handling.mode":"string",
+           "table.include.list":"logminer.log_mining_config,tft_ups.cp_activity_issue,tft_ups.cp_award,tft_ups.cp_coupon,tft_ups.cp_coupon_issue,tft_ups.cp_coupon_issue_coupon_list,tft_ups.cp_coupon_package_detail,tft_ups.cp_coupon_package_download,tft_ups.cp_coupon_package_issue,tft_ups.cp_coupon_package_issue_list,tft_ups.cp_coupon_product,tft_ups.cp_coupon_template,tft_ups.cp_issue,tft_ups.cp_my_coupon,tft_ups.cp_outside_issue,tft_ups.cp_outside_issue_package_d,tft_ups.cp_prize,tft_ups.cp_product_package_detail,tft_ups.dc_act_discount_card,tft_ups.dc_discount_card,tft_ups.dc_discount_card_hold_rec,tft_ups.dc_discount_card_list,tft_ups.dc_orient_discount_card,tft_ups.dc_sell_discount_card,tft_ups.dc_trip_order,tft_ups.dc_user_dis_card_restrict,tft_wallet.account_info,tft_wallet.bind_card,tft_wallet.contract_apply_record,tft_wallet.open_account_log,tft_wallet.traffic_order,tft_wallet.traffic_order_consume,tft_wallet.traffic_order_refund,tft_wallet.wallet_order,tft_wallet.credit_apply_log,tft_ups.cp_activity",
+           "message.key.columns":"logminer.log_mining_config:connector_name;tft_ups.cp_activity_issue:activity_issue_id;tft_ups.cp_award:award_id;tft_ups.cp_coupon:coupon_id;tft_ups.cp_coupon_issue:coupon_issue_id;tft_ups.cp_coupon_issue_coupon_list:coupon_issue_coupon_id;tft_ups.cp_coupon_package_detail:coupon_package_detail_id;tft_ups.cp_coupon_package_download:coupon_package_download_id;tft_ups.cp_coupon_package_issue:coupon_package_issue_id;tft_ups.cp_coupon_package_issue_list:coupon_package_issue_list_id;tft_ups.cp_coupon_product:coupon_product_id;tft_ups.cp_coupon_template:coupon_temp_id;tft_ups.cp_issue:issue_id;tft_ups.cp_my_coupon:receive_id;tft_ups.cp_outside_issue:outside_issue_id;tft_ups.cp_outside_issue_package_d:outside_issue_package_id;tft_ups.cp_prize:prize_id;tft_ups.cp_product_package_detail:product_package_detail_id;tft_ups.dc_act_discount_card:id;tft_ups.dc_discount_card:id;tft_ups.dc_discount_card_hold_rec:id;tft_ups.dc_discount_card_list:id;tft_ups.dc_orient_discount_card:id;tft_ups.dc_sell_discount_card:id;tft_ups.dc_trip_order:order_no;tft_ups.dc_user_dis_card_restrict:id;tft_wallet.account_info:account_id,is_delete,user_id;tft_wallet.bind_card:bind_card_id;tft_wallet.contract_apply_record:apply_record_id;tft_wallet.open_account_log:open_log_id;tft_wallet.traffic_order:order_id;tft_wallet.traffic_order_consume:order_id;tft_wallet.traffic_order_refund:order_id;tft_wallet.wallet_order:order_id;tft_wallet.credit_apply_log:log_id;tft_ups.cp_activity:activity_id",
+           "key.converter":"org.apache.kafka.connect.json.JsonConverter",
+           "key.converter.schemas.enable":"false",
+           "value.converter":"org.apache.kafka.connect.json.JsonConverter",
+           "value.converter.schemas.enable":"false",
+           "database.history.kafka.bootstrap.servers" : "10.50.253.201:9093,10.50.253.202:9093,10.50.253.203:9093",
+           "database.history.kafka.topic": "oracle_ups_his",
+           "snapshot.mode" : "schema_only",
+           "tombstones.on.delete": "false",
+           "database.history.skip.unparseable.ddl": "true",
+           "log.mining.strategy": "online_catalog",
+           "log.mining.continuous.mine": "true"
+       }
+    }' \
+http://10.50.253.201:8084/connectors
+
+
+2.删除connector
+
+curl -X DELETE http://10.50.253.201:8084/connectors/oracle_ups
+
+
+
+前置条件：因为Debezium插件升级（Jar不一样），且Connector配置不一样，需另起一套新版Debezium CDC插件的Connector集群。
+以下以8085为端口号的集群即为新Connector集群。
+
+1. 使用变动较频繁的表，作为Dummy Connector的捕获表，构造并启动这个Connector目的是获取offset偏移量
+curl -X POST  \
+-H 'Content-Type: application/json' \
+-H "Accept: application/json" \
+-d '{
+       "name": "xoracle_ups",
+       "config": {
+           "connector.class": "io.debezium.connector.oracle.OracleConnector",
+           "database.user": "xstream_user",
+           "database.dbname": "tftups",
+           "rac.nodes": "10.60.6.11,10.60.6.12",
+           "tasks.max": "1",
+           "database.connection.adapter": "xstream",
+           "schema.history.internal.kafka.bootstrap.servers": "10.50.253.201:9093,10.50.253.202:9093,10.50.253.203:9093",
+           "database.port": "1521",
+           "tombstones.on.delete": "false",
+           "key.converter.schemas.enable": "false",
+           "topic.prefix": "xoracle_ups",
+           "decimal.handling.mode": "string",
+           "schema.history.internal.kafka.topic": "xoracle_ups.schema-changes.inventory",
+           "database.hostname": "10.60.6.11",
+           "database.password": "Xstream_User313",
+           "value.converter.schemas.enable": "false",
+           "name": "xoracle_ups",
+           "schema.history.internal.skip.unparseable.ddl": "true",
+           "database.out.server.name": "dbzxout",
+           "table.include.list": "tft_ups.dc_trip_order",
+           "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+           "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+           "snapshot.mode": "schema_only"
+       }
+    }' \
+http://10.50.253.201:8085/connectors
+
+2. 检查connect-offsets-namenode topic, 是否有新的关于xoracle_ups的数据写入，如有则可停止该Dummy Connector
+curl -X DELETE http://10.50.253.201:8085/connectors/xoracle_ups
+
+注意：1-2步骤实为构造偏移量，可以作为准备工作提前执行。
+
+3. 检查oracle_ups connector是否存在延迟，可以通过查看oracle_ups.TFT_UPS.DC_TRIP_ORDER topic新流入数据的时间戳，如果较为接近当前时间，则认为无延迟，
+如果存在较大延迟，则等它追齐数据。待到数据无延迟后，停止旧的正式Connector
+curl -X DELETE http://10.50.253.201:8084/connectors/oracle_ups
+
+4. 将1中offset最新的偏移量和旧的Connector名称写入connect-offsets-namenode topic
+java -jar ./jars/debezium-util-1.0-SNAPSHOT-jar-with-dependencies.jar "kafka1:9093" "datanode1:2181/kafka_27" "connect-offsets-namenode" "[\"oracle_ups\",{\"server\":\"oracle_ups\"}]" "{\"transaction_id\":null,\"lcr_position\":\"0042f0ca6bef00000001000000010042f0ca6be8000000020000000101\",\"snapshot_scn\":\"287506659667\"}"
+其中：lcr_position和snapshot_scn来自connect-offsets-namenode topic中名称为xoracle_ups的最新偏移量
+{"transaction_id":null,"lcr_position":"0042f0ca6bef00000001000000010042f0ca6be8000000020000000101","snapshot_scn":"287506659667"}
+
+5. 此时旧的Connector偏移量已被覆盖，使用最新配置，启动旧的Connector， 这里message.key.columns仅配置无主键的表列
+curl -X POST  \
+-H 'Content-Type: application/json' \
+-H "Accept: application/json" \
+-d '{
+       "name": "oracle_ups",
+       "config": {
+           "connector.class": "io.debezium.connector.oracle.OracleConnector",
+           "database.user": "xstream_user",
+           "database.dbname": "tftups",
+           "rac.nodes": "10.60.6.11,10.60.6.12",
+           "tasks.max": "1",
+           "database.connection.adapter": "xstream",
+           "schema.history.internal.kafka.bootstrap.servers": "10.50.253.201:9093,10.50.253.202:9093,10.50.253.203:9093",
+           "database.port": "1521",
+           "tombstones.on.delete": "false",
+           "key.converter.schemas.enable": "false",
+           "topic.prefix": "oracle_ups",
+           "decimal.handling.mode": "string",
+           "schema.history.internal.kafka.topic": "oracle_ups.schema-changes.inventory",
+           "database.hostname": "10.60.6.11",
+           "database.password": "Xstream_User313",
+           "value.converter.schemas.enable": "false",
+           "name": "oracle_ups",
+           "schema.history.internal.skip.unparseable.ddl": "true",
+           "database.out.server.name": "dbzxout",
+           "schema.include.list": "tft_ups,tft_wallet",
+           "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+           "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+           "snapshot.mode": "schema_only",
+           "signal.poll.interval.ms":"5000",
+           "message.key.columns": "tft_ups.cp_coupon_day_write_off:day_write_off_id;tft_ups.uco_bicycle_card:cdkey;tft_ups.uco_bicycle_card_record:cdkey;tft_ups.uco_other:cdkey;tft_wallet.user_ride_count:id;tft_wallet.user_ride_count_new:id;tft_wallet.user_ride_count_v1:id"
+       }
+    }' \
+http://10.50.253.201:8084/connectors

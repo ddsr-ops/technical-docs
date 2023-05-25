@@ -1,0 +1,157 @@
+# 修订记录：                                                                                                 #
+# |--------------------------------------------------------------------------------------------------------| #
+# | 序号 | 版本编号 |    日期    | 修订人 |            修订内容                                            | #
+# |--------------------------------------------------------------------------------------------------------| #
+# |   1 |  V1.0.0 | 2022-09-23 |   徐勇 | TSM connector                                                    | #
+# |   2 |  V1.1.0 | 2022-09-23 |   徐勇 | Fix j_trip_open_part config                                      | #
+# |   3 |  V1.2.0 | 2022-10-11 |   GCH  | Support ad-hoc incremental snapshot                              | #
+# |   3 |  V1.2.1 | 2023-05-04 |   GCH  | Adjust log.mining.transaction.retention.hours config             | #
+# |--------------------------------------------------------------------------------------------------------| #
+
+
+
+
+1.启动connector 命令
+
+curl -X POST  \
+-H 'Content-Type: application/json' \
+-H "Accept: application/json" \
+-d '{
+       "name": "oracle_tftfxq",
+       "config": {
+           "connector.class" : "io.debezium.connector.oracle.OracleConnector",
+           "tasks.max" : "1",
+           "database.server.name" : "oracle_tftfxq",
+           "database.user" : "logminer",
+           "database.password" : "Logminer#$321",
+           "database.dbname" : "tftfxq",
+           "database.port" : "1521",
+           "database.hostname" : "10.60.6.3",
+           "rac.nodes" : "10.60.6.3,10.60.6.4",
+           "log.mining.transaction.retention.hours" : "1",
+    	   "decimal.handling.mode":"string",
+           "table.include.list":"logminer.log_mining_config,tft_uo.t_channel,tft_uo.t_qr_authsign,tft_uo.t_refund_info,tft_uo.t_trip_consume_notify,tft_uo.t_trip_refund_notify,tft_uo.t_user_extend,logminer.debezium_signal,tft_xcgl.j_trip_open_.*",
+           "message.key.columns":"logminer.log_mining_config:connector_name;tft_uo.t_channel:id;tft_uo.t_qr_authsign:qr_user_id;tft_uo.t_refund_info:id;tft_uo.t_trip_consume_notify:order_no;tft_uo.t_trip_refund_notify:order_no;tft_uo.t_user_extend:id;tft_xcgl.j_trip_open_.*:trip_no,fellow_no",
+           "key.converter":"org.apache.kafka.connect.json.JsonConverter",
+           "key.converter.schemas.enable":"false",
+           "value.converter":"org.apache.kafka.connect.json.JsonConverter",
+           "value.converter.schemas.enable":"false",
+           "database.history.kafka.bootstrap.servers" : "10.50.253.201:9093,10.50.253.202:9093,10.50.253.203:9093",
+           "database.history.kafka.topic": "oracle_tftfxq_his",
+           "snapshot.mode" : "schema_only",
+           "tombstones.on.delete": "false",
+           "database.history.skip.unparseable.ddl": "true",
+           "log.mining.strategy": "online_catalog",
+           "log.mining.continuous.mine": "true",
+           "transforms": "Reroute7",
+           "transforms.Reroute7.type": "io.debezium.transforms.ByLogicalTableRouter",
+           "transforms.Reroute7.topic.regex": "(.*)J_TRIP_OPEN_PART(.*)",
+           "transforms.Reroute7.topic.replacement": "$1J_TRIP_OPEN_PART",
+           "transforms.Reroute7.key.enforce.uniqueness":"false",
+           "signal.data.collection":"TFTFXQ.LOGMINER.DEBEZIUM_SIGNAL"
+       }
+    }' \
+http://10.50.253.201:8084/connectors
+
+
+2.删除connector
+
+curl -X DELETE http://10.50.253.201:8084/connectors/oracle_tftfxq
+
+
+
+
+
+前置条件：因为Debezium插件升级（Jar不一样），且Connector配置不一样，需另起一套新版Debezium CDC插件的Connector集群。
+以下以8085为端口号的集群即为新Connector集群。
+
+1. 使用变动较频繁的表，作为Dummy Connector的捕获表，构造并启动这个Connector目的是获取offset偏移量
+curl -X POST  \
+-H 'Content-Type: application/json' \
+-H "Accept: application/json" \
+-d '{
+       "name": "xoracle_tftfxq",
+       "config": {
+           "connector.class": "io.debezium.connector.oracle.OracleConnector",
+           "database.user": "xstream_user",
+           "database.dbname": "tftfxq",
+           "rac.nodes": "10.60.6.3,10.60.6.4",
+           "tasks.max": "1",
+           "database.connection.adapter": "xstream",
+           "schema.history.internal.kafka.bootstrap.servers": "10.50.253.201:9093,10.50.253.202:9093,10.50.253.203:9093",
+           "database.port": "1521",
+           "tombstones.on.delete": "false",
+           "key.converter.schemas.enable": "false",
+           "topic.prefix": "xoracle_tftfxq",
+           "decimal.handling.mode": "string",
+           "schema.history.internal.kafka.topic": "xoracle_tftfxq.schema-changes.inventory",
+           "database.hostname": "10.60.6.3",
+           "database.password": "Xstream_User313",
+           "value.converter.schemas.enable": "false",
+           "name": "xoracle_tftfxq",
+           "schema.history.internal.skip.unparseable.ddl": "true",
+           "database.out.server.name": "dbzxout",
+           "table.include.list": "tft_uo.t_trip_consume_notify",
+           "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+           "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+           "snapshot.mode": "schema_only",
+           "schema.history.internal.store.only.captured.tables.ddl": "true"
+       }
+    }' \
+http://10.50.253.201:8085/connectors
+
+2. 检查connect-offsets-namenode topic, 是否有新的关于xoracle_tftfxq的数据写入，如有则可停止该Dummy Connector
+curl -X DELETE http://10.50.253.201:8085/connectors/xoracle_tftfxq
+
+注意：1-2步骤实为构造偏移量，可以作为准备工作提前执行。
+
+3. 检查oracle_tftfxq connector是否存在延迟，可以通过查看oracle_tftfxq.TFT_XCGL.J_TRIP_OPEN_PART topic新流入数据的时间戳，如果较为接近当前时间，则认为无延迟，
+如果存在较大延迟，则等它追齐数据。待到数据无延迟后，停止旧的正式Connector
+curl -X DELETE http://10.50.253.201:8084/connectors/oracle_tftfxq
+
+4. 将1中offset最新的偏移量和旧的Connector名称写入connect-offsets-namenode topic
+java -jar ./jars/debezium-util-1.0-SNAPSHOT-jar-with-dependencies.jar "kafka1:9093" "datanode1:2181/kafka_27" "connect-offsets-namenode" "[\"oracle_tftfxq\",{\"server\":\"oracle_tftfxq\"}]" "{\"transaction_id\":null,\"lcr_position\":\"0045f480d92d00000001000000010045f480d92c000000010000000101\",\"snapshot_scn\":\"300454823814\"}"
+其中：lcr_position和snapshot_scn来自connect-offsets-namenode topic中名称为xoracle_tftfxq的最新偏移量
+{"transaction_id":null,"lcr_position":"0045f480d92d00000001000000010045f480d92c000000010000000101","snapshot_scn":"300454823814"}
+
+5. 此时旧的Connector偏移量已被覆盖，使用最新配置，启动旧的Connector， 这里message.key.columns仅配置无主键的表列
+curl -X POST  \
+-H 'Content-Type: application/json' \
+-H "Accept: application/json" \
+-d '{
+       "name": "oracle_tftfxq",
+       "config": {
+           "connector.class": "io.debezium.connector.oracle.OracleConnector",
+           "database.user": "xstream_user",
+           "database.dbname": "tftfxq",
+           "rac.nodes": "10.60.6.3,10.60.6.4",
+           "tasks.max": "1",
+           "database.connection.adapter": "xstream",
+           "schema.history.internal.kafka.bootstrap.servers": "10.50.253.201:9093,10.50.253.202:9093,10.50.253.203:9093",
+           "database.port": "1521",
+           "tombstones.on.delete": "false",
+           "key.converter.schemas.enable": "false",
+           "topic.prefix": "oracle_tftfxq",
+           "decimal.handling.mode": "string",
+           "schema.history.internal.kafka.topic": "oracle_tftfxq.schema-changes.inventory",
+           "database.hostname": "10.60.6.3",
+           "database.password": "Xstream_User313",
+           "value.converter.schemas.enable": "false",
+           "name": "oracle_tftfxq",
+           "schema.history.internal.skip.unparseable.ddl": "true",
+           "database.out.server.name": "dbzxout",
+           "schema.include.list": "tft_xcgl,tft_uo,logminer",
+           "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+           "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+           "snapshot.mode": "schema_only",
+           "message.key.columns": "tft_xcgl.j_trip_open_.*:trip_no,fellow_no",
+           "transforms": "Reroute7",
+           "transforms.Reroute7.type": "io.debezium.transforms.ByLogicalTableRouter",
+           "transforms.Reroute7.topic.regex": "(.*)J_TRIP_OPEN_PART(.*)",
+           "transforms.Reroute7.topic.replacement": "$1J_TRIP_OPEN_PART",
+           "transforms.Reroute7.key.enforce.uniqueness":"false",
+           "signal.data.collection":"TFTFXQ.LOGMINER.DEBEZIUM_SIGNAL",
+           "signal.poll.interval.ms":"5000"
+       }
+    }' \
+http://10.50.253.201:8084/connectors

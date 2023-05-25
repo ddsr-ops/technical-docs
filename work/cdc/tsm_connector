@@ -1,0 +1,142 @@
+# 修订记录：                                                                                                 #
+# |--------------------------------------------------------------------------------------------------------| #
+# | 序号 | 版本编号 |    日期    | 修订人 |            修订内容                                            | #
+# |--------------------------------------------------------------------------------------------------------| #
+# |   1  |  V1.0.0  | 2022-06-14 |   GCH  | TSM connector                                                  | #
+# |   2  |  V1.1.0  | 2022-07-12 |   GCH  | Add configuration log.mining.continuous.mine=true              | #
+# |   3  |  V1.1.0  | 2022-11-30 |   徐勇  | 添加表tft_tsm.t_card_topup_count_info                          | #
+# |--------------------------------------------------------------------------------------------------------| #
+
+
+
+
+1.启动connector 命令
+
+curl -X POST  \
+-H 'Content-Type: application/json' \
+-H "Accept: application/json" \
+-d '{
+       "name": "oracle_tsm",
+       "config": {
+           "connector.class" : "io.debezium.connector.oracle.OracleConnector",
+           "tasks.max" : "1",
+           "database.server.name" : "oracle_tsm",
+           "database.user" : "logminer",
+           "database.password" : "Logminer#$321",
+           "database.dbname" : "tftong",
+           "database.port" : "1521",
+           "database.hostname" : "10.60.5.1",
+           "rac.nodes" : "10.60.5.1,10.60.5.2",
+           "log.mining.transaction.retention.hours" : "3",
+    	   "decimal.handling.mode":"string",
+           "table.include.list":"logminer.log_mining_config,tft_tsm.tacct_bank_refund_relation_log,tft_tsm.t_account_bank_refund_relation,tft_tsm.t_account_order_info,tft_tsm.t_account_refunds_info,tft_tsm.t_base_card_data,tft_tsm.t_binding_credit_card,tft_tsm.t_black_crystal_card_data,tft_tsm.t_card_account_cancel,tft_tsm.t_card_topup_info,tft_tsm.t_change_phone_info,tft_tsm.t_client_user_info,tft_tsm.t_consume_info,tft_tsm.t_delete_card_data,tft_tsm.t_digiccy_bills,tft_tsm.t_digiccy_sub_wallet_bills,tft_tsm.t_einvoice_info,tft_tsm.t_einvoice_order_info,tft_tsm.t_huawei_ese_info,tft_tsm.t_lift_paycost_order_info,tft_tsm.t_pboc_topup_log,tft_tsm.t_qrcode_apply_info,tft_tsm.t_real_auth,tft_tsm.t_site_info,tft_tsm.t_sp_open_card_info,tft_tsm.t_subwallet_bind_record,tft_tsm.t_subwallet_unbind_record,tft_tsm.t_trade,tft_tsm.t_trade_details,tft_tsm.t_trade_extend,tft_tsm.t_trade_info,tft_tsm.t_trade_pay_channel_info,tft_tsm.t_trip_refund_info,tft_tsm.t_user_app_history_info,tft_tsm.t_user_login_log,tft_tsm.t_railway_advance_consume_info,tft_tsm.t_act_trade_detail,tft_tsm.t_delete_card_data_sub,tft_tsm.t_card_topup_count_info,tft_tsm.t_ordertype_manage,tft_tsm.t_wallet_pay_order_info",
+           "message.key.columns":"logminer.log_mining_config:connector_name;tft_tsm.tacct_bank_refund_relation_log:refund_trand_no;tft_tsm.t_account_bank_refund_relation:refund_trandno;tft_tsm.t_account_order_info:order_no,create_time;tft_tsm.t_account_refunds_info:refund_trandno;tft_tsm.t_base_card_data:card_no;tft_tsm.t_binding_credit_card:userid,credit_card_no;tft_tsm.t_black_crystal_card_data:card_no;tft_tsm.t_card_account_cancel:cancel_account_no;tft_tsm.t_card_topup_info:orderno;tft_tsm.t_change_phone_info:id;tft_tsm.t_client_user_info:userid;tft_tsm.t_consume_info:order_no;tft_tsm.t_delete_card_data:card_no;tft_tsm.t_digiccy_bills:id;tft_tsm.t_digiccy_sub_wallet_bills:id;tft_tsm.t_einvoice_info:order_no;tft_tsm.t_einvoice_order_info:trade_id;tft_tsm.t_huawei_ese_info:card_no;tft_tsm.t_lift_paycost_order_info:trade_id;tft_tsm.t_pboc_topup_log:sysflowno;tft_tsm.t_qrcode_apply_info:trip_no;tft_tsm.t_real_auth:userid;tft_tsm.t_site_info:site_id;tft_tsm.t_sp_open_card_info:card_no;tft_tsm.t_subwallet_bind_record:id;tft_tsm.t_subwallet_unbind_record:id;tft_tsm.t_trade:trade_id;tft_tsm.t_trade_details:trade_id;tft_tsm.t_trade_extend:trade_id;tft_tsm.t_trade_info:trade_no;tft_tsm.t_trade_pay_channel_info:trade_id;tft_tsm.t_trip_refund_info:refund_order_no;tft_tsm.t_user_app_history_info:card_no;tft_tsm.t_user_login_log:logid;tft_tsm.t_railway_advance_consume_info:id;tft_tsm.t_act_trade_detail:trade_no;tft_tsm.t_delete_card_data_sub:sub_order_no;tft_tsm.t_card_topup_count_info:trade_no;tft_tsm.t_ordertype_manage:order_type;tft_tsm.t_wallet_pay_order_info:order_id",
+           "key.converter":"org.apache.kafka.connect.json.JsonConverter",
+           "key.converter.schemas.enable":"false",
+           "value.converter":"org.apache.kafka.connect.json.JsonConverter",
+           "value.converter.schemas.enable":"false",
+           "database.history.kafka.bootstrap.servers" : "10.50.253.201:9093,10.50.253.202:9093,10.50.253.203:9093",
+           "database.history.kafka.topic": "oracle_tsm_his",
+           "snapshot.mode" : "schema_only",
+           "tombstones.on.delete": "false",
+           "database.history.skip.unparseable.ddl": "true",
+           "log.mining.strategy": "online_catalog",
+           "log.mining.continuous.mine": "true"
+       }
+    }' \
+http://10.50.253.201:8084/connectors
+
+
+2.删除connector
+
+curl -X DELETE http://10.50.253.201:8084/connectors/oracle_tsm
+
+
+
+前置条件：因为Debezium插件升级（Jar不一样），且Connector配置不一样，需另起一套新版Debezium CDC插件的Connector集群。
+以下以8085为端口号的集群即为新Connector集群。
+
+1. 使用变动较频繁的表，作为Dummy Connector的捕获表，构造并启动这个Connector目的是获取offset偏移量
+curl -X POST  \
+-H 'Content-Type: application/json' \
+-H "Accept: application/json" \
+-d '{
+       "name": "xoracle_tsm",
+       "config": {
+           "connector.class": "io.debezium.connector.oracle.OracleConnector",
+           "database.user": "xstream_user",
+           "database.dbname": "tftong",
+           "rac.nodes": "10.60.5.1,10.60.5.2",
+           "tasks.max": "1",
+           "database.connection.adapter": "xstream",
+           "schema.history.internal.kafka.bootstrap.servers": "10.50.253.201:9093,10.50.253.202:9093,10.50.253.203:9093",
+           "database.port": "1521",
+           "tombstones.on.delete": "false",
+           "key.converter.schemas.enable": "false",
+           "topic.prefix": "xoracle_tsm",
+           "decimal.handling.mode": "string",
+           "schema.history.internal.kafka.topic": "xoracle_tsm.schema-changes.inventory",
+           "database.hostname": "10.60.5.2",
+           "database.password": "Xstream_User313",
+           "value.converter.schemas.enable": "false",
+           "name": "xoracle_tsm",
+           "schema.history.internal.skip.unparseable.ddl": "true",
+           "database.out.server.name": "dbzxout",
+           "table.include.list": "tft_tsm.t_trade_info",
+           "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+           "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+           "snapshot.mode": "schema_only"
+       }
+    }' \
+http://10.50.253.201:8085/connectors
+
+2. 检查connect-offsets-namenode topic, 是否有新的关于xoracle_tsm的数据写入，如有则可停止该Dummy Connector；如果没有，则可以手动更新被捕获表的某条记录手动触发offset写入，实际不更新。
+curl -X DELETE http://10.50.253.201:8085/connectors/xoracle_tsm
+
+注意：1-2步骤实为构造偏移量，可以作为准备工作提前执行。
+
+3. 检查oracle_tsm connector是否存在延迟，可以通过查看oracle_tsm.TFT_TSM.T_TRADE topic新流入数据的时间戳，如果较为接近当前时间，则认为无延迟，
+如果存在较大延迟，则等它追齐数据。待到数据无延迟后，停止旧的正式Connector
+curl -X DELETE http://10.50.253.201:8084/connectors/oracle_tsm
+
+4. 将1中offset最新的偏移量和旧的Connector名称写入connect-offsets-namenode topic
+java -jar ./jars/debezium-util-1.0-SNAPSHOT-jar-with-dependencies.jar "kafka1:9093" "datanode1:2181/kafka_27" "connect-offsets-namenode" "[\"oracle_tsm\",{\"server\":\"oracle_tsm\"}]" "{\"transaction_id\":null,\"lcr_position\":\"0046301c07fd00000001000000010046301c07fc000000010000000101\",\"snapshot_scn\":\"299510708387\"}"
+其中：lcr_position和snapshot_scn来自connect-offsets-namenode topic中名称为xoracle_tsm的最新偏移量
+
+{"transaction_id":null,"lcr_position":"0046301c07fd00000001000000010046301c07fc000000010000000101","snapshot_scn":"299510708387"}
+
+5. 此时旧的Connector偏移量已被覆盖，使用最新配置，启动旧的Connector， 这里message.key.columns仅配置无主键的表列
+curl -X POST  \
+-H 'Content-Type: application/json' \
+-H "Accept: application/json" \
+-d '{
+       "name": "oracle_tsm",
+       "config": {
+           "connector.class": "io.debezium.connector.oracle.OracleConnector",
+           "database.user": "xstream_user",
+           "database.dbname": "tftong",
+           "rac.nodes": "10.60.5.1,10.60.5.2",
+           "tasks.max": "1",
+           "database.connection.adapter": "xstream",
+           "schema.history.internal.kafka.bootstrap.servers": "10.50.253.201:9093,10.50.253.202:9093,10.50.253.203:9093",
+           "database.port": "1521",
+           "tombstones.on.delete": "false",
+           "key.converter.schemas.enable": "false",
+           "topic.prefix": "oracle_tsm",
+           "decimal.handling.mode": "string",
+           "schema.history.internal.kafka.topic": "oracle_tsm.schema-changes.inventory",
+           "database.hostname": "10.60.5.2",
+           "database.password": "Xstream_User313",
+           "value.converter.schemas.enable": "false",
+           "name": "oracle_tsm",
+           "schema.history.internal.skip.unparseable.ddl": "true",
+           "database.out.server.name": "dbzxout",
+           "schema.include.list": "tft_tsm",
+           "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+           "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+           "snapshot.mode": "schema_only",
+           "signal.poll.interval.ms":"5000",
+           "message.key.columns": "tft_tsm.tacct_bank_refund_relation_log:refund_trand_no;tft_tsm.t_apptype:app_type;tft_tsm.t_base_card_key:id;tft_tsm.t_black_crystal_card_data:card_no;tft_tsm.t_black_crystal_card_log:card_no;tft_tsm.t_certification_channel_info:id;tft_tsm.t_delete_card_data_del:card_no;tft_tsm.t_einvoice_order_info:trade_id;tft_tsm.t_trade_details:trade_id;tft_tsm.t_trade_extend:trade_id;tft_tsm.t_user_app_history_info:trade_id"
+       }
+    }' \
+http://10.50.253.201:8084/connectors
