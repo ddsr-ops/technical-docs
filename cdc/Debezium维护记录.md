@@ -38,6 +38,8 @@ Note：如何正确实施DDL，请参考文档《oracle cdc table structure evolution.sql》
 
 
 
+# NPE occurs when getColumnValues
+
 ## 症状表现
 ```
 [2023-05-22 10:28:58,438] INFO Already applied 1861 database changes (io.debezium.relational.history.SchemaHistoryMetrics:140)
@@ -188,3 +190,39 @@ java.lang.NullPointerException
 参考：  
 https://issues.redhat.com/browse/DBZ-6373  
 https://issues.redhat.com/browse/DBZ-6370
+
+
+
+# ORA-26804: Apply "XXX" is disabled
+
+## 症状表现
+
+```
+[2023-05-24 15:18:10,224] ERROR WorkerSourceTask{id=oracle_tftfxq-0} Task threw an uncaught and unrecoverable exception. Task is being killed and will not recover until manually restarted (org.apache.kafka.connect.runtime.WorkerTask:187)
+org.apache.kafka.connect.errors.ConnectException: An exception occurred in the change event producer. This connector will be stopped.
+        at io.debezium.pipeline.ErrorHandler.setProducerThrowable(ErrorHandler.java:72)
+        at io.debezium.connector.oracle.xstream.XstreamStreamingChangeEventSource.execute(XstreamStreamingChangeEventSource.java:144)
+        at io.debezium.connector.oracle.xstream.XstreamStreamingChangeEventSource.execute(XstreamStreamingChangeEventSource.java:45)
+        at io.debezium.pipeline.ChangeEventSourceCoordinator.streamEvents(ChangeEventSourceCoordinator.java:205)
+        at io.debezium.pipeline.ChangeEventSourceCoordinator.executeChangeEventSources(ChangeEventSourceCoordinator.java:172)
+        at io.debezium.pipeline.ChangeEventSourceCoordinator.lambda$start$0(ChangeEventSourceCoordinator.java:118)
+        at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:515)
+        at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+        at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+        at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+        at java.base/java.lang.Thread.run(Thread.java:834)
+Caused by: oracle.streams.StreamsException: ORA-26804: Apply "DBZXOUT" is disabled.
+
+
+        at oracle.streams.XStreamOut.XStreamOutReceiveLCRCallbackNative(Native Method)
+        at oracle.streams.XStreamOut.receiveLCRCallback(Unknown Source)
+        at io.debezium.connector.oracle.xstream.XstreamStreamingChangeEventSource.execute(XstreamStreamingChangeEventSource.java:125)
+        ... 9 more
+```
+
+## 解决
+
+发生Apply server不可用的情况，可能是因为数据库端在维护Xstream相关进程，例如使用ALTER_OUTBOUND过程
+修改CAPTURE进程的读取偏移量，会造成相关进程自动重启。
+
+重启Connector task即可：curl -X POST http://KAFKA_NODE:8084/connectors/CONNECTOR_NAME/tasks/0/restart
