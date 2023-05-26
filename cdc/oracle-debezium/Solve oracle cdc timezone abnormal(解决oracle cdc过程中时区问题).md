@@ -4,7 +4,7 @@
 关键字：ZoneOffset.UTC改为ZoneOffset.of("+8")即可  
 *Note: 全量替换，测试类可以不用替换；如果在因mysql时区问题已修改debezium-core模块，则忽略该模块修改*
 
-debezium-connector-oracle模块中，还需修改两处。  
+debezium-connector-oracle模块中，还需修改三处。  
 * io.debezium.connector.oracle.OracleValueConverters类的field GMT_ZONE_ID  
 ```
 //  private static final ZoneId GMT_ZONE_ID = ZoneId.of("GMT");
@@ -19,6 +19,13 @@ debezium-connector-oracle模块中，还需修改两处。
     connection.executeWithoutCommitting("ALTER SESSION SET TIME_ZONE = '+08:00'");
 ```
 > 该处控制在增量处理时，带时区相关timestamp类型值的处理，需设定为+8时区。
+
+* io.debezium.connector.oracle.logminer.processor.AbstractLogMinerEventProcessor#handleCommit
+```
+//  offsetContext.setSourceTime(event.getChangeTime().minusSeconds(databaseOffset.getTotalSeconds()));
+    offsetContext.setSourceTime(event.getChangeTime().minusSeconds(0));
+```
+> 控制sourceInfo中的ts_ms字段，如果不注释掉，相差8个小时（延迟）
 
 ##build
 Refers to doc（How to  build debezium oracle connector（编译debezium oracle包）.md） in local pc.

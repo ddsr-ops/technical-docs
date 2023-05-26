@@ -39,6 +39,7 @@
 5. 诊断Oracle CDC 2.3高额占用cpu使用率的问题
 
 2023-05-22
-1. 继续诊断Oracle CDC 2.3高额占用cpu使用率的问题
+1. 继续诊断Oracle CDC 2.3高额占用cpu使用率的问题，发现是parallelStream方法造成的，
+   打上patch后在生产环境发布完成
 2. 针对新版Oracle Xstream CDC链路，重新设计Grafana Dashboard和alert策略
-3. 将tft-bigdata-monitor服务拆分成告警服务和短信服务，分别部署
+3. 将tft-bigdata-monitor服务拆分成告警服务和短信服务，已分别完成部署
