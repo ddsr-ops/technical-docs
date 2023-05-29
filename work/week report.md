@@ -43,3 +43,9 @@
    打上patch后在生产环境发布完成
 2. 针对新版Oracle Xstream CDC链路，重新设计Grafana Dashboard和alert策略
 3. 将tft-bigdata-monitor服务拆分成告警服务和短信服务，已分别完成部署
+
+2023-05-29
+1. 跟进新版LogMiner CDC链路的漏数问题
+2. 解决LogMiner CDC链路SourceInfo的ts_ms的时区问题
+3. 调整grafana alert for oracle策略， 当前策略过于敏感
+4. 结合会议内容， 补充账户系统方案，尤其数据跑批和稽核的范围圈定，如有必要，则需做数据底层的调研
