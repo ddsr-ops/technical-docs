@@ -9,7 +9,7 @@ SET execution.runtime-mode = 'batch';
 set 'parallelism.default' = '4';
 set execution.checkpointing.externalized-checkpoint-retention='RETAIN_ON_CANCELLATION';
 
-DROP TABLE certification_result_0;
+-- DROP TABLE certification_result_0;
 CREATE TABLE certification_result_0(
  ID              DECIMAL(20,0),
  OLD_USER_ID     BIGINT,
@@ -284,7 +284,7 @@ PRIMARY KEY (ID) NOT ENFORCED
 );
  
 
-DROP TABLE tft_user_auth_res;
+-- DROP TABLE tft_user_auth_res;
 CREATE TABLE tft_user_auth_res(
  ID              DECIMAL(20,0),
  USER_ID         DECIMAL(20,0),
