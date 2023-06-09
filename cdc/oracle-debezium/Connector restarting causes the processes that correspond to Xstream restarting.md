@@ -1,0 +1,1 @@
+If only restart connector tasks which employee Xstream engine to capture data, these Oracle processes related to Xstream engine will be restarted automatically
