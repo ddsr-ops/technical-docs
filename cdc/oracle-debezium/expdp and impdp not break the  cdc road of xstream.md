@@ -1,7 +1,7 @@
 ```
 when are old tables exported? before exporting or after exporting?
 
-impdp system/system directory=dba_dump_dir dumpfile=t_user_extend.dmp tables=tft_uo.t_user_extend remap_table=tft_uo.t_user_extend:t_user_extend_new exclude=PROCACT_INSTANCE
+impdp system/system directory=dba_dump_dir dumpfile=t_user_extend.dmp tables=tft_uo.t_user_extend remap_table=tft_uo.t_user_extend:t_user_extend_new exclude=PROCACT_INSTANCE parallel=2
 
 ...check action...
 
@@ -15,7 +15,8 @@ alter table t_user_extend_old rename to t_user_extend;
 # Conclusion
 
 1. Expdp and impdp tools do not break the cdc road of Xstream
-2. Redo sql statements related to the target table could be viewed in the view v$logmnr_contents
+2. Redo sql statements related to the target table could be viewed in the view v$logmnr_contents, this means data imported by impdp tool can be captured by Xstream/LogMiner
+3. Parallelism in the impdp tool does not affect anything
 
 ```
 SELECT SCN, TIMESTAMP, xid, table_name, username, sql_redo FROM v$logmnr_contents WHERE username <> 'LOGMINER' AND TIMESTAMP > to_timestamp('2023-06-13 15:38:04', 'yyyy-mm-dd hh24:mi:ss') AND TIMESTAMP < to_timestamp('2023-06-13 15:39:00', 'yyyy-mm-dd hh24:mi:ss')
