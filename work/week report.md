@@ -60,8 +60,14 @@
 
 2023-06-12
 1. 测试expdp/impdp工具对Oracle Xstream链路的影响，如果目标表在被捕获列表内，则通过impdp导入的数据将被Xstream捕获，正常的expdp/impdp对CDC链路无影响
-2. 跟进Oracle PSU的测试情况，了解该PSU是否具备上线的条件
+2. 跟进Oracle PSU的测试情况，了解该PSU是否具备上线的条件，单机Oracle已具备PSU上线条件，运维正在准备RAC集群
 3. 协助搭建MySQL测试环境，临时挪用Flink节点的机器用于搭建测试MySQL
 4. 参与审计农行数币公交卡的数据库初审和复审
 5. 分析TSM Streaming程序异常原因，并对已发现问题提出后续处理办法
 6. 修改既有GE运行作业的接收告警信息的手机号码
+
+2023-06-25
+1. 跟进Oracle PSU升级在RAC模式下的测试情况
+2. 迁移tft-bigdata-monitor监控服务至新机器，并进行自愈测试
+3. 升级余额处理Flink程序的依赖至Flink1.16.1
+4. 改善余额处理Flink程序中的数据版本控制器，解决同个账户在数据更新时间一致情况下，数据版本可能混乱的问题
