@@ -59,8 +59,9 @@
 4. 参与审计看看租车1.0.6数据库操作部分
 
 2023-06-12
-1. 测试expdp/impdp工具对Oracle Xstream链路的影响，
+1. 测试expdp/impdp工具对Oracle Xstream链路的影响，如果目标表在被捕获列表内，则通过impdp导入的数据将被Xstream捕获，正常的expdp/impdp对CDC链路无影响
 2. 跟进Oracle PSU的测试情况，了解该PSU是否具备上线的条件
 3. 协助搭建MySQL测试环境，临时挪用Flink节点的机器用于搭建测试MySQL
 4. 参与审计农行数币公交卡的数据库初审和复审
 5. 分析TSM Streaming程序异常原因，并对已发现问题提出后续处理办法
+6. 修改既有GE运行作业的接收告警信息的手机号码

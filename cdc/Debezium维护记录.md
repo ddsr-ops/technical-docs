@@ -226,3 +226,39 @@ Caused by: oracle.streams.StreamsException: ORA-26804: Apply "DBZXOUT" is disabl
 修改CAPTURE进程的读取偏移量，会造成相关进程自动重启。
 
 重启Connector task即可：curl -X POST http://KAFKA_NODE:8084/connectors/CONNECTOR_NAME/tasks/0/restart
+
+
+
+# Xstream CDC链路无数据流入
+
+## 症状表现
+
+通过kafka restful api查看connector运行状态正常，但是从grafana dashboard中无数据流入，甚至触发告警。
+```
+[root@preRTDH-kafka201 connector-json]# ./get_all_connector_status.sh 
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100    60  100    60    0     0   2683      0 --:--:-- --:--:-- --:--:--  2727
+{"name":"oracle_ups","connector":{"state":"RUNNING","worker_id":"10.50.253.202:8084"},"tasks":[{"id":0,"state":"RUNNING","worker_id":"10.50.253.202:8084"}],"type":"source"}
+{"name":"oracle_tftfxq","connector":{"state":"RUNNING","worker_id":"10.50.253.203:8084"},"tasks":[{"id":0,"state":"RUNNING","worker_id":"10.50.253.203:8084"}],"type":"source"}
+{"name":"oracle_tsm_gch","connector":{"state":"RUNNING","worker_id":"10.50.253.201:8084"},"tasks":[{"id":0,"state":"RUNNING","worker_id":"10.50.253.201:8084"}],"type":"source"}
+{"name":"oracle_tsm","connector":{"state":"RUNNING","worker_id":"10.50.253.201:8084"},"tasks":[{"id":0,"state":"RUNNING","worker_id":"10.50.253.201:8084"}],"type":"source"}
+```
+
+Grafana中表现就是Oracle XXX TotalNumberOfEventsSeen Rate Dashboard直接躺0，触发告警
+
+## 解决
+
+直接尝试重启Connector task, 查看日志输出
+
+```shell
+export KAFKA_CONN_PORT=8084
+cd /opt/kafka_2.12-2.7.0/connector-json
+./restart_connector_task.sh CONNECTOR_NAME
+```
+
+检查日志
+```
+[2023-06-16 11:06:35,655] INFO 88685 records sent during previous 00:02:39.982, last recorded offset of {server=oracle_tsm} partition is {transaction_id=null, lcr_position=0046b61b977100000001000000010046b61b9770000000010000000101, snapshot_scn=299510708387} (io.debezium.connector.common.BaseSourceTask:211)
+```
+出现这样的日志，则意味着Connector继续处理了，如果仍然长时间没继续处理，则请联系DBA需进一步检查Xstream各组件状态
