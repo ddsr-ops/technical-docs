@@ -355,4 +355,290 @@ WHERE IFNULL(O.USER_NAME, 'TFTXXXXXXXXXX$*#') <> IFNULL(N.USER_NAME, 'TFTXXXXXXX
    OR IFNULL(O.ID_CARD, 'TFTXXXXXXXXXX$*#') <> IFNULL(N.ID_CARD, 'TFTXXXXXXXXXX$*#')
    OR IFNULL(O.BANK_CARD, 'TFTXXXXXXXXXX$*#') <> IFNULL(N.BANK_CARD, 'TFTXXXXXXXXXX$*#');
 
+=====================================================================================================
 
+set execution.checkpointing.interval='6s';
+set restart-strategy.fixed-delay.attempts=3;
+set restart-strategy.fixed-delay.delay='10s';
+SET execution.runtime-mode = 'batch';
+set 'parallelism.default' = '4';
+set execution.checkpointing.externalized-checkpoint-retention='RETAIN_ON_CANCELLATION';
+
+-- DROP TABLE user_0;
+CREATE TABLE user_0(
+old_user_id   bigint,
+ phone  string,
+client_code string,
+status tinyint,
+ certification_status tinyint,
+ is_delete tinyint
+) WITH (
+'connector' = 'jdbc',
+'url' = 'jdbc:mysql://10.60.3.56:60001/user_core?tinyInt1isBit=false&transformedBitIsBoolean=false',
+'table-name' = 'user_0',
+'username' = 'sync_user',
+'password' = 'Sync_user12#'
+);
+CREATE TABLE user_1(
+old_user_id   bigint,
+ phone  string,
+client_code string,
+status tinyint,
+ certification_status tinyint,
+ is_delete tinyint
+) WITH (
+'connector' = 'jdbc',
+'url' = 'jdbc:mysql://10.60.3.56:60001/user_core?tinyInt1isBit=false&transformedBitIsBoolean=false',
+'table-name' = 'user_1',
+'username' = 'sync_user',
+'password' = 'Sync_user12#'
+);
+CREATE TABLE user_2(
+old_user_id   bigint,
+ phone  string,
+client_code string,
+status tinyint,
+ certification_status tinyint,
+ is_delete tinyint
+) WITH (
+'connector' = 'jdbc',
+'url' = 'jdbc:mysql://10.60.3.56:60001/user_core?tinyInt1isBit=false&transformedBitIsBoolean=false',
+'table-name' = 'user_2',
+'username' = 'sync_user',
+'password' = 'Sync_user12#'
+);
+CREATE TABLE user_3(
+old_user_id   bigint,
+ phone  string,
+client_code string,
+status tinyint,
+ certification_status tinyint,
+ is_delete tinyint
+) WITH (
+'connector' = 'jdbc',
+'url' = 'jdbc:mysql://10.60.3.56:60001/user_core?tinyInt1isBit=false&transformedBitIsBoolean=false',
+'table-name' = 'user_3',
+'username' = 'sync_user',
+'password' = 'Sync_user12#'
+);
+CREATE TABLE user_4(
+old_user_id   bigint,
+ phone  string,
+client_code string,
+status tinyint,
+ certification_status tinyint,
+ is_delete tinyint
+) WITH (
+'connector' = 'jdbc',
+'url' = 'jdbc:mysql://10.60.3.56:60001/user_core?tinyInt1isBit=false&transformedBitIsBoolean=false',
+'table-name' = 'user_4',
+'username' = 'sync_user',
+'password' = 'Sync_user12#'
+);
+CREATE TABLE user_5(
+old_user_id   bigint,
+ phone  string,
+client_code string,
+status tinyint,
+ certification_status tinyint,
+ is_delete tinyint
+) WITH (
+'connector' = 'jdbc',
+'url' = 'jdbc:mysql://10.60.3.56:60001/user_core?tinyInt1isBit=false&transformedBitIsBoolean=false',
+'table-name' = 'user_5',
+'username' = 'sync_user',
+'password' = 'Sync_user12#'
+);
+CREATE TABLE user_6(
+old_user_id   bigint,
+ phone  string,
+client_code string,
+status tinyint,
+ certification_status tinyint,
+ is_delete tinyint
+) WITH (
+'connector' = 'jdbc',
+'url' = 'jdbc:mysql://10.60.3.56:60001/user_core?tinyInt1isBit=false&transformedBitIsBoolean=false',
+'table-name' = 'user_6',
+'username' = 'sync_user',
+'password' = 'Sync_user12#'
+);
+CREATE TABLE user_7(
+old_user_id   bigint,
+ phone  string,
+client_code string,
+status tinyint,
+ certification_status tinyint,
+ is_delete tinyint
+) WITH (
+'connector' = 'jdbc',
+'url' = 'jdbc:mysql://10.60.3.56:60001/user_core?tinyInt1isBit=false&transformedBitIsBoolean=false',
+'table-name' = 'user_7',
+'username' = 'sync_user',
+'password' = 'Sync_user12#'
+);
+CREATE TABLE user_8(
+old_user_id   bigint,
+ phone  string,
+client_code string,
+status tinyint,
+ certification_status tinyint,
+ is_delete tinyint
+) WITH (
+'connector' = 'jdbc',
+'url' = 'jdbc:mysql://10.60.3.56:60001/user_core?tinyInt1isBit=false&transformedBitIsBoolean=false',
+'table-name' = 'user_8',
+'username' = 'sync_user',
+'password' = 'Sync_user12#'
+);
+CREATE TABLE user_9(
+old_user_id   bigint,
+ phone  string,
+client_code string,
+status tinyint,
+ certification_status tinyint,
+ is_delete tinyint
+) WITH (
+'connector' = 'jdbc',
+'url' = 'jdbc:mysql://10.60.3.56:60001/user_core?tinyInt1isBit=false&transformedBitIsBoolean=false',
+'table-name' = 'user_9',
+'username' = 'sync_user',
+'password' = 'Sync_user12#'
+);
+CREATE TABLE user_10(
+old_user_id   bigint,
+ phone  string,
+client_code string,
+status tinyint,
+ certification_status tinyint,
+ is_delete tinyint
+) WITH (
+'connector' = 'jdbc',
+'url' = 'jdbc:mysql://10.60.3.56:60001/user_core?tinyInt1isBit=false&transformedBitIsBoolean=false',
+'table-name' = 'user_10',
+'username' = 'sync_user',
+'password' = 'Sync_user12#'
+);
+CREATE TABLE user_11(
+old_user_id   bigint,
+ phone  string,
+client_code string,
+status tinyint,
+ certification_status tinyint,
+ is_delete tinyint
+) WITH (
+'connector' = 'jdbc',
+'url' = 'jdbc:mysql://10.60.3.56:60001/user_core?tinyInt1isBit=false&transformedBitIsBoolean=false',
+'table-name' = 'user_11',
+'username' = 'sync_user',
+'password' = 'Sync_user12#'
+);
+CREATE TABLE user_12(
+old_user_id   bigint,
+ phone  string,
+client_code string,
+status tinyint,
+ certification_status tinyint,
+ is_delete tinyint
+) WITH (
+'connector' = 'jdbc',
+'url' = 'jdbc:mysql://10.60.3.56:60001/user_core?tinyInt1isBit=false&transformedBitIsBoolean=false',
+'table-name' = 'user_12',
+'username' = 'sync_user',
+'password' = 'Sync_user12#'
+);
+CREATE TABLE user_13(
+old_user_id   bigint,
+ phone  string,
+client_code string,
+status tinyint,
+ certification_status tinyint,
+ is_delete tinyint
+) WITH (
+'connector' = 'jdbc',
+'url' = 'jdbc:mysql://10.60.3.56:60001/user_core?tinyInt1isBit=false&transformedBitIsBoolean=false',
+'table-name' = 'user_13',
+'username' = 'sync_user',
+'password' = 'Sync_user12#'
+);
+CREATE TABLE user_14(
+old_user_id   bigint,
+ phone  string,
+client_code string,
+status tinyint,
+ certification_status tinyint,
+ is_delete tinyint
+) WITH (
+'connector' = 'jdbc',
+'url' = 'jdbc:mysql://10.60.3.56:60001/user_core?tinyInt1isBit=false&transformedBitIsBoolean=false',
+'table-name' = 'user_14',
+'username' = 'sync_user',
+'password' = 'Sync_user12#'
+);
+CREATE TABLE user_15(
+old_user_id   bigint,
+ phone  string,
+client_code string,
+status tinyint,
+ certification_status tinyint,
+ is_delete tinyint
+) WITH (
+'connector' = 'jdbc',
+'url' = 'jdbc:mysql://10.60.3.56:60001/user_core?tinyInt1isBit=false&transformedBitIsBoolean=false',
+'table-name' = 'user_15',
+'username' = 'sync_user',
+'password' = 'Sync_user12#'
+);
+
+create table t_user_extend(
+user_id string, cellphone string, status string, channel_id string
+) WITH (
+'connector' = 'jdbc',
+'url' = 'jdbc:oracle:thin:@10.60.6.4:1521:tftfxq2',
+'table-name' = 'tft_uo.t_user_extend', 
+'username' = 'logminer',
+'password' = 'Logminer#$321'
+);
+
+-- CH20181212103044BEVX 市民云  TFSMY
+-- CH20201121024115HPLH 重庆市民通  SMT
+
+CREATE TABLE print_table (
+ user_id string,
+ cellphone string,
+ status1 string,
+ client_code1 string,
+ old_user_id bigint,
+ phone string,
+ client_code2 string,
+ status2 tinyint,
+ certification_status tinyint, 
+ is_delete tinyint
+) WITH (
+  'connector' = 'print'
+);
+
+insert into print_table
+select * from
+(select user_id, cellphone, status, if(channel_id = 'CH20181212103044BEVX', 'TFSMY', 'SMT') as client_code from t_user_extend where status in ('00','11','21') AND  channel_id in ('CH20181212103044BEVX', 'CH20201121024115HPLH')) a
+left join (
+select old_user_id, phone, client_code, status, certification_status, is_delete from user_0 where client_code in ( 'TFSMY', 'SMT') and status = 1 and certification_status = 1 and is_delete = 0 union all
+select old_user_id, phone, client_code, status, certification_status, is_delete from user_1 where client_code in ( 'TFSMY', 'SMT') and status = 1 and certification_status = 1 and is_delete = 0 union all
+select old_user_id, phone, client_code, status, certification_status, is_delete from user_2 where client_code in ( 'TFSMY', 'SMT') and status = 1 and certification_status = 1 and is_delete = 0 union all
+select old_user_id, phone, client_code, status, certification_status, is_delete from user_3 where client_code in ( 'TFSMY', 'SMT') and status = 1 and certification_status = 1 and is_delete = 0 union all
+select old_user_id, phone, client_code, status, certification_status, is_delete from user_4 where client_code in ( 'TFSMY', 'SMT') and status = 1 and certification_status = 1 and is_delete = 0 union all
+select old_user_id, phone, client_code, status, certification_status, is_delete from user_5 where client_code in ( 'TFSMY', 'SMT') and status = 1 and certification_status = 1 and is_delete = 0 union all
+select old_user_id, phone, client_code, status, certification_status, is_delete from user_6 where client_code in ( 'TFSMY', 'SMT') and status = 1 and certification_status = 1 and is_delete = 0 union all
+select old_user_id, phone, client_code, status, certification_status, is_delete from user_7 where client_code in ( 'TFSMY', 'SMT') and status = 1 and certification_status = 1 and is_delete = 0 union all
+select old_user_id, phone, client_code, status, certification_status, is_delete from user_8 where client_code in ( 'TFSMY', 'SMT') and status = 1 and certification_status = 1 and is_delete = 0 union all
+select old_user_id, phone, client_code, status, certification_status, is_delete from user_9 where client_code in ( 'TFSMY', 'SMT') and status = 1 and certification_status = 1 and is_delete = 0 union all
+select old_user_id, phone, client_code, status, certification_status, is_delete from user_10 where client_code in ( 'TFSMY', 'SMT') and status = 1 and certification_status = 1 and is_delete = 0 union all
+select old_user_id, phone, client_code, status, certification_status, is_delete from user_11 where client_code in ( 'TFSMY', 'SMT') and status = 1 and certification_status = 1 and is_delete = 0 union all
+select old_user_id, phone, client_code, status, certification_status, is_delete from user_12 where client_code in ( 'TFSMY', 'SMT') and status = 1 and certification_status = 1 and is_delete = 0 union all
+select old_user_id, phone, client_code, status, certification_status, is_delete from user_13 where client_code in ( 'TFSMY', 'SMT') and status = 1 and certification_status = 1 and is_delete = 0 union all
+select old_user_id, phone, client_code, status, certification_status, is_delete from user_14 where client_code in ( 'TFSMY', 'SMT') and status = 1 and certification_status = 1 and is_delete = 0 union all
+select old_user_id, phone, client_code, status, certification_status, is_delete from user_15 where client_code in ( 'TFSMY', 'SMT') and status = 1 and certification_status = 1 and is_delete = 0) b
+on a.user_id = cast(b.old_user_id as string) and a.client_code = b.client_code
+where if(a.cellphone is null or char_length(a.cellphone) = 0, 
+'tftxxxxxxxxxx$*#', a.cellphone) <> if(b.phone is null or char_length(b.phone) = 0, 'tftxxxxxxxxxx$*#', b.phone)
+   or b.old_user_id is null;
