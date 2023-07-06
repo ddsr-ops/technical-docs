@@ -51,11 +51,11 @@ select count(*) from hadoop_catalog.stg.t_tft_tsm_t_trade_info_new where trade_n
 
 select trade_no, trade_state, version, debezium_op, settle_trade_time, create_time, update_time, debezium_source
  from hadoop_catalog.stg.t_tft_tsm_t_trade_info 
- where data_dt >= '20230527' and debezium_op = 'd' and create_time > '2023-05-01' limit 100;
+ where data_dt >= '20230615' and debezium_op = 'd' and create_time > '2023-06-01' limit 100;
 
 select trade_no, trade_state, version, debezium_op, settle_trade_time, create_time, update_time, debezium_source
  from hadoop_catalog.stg.t_tft_tsm_t_trade_info_new 
- where data_dt >= '20230528' and debezium_op = 'd' and create_time > '2023-05-01' limit 100;
+ where data_dt >= '20230630' and debezium_op = 'd' and create_time > '2023-06-01' limit 100;
 
 select trade_no, trade_state, version, debezium_op, settle_trade_time, create_time, update_time, debezium_source
  from hadoop_catalog.stg.t_tft_tsm_t_trade_info 
@@ -63,7 +63,7 @@ select trade_no, trade_state, version, debezium_op, settle_trade_time, create_ti
 
 select trade_no, trade_state, version, debezium_op, settle_trade_time, create_time, update_time, debezium_source
  from hadoop_catalog.stg.t_tft_tsm_t_trade_info_new 
- where data_dt >= '20230531' and trade_no in ('20230601182509119874') order by trade_no , kafka_offset;
+ where data_dt >= '20230630' and trade_no in ('20230630085611573076') order by trade_no , kafka_offset;
 
 select * 
  from hadoop_catalog.stg.t_tft_tsm_t_trade_info 
