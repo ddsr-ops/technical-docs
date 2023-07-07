@@ -81,4 +81,9 @@
 1. 继续测试tft-bigdata-monitor监控程序，择机发布
 2. 在测试环境复现Oracle CDC无法推进的问题，并在PSU应用后进行回归测试
 3. 配合运维DBA打Xstream小补丁，观测cdc链路情况：问题没有被解决，反而愈加严重
-4. 
+4. 配合对UPS数据库进行PSU升级，升级完成后恢复相应CDC链路
+
+2023-07-10
+1. 配合对FXQ数据库进行PSU升级，升级完成后恢复相应CDC链路
+2. 继续测试tft-bigdata-monitor监控程序，择机发布
+3. 升级余额处理Flink程序的依赖至Flink1.16.1
