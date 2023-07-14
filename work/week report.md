@@ -86,6 +86,6 @@
 2023-07-10
 1. 配合对FXQ数据库进行PSU升级，升级完成后恢复相应CDC链路
 2. 继续测试tft-bigdata-monitor监控程序，完成在生产环境的发布
-3. 升级余额处理Flink程序的依赖至Flink1.16.1
+3. 升级余额处理Flink程序的依赖至Flink1.16.1，完成测试
 4. 增加生产环境ConnectDistributed集群的内存
 5. 修复TSM CDC中断的问题，废弃schema.include.list，启用table.include.list
