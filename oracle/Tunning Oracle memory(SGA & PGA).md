@@ -1,0 +1,1 @@
+https://docs.oracle.com/en/database/oracle/oracle-database/18/tgdba/part-III-tuning-database-memory.html#GUID-934375BF-B850-483F-85E6-790D7BEC55ED
