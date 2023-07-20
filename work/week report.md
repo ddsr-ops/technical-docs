@@ -95,6 +95,5 @@
 2. 配合清结算业务将旧Doris切向新的Doris数据库
 3. 停用旧Doris后，调整Spark资源池
 4. 完善数据湖SDM层的数据质量治理
-before - sdm 
-doing - fdm, adm, rcn , mdm
-after - doris ?
+5. 解决bwt相关dataset在kafka connect上下文中无法映射的问题，但对于分片的dataset无法完成映射
+6. 完成GE从0.15升级至0.17，旨在解决Spark中无法计算Decimal类型的字段
