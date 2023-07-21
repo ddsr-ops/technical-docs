@@ -92,8 +92,13 @@
 
 2023-07-17
 1. 完成tft-bigdata-monitor监控程序发布
-2. 配合清结算业务将旧Doris切向新的Doris数据库
+2. 完成配合清结算业务将旧Doris切向新的Doris数据库
 3. 停用旧Doris后，调整Spark资源池
 4. 完善数据湖SDM层的数据质量治理
 5. 解决bwt相关dataset在kafka connect上下文中无法映射的问题，但对于分片的dataset无法完成映射
 6. 完成GE从0.15升级至0.17，旨在解决Spark中无法计算Decimal类型的字段
+
+2023-07-24
+1. 预计周三停用旧Doris后，释放Hadoop硬件资源，增加Spark资源池
+2. 解决GE升级至0.17后的部分环境问题，如本地执行checkpoint报import module错误
+3. 继续完善数据湖SDM层的数据质量治理，推进剩余部分
