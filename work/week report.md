@@ -102,3 +102,6 @@
 1. 预计周三停用旧Doris后，释放Hadoop硬件资源，增加Spark资源池
 2. 解决GE升级至0.17后的部分环境问题，如本地执行checkpoint报import module错误
 3. 继续完善数据湖SDM层的数据质量治理，推进剩余部分
+4. 完成公交SAAS报表SQL审计，给出审计意见
+5. 协助比对新老用户系统数据，按照要求给出具体差异数据
+6. 抽取b_order数据，按照要求拼接装载至b_user_credit表的SQL脚本

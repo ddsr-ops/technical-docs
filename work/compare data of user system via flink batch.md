@@ -366,6 +366,7 @@ set execution.checkpointing.externalized-checkpoint-retention='RETAIN_ON_CANCELL
 
 -- DROP TABLE user_0;
 CREATE TABLE user_0(
+user_id bigint,
 old_user_id   bigint,
  phone  string,
 client_code string,
@@ -380,6 +381,7 @@ status tinyint,
 'password' = 'Sync_user12#'
 );
 CREATE TABLE user_1(
+user_id bigint,
 old_user_id   bigint,
  phone  string,
 client_code string,
@@ -394,6 +396,7 @@ status tinyint,
 'password' = 'Sync_user12#'
 );
 CREATE TABLE user_2(
+user_id bigint,
 old_user_id   bigint,
  phone  string,
 client_code string,
@@ -408,6 +411,7 @@ status tinyint,
 'password' = 'Sync_user12#'
 );
 CREATE TABLE user_3(
+user_id bigint,
 old_user_id   bigint,
  phone  string,
 client_code string,
@@ -422,6 +426,7 @@ status tinyint,
 'password' = 'Sync_user12#'
 );
 CREATE TABLE user_4(
+user_id bigint,
 old_user_id   bigint,
  phone  string,
 client_code string,
@@ -436,6 +441,7 @@ status tinyint,
 'password' = 'Sync_user12#'
 );
 CREATE TABLE user_5(
+user_id bigint,
 old_user_id   bigint,
  phone  string,
 client_code string,
@@ -450,6 +456,7 @@ status tinyint,
 'password' = 'Sync_user12#'
 );
 CREATE TABLE user_6(
+user_id bigint,
 old_user_id   bigint,
  phone  string,
 client_code string,
@@ -464,6 +471,7 @@ status tinyint,
 'password' = 'Sync_user12#'
 );
 CREATE TABLE user_7(
+user_id bigint,
 old_user_id   bigint,
  phone  string,
 client_code string,
@@ -478,6 +486,7 @@ status tinyint,
 'password' = 'Sync_user12#'
 );
 CREATE TABLE user_8(
+user_id bigint,
 old_user_id   bigint,
  phone  string,
 client_code string,
@@ -492,6 +501,7 @@ status tinyint,
 'password' = 'Sync_user12#'
 );
 CREATE TABLE user_9(
+user_id bigint,
 old_user_id   bigint,
  phone  string,
 client_code string,
@@ -506,6 +516,7 @@ status tinyint,
 'password' = 'Sync_user12#'
 );
 CREATE TABLE user_10(
+user_id bigint,
 old_user_id   bigint,
  phone  string,
 client_code string,
@@ -520,6 +531,7 @@ status tinyint,
 'password' = 'Sync_user12#'
 );
 CREATE TABLE user_11(
+user_id bigint,
 old_user_id   bigint,
  phone  string,
 client_code string,
@@ -534,6 +546,7 @@ status tinyint,
 'password' = 'Sync_user12#'
 );
 CREATE TABLE user_12(
+user_id bigint,
 old_user_id   bigint,
  phone  string,
 client_code string,
@@ -548,6 +561,7 @@ status tinyint,
 'password' = 'Sync_user12#'
 );
 CREATE TABLE user_13(
+user_id bigint,
 old_user_id   bigint,
  phone  string,
 client_code string,
@@ -562,6 +576,7 @@ status tinyint,
 'password' = 'Sync_user12#'
 );
 CREATE TABLE user_14(
+user_id bigint,
 old_user_id   bigint,
  phone  string,
 client_code string,
@@ -576,6 +591,7 @@ status tinyint,
 'password' = 'Sync_user12#'
 );
 CREATE TABLE user_15(
+user_id bigint,
 old_user_id   bigint,
  phone  string,
 client_code string,
@@ -642,3 +658,56 @@ on a.user_id = cast(b.old_user_id as string) and a.client_code = b.client_code
 where if(a.cellphone is null or char_length(a.cellphone) = 0, 
 'tftxxxxxxxxxx$*#', a.cellphone) <> if(b.phone is null or char_length(b.phone) = 0, 'tftxxxxxxxxxx$*#', b.phone)
    or b.old_user_id is null;
+
+
+
+CREATE TABLE user_base(
+ user_id   bigint,
+ mobile_phone  string,
+ reg_chl string,
+ reg_date timestamp
+) WITH (
+'connector' = 'jdbc',
+'url' = 'jdbc:mysql://10.166.83.1:60001/msx_online?tinyInt1isBit=false&transformedBitIsBoolean=false',
+'table-name' = 'user_base',
+'username' = 'ywuser',
+'password' = 'ywuser#!123'
+);
+
+
+CREATE TABLE print_table (
+ user_id bigint,
+ mobile_phone string,
+ reg_chl string,
+ reg_date timestamp,
+ user_id1 bigint,
+ old_user_id bigint,
+ phone string,
+ client_code2 string,
+ status2 tinyint,
+ certification_status tinyint, 
+ is_delete tinyint
+) WITH (
+  'connector' = 'print'
+);
+insert into print_table
+select * from
+(select user_id, mobile_phone, reg_chl, reg_date from user_base where reg_chl like '%\"A01\":\"10\"%') a 
+join (
+select user_id, old_user_id, phone, client_code, status, certification_status, is_delete from user_0 where client_code in (  'TFT') and certification_status = 1 and is_delete = 0 union all
+select user_id, old_user_id, phone, client_code, status, certification_status, is_delete from user_1 where client_code in (  'TFT') and certification_status = 1 and is_delete = 0 union all
+select user_id, old_user_id, phone, client_code, status, certification_status, is_delete from user_2 where client_code in (  'TFT') and certification_status = 1 and is_delete = 0 union all
+select user_id, old_user_id, phone, client_code, status, certification_status, is_delete from user_3 where client_code in (  'TFT') and certification_status = 1 and is_delete = 0 union all
+select user_id, old_user_id, phone, client_code, status, certification_status, is_delete from user_4 where client_code in (  'TFT') and certification_status = 1 and is_delete = 0 union all
+select user_id, old_user_id, phone, client_code, status, certification_status, is_delete from user_5 where client_code in (  'TFT') and certification_status = 1 and is_delete = 0 union all
+select user_id, old_user_id, phone, client_code, status, certification_status, is_delete from user_6 where client_code in (  'TFT') and certification_status = 1 and is_delete = 0 union all
+select user_id, old_user_id, phone, client_code, status, certification_status, is_delete from user_7 where client_code in (  'TFT') and certification_status = 1 and is_delete = 0 union all
+select user_id, old_user_id, phone, client_code, status, certification_status, is_delete from user_8 where client_code in (  'TFT') and certification_status = 1 and is_delete = 0 union all
+select user_id, old_user_id, phone, client_code, status, certification_status, is_delete from user_9 where client_code in (  'TFT') and certification_status = 1 and is_delete = 0 union all
+select user_id, old_user_id, phone, client_code, status, certification_status, is_delete from user_10 where client_code in ( 'TFT') and certification_status = 1 and is_delete = 0 union all
+select user_id, old_user_id, phone, client_code, status, certification_status, is_delete from user_11 where client_code in ( 'TFT') and certification_status = 1 and is_delete = 0 union all
+select user_id, old_user_id, phone, client_code, status, certification_status, is_delete from user_12 where client_code in ( 'TFT') and certification_status = 1 and is_delete = 0 union all
+select user_id, old_user_id, phone, client_code, status, certification_status, is_delete from user_13 where client_code in ( 'TFT') and certification_status = 1 and is_delete = 0 union all
+select user_id, old_user_id, phone, client_code, status, certification_status, is_delete from user_14 where client_code in ( 'TFT') and certification_status = 1 and is_delete = 0 union all
+select user_id, old_user_id, phone, client_code, status, certification_status, is_delete from user_15 where client_code in ( 'TFT') and certification_status = 1 and is_delete = 0) b
+on a.user_id = b.old_user_id;
