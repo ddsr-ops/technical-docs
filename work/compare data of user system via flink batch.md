@@ -11,6 +11,8 @@ set execution.checkpointing.externalized-checkpoint-retention='RETAIN_ON_CANCELL
 
 -- DROP TABLE certification_result_0;
 CREATE TABLE certification_result_0(
+ USER_ID BIGINT,
+ IS_DELETE TINYINT,
  ID              DECIMAL(20,0),
  OLD_USER_ID     BIGINT,
  USER_NAME       STRING,
@@ -22,12 +24,14 @@ CREATE TABLE certification_result_0(
 PRIMARY KEY (ID) NOT ENFORCED
 ) WITH (
 'connector' = 'jdbc',
-'url' = 'jdbc:mysql://10.60.3.56:60001/certification',
+'url' = 'jdbc:mysql://10.60.3.56:60001/certification?tinyInt1isBit=false&transformedBitIsBoolean=false',
 'table-name' = 'certification_result_0',
 'username' = 'sync_user',
 'password' = 'Sync_user12#'
 );
 CREATE TABLE certification_result_1(
+ USER_ID BIGINT,
+ IS_DELETE TINYINT,
  ID              DECIMAL(20,0),
  OLD_USER_ID     BIGINT,
  USER_NAME       STRING,
@@ -39,12 +43,14 @@ CREATE TABLE certification_result_1(
 PRIMARY KEY (ID) NOT ENFORCED
 ) WITH (
 'connector' = 'jdbc',
-'url' = 'jdbc:mysql://10.60.3.56:60001/certification',
+'url' = 'jdbc:mysql://10.60.3.56:60001/certification?tinyInt1isBit=false&transformedBitIsBoolean=false',
 'table-name' = 'certification_result_1',
 'username' = 'sync_user',
 'password' = 'Sync_user12#'
 );
 CREATE TABLE certification_result_2(
+ USER_ID BIGINT,
+ IS_DELETE TINYINT,
  ID              DECIMAL(20,0),
  OLD_USER_ID     BIGINT,
  USER_NAME       STRING,
@@ -56,12 +62,14 @@ CREATE TABLE certification_result_2(
 PRIMARY KEY (ID) NOT ENFORCED
 ) WITH (
 'connector' = 'jdbc',
-'url' = 'jdbc:mysql://10.60.3.56:60001/certification',
+'url' = 'jdbc:mysql://10.60.3.56:60001/certification?tinyInt1isBit=false&transformedBitIsBoolean=false',
 'table-name' = 'certification_result_2',
 'username' = 'sync_user',
 'password' = 'Sync_user12#'
 );
 CREATE TABLE certification_result_3(
+ USER_ID BIGINT,
+ IS_DELETE TINYINT,
  ID              DECIMAL(20,0),
  OLD_USER_ID     BIGINT,
  USER_NAME       STRING,
@@ -73,12 +81,14 @@ CREATE TABLE certification_result_3(
 PRIMARY KEY (ID) NOT ENFORCED
 ) WITH (
 'connector' = 'jdbc',
-'url' = 'jdbc:mysql://10.60.3.56:60001/certification',
+'url' = 'jdbc:mysql://10.60.3.56:60001/certification?tinyInt1isBit=false&transformedBitIsBoolean=false',
 'table-name' = 'certification_result_3',
 'username' = 'sync_user',
 'password' = 'Sync_user12#'
 );
 CREATE TABLE certification_result_4(
+ USER_ID BIGINT,
+ IS_DELETE TINYINT,
  ID              DECIMAL(20,0),
  OLD_USER_ID     BIGINT,
  USER_NAME       STRING,
@@ -90,12 +100,14 @@ CREATE TABLE certification_result_4(
 PRIMARY KEY (ID) NOT ENFORCED
 ) WITH (
 'connector' = 'jdbc',
-'url' = 'jdbc:mysql://10.60.3.56:60001/certification',
+'url' = 'jdbc:mysql://10.60.3.56:60001/certification?tinyInt1isBit=false&transformedBitIsBoolean=false',
 'table-name' = 'certification_result_4',
 'username' = 'sync_user',
 'password' = 'Sync_user12#'
 );
 CREATE TABLE certification_result_5(
+ USER_ID BIGINT,
+ IS_DELETE TINYINT,
  ID              DECIMAL(20,0),
  OLD_USER_ID     BIGINT,
  USER_NAME       STRING,
@@ -107,12 +119,14 @@ CREATE TABLE certification_result_5(
 PRIMARY KEY (ID) NOT ENFORCED
 ) WITH (
 'connector' = 'jdbc',
-'url' = 'jdbc:mysql://10.60.3.56:60001/certification',
+'url' = 'jdbc:mysql://10.60.3.56:60001/certification?tinyInt1isBit=false&transformedBitIsBoolean=false',
 'table-name' = 'certification_result_5',
 'username' = 'sync_user',
 'password' = 'Sync_user12#'
 );
 CREATE TABLE certification_result_6(
+ USER_ID BIGINT,
+ IS_DELETE TINYINT,
  ID              DECIMAL(20,0),
  OLD_USER_ID     BIGINT,
  USER_NAME       STRING,
@@ -124,12 +138,14 @@ CREATE TABLE certification_result_6(
 PRIMARY KEY (ID) NOT ENFORCED
 ) WITH (
 'connector' = 'jdbc',
-'url' = 'jdbc:mysql://10.60.3.56:60001/certification',
+'url' = 'jdbc:mysql://10.60.3.56:60001/certification?tinyInt1isBit=false&transformedBitIsBoolean=false',
 'table-name' = 'certification_result_6',
 'username' = 'sync_user',
 'password' = 'Sync_user12#'
 );
 CREATE TABLE certification_result_7(
+ USER_ID BIGINT,
+ IS_DELETE TINYINT,
  ID              DECIMAL(20,0),
  OLD_USER_ID     BIGINT,
  USER_NAME       STRING,
@@ -141,12 +157,14 @@ CREATE TABLE certification_result_7(
 PRIMARY KEY (ID) NOT ENFORCED
 ) WITH (
 'connector' = 'jdbc',
-'url' = 'jdbc:mysql://10.60.3.56:60001/certification',
+'url' = 'jdbc:mysql://10.60.3.56:60001/certification?tinyInt1isBit=false&transformedBitIsBoolean=false',
 'table-name' = 'certification_result_7',
 'username' = 'sync_user',
 'password' = 'Sync_user12#'
 );
 CREATE TABLE certification_result_8(
+ USER_ID BIGINT,
+ IS_DELETE TINYINT,
  ID              DECIMAL(20,0),
  OLD_USER_ID     BIGINT,
  USER_NAME       STRING,
@@ -158,12 +176,14 @@ CREATE TABLE certification_result_8(
 PRIMARY KEY (ID) NOT ENFORCED
 ) WITH (
 'connector' = 'jdbc',
-'url' = 'jdbc:mysql://10.60.3.56:60001/certification',
+'url' = 'jdbc:mysql://10.60.3.56:60001/certification?tinyInt1isBit=false&transformedBitIsBoolean=false',
 'table-name' = 'certification_result_8',
 'username' = 'sync_user',
 'password' = 'Sync_user12#'
 );
 CREATE TABLE certification_result_9(
+ USER_ID BIGINT,
+ IS_DELETE TINYINT,
  ID              DECIMAL(20,0),
  OLD_USER_ID     BIGINT,
  USER_NAME       STRING,
@@ -175,12 +195,14 @@ CREATE TABLE certification_result_9(
 PRIMARY KEY (ID) NOT ENFORCED
 ) WITH (
 'connector' = 'jdbc',
-'url' = 'jdbc:mysql://10.60.3.56:60001/certification',
+'url' = 'jdbc:mysql://10.60.3.56:60001/certification?tinyInt1isBit=false&transformedBitIsBoolean=false',
 'table-name' = 'certification_result_9',
 'username' = 'sync_user',
 'password' = 'Sync_user12#'
 );
 CREATE TABLE certification_result_10(
+ USER_ID BIGINT,
+ IS_DELETE TINYINT,
  ID              DECIMAL(20,0),
  OLD_USER_ID     BIGINT,
  USER_NAME       STRING,
@@ -192,12 +214,14 @@ CREATE TABLE certification_result_10(
 PRIMARY KEY (ID) NOT ENFORCED
 ) WITH (
 'connector' = 'jdbc',
-'url' = 'jdbc:mysql://10.60.3.56:60001/certification',
+'url' = 'jdbc:mysql://10.60.3.56:60001/certification?tinyInt1isBit=false&transformedBitIsBoolean=false',
 'table-name' = 'certification_result_10',
 'username' = 'sync_user',
 'password' = 'Sync_user12#'
 );
 CREATE TABLE certification_result_11(
+ USER_ID BIGINT,
+ IS_DELETE TINYINT,
  ID              DECIMAL(20,0),
  OLD_USER_ID     BIGINT,
  USER_NAME       STRING,
@@ -209,12 +233,14 @@ CREATE TABLE certification_result_11(
 PRIMARY KEY (ID) NOT ENFORCED
 ) WITH (
 'connector' = 'jdbc',
-'url' = 'jdbc:mysql://10.60.3.56:60001/certification',
+'url' = 'jdbc:mysql://10.60.3.56:60001/certification?tinyInt1isBit=false&transformedBitIsBoolean=false',
 'table-name' = 'certification_result_11',
 'username' = 'sync_user',
 'password' = 'Sync_user12#'
 );
 CREATE TABLE certification_result_12(
+ USER_ID BIGINT,
+ IS_DELETE TINYINT,
  ID              DECIMAL(20,0),
  OLD_USER_ID     BIGINT,
  USER_NAME       STRING,
@@ -226,12 +252,14 @@ CREATE TABLE certification_result_12(
 PRIMARY KEY (ID) NOT ENFORCED
 ) WITH (
 'connector' = 'jdbc',
-'url' = 'jdbc:mysql://10.60.3.56:60001/certification',
+'url' = 'jdbc:mysql://10.60.3.56:60001/certification?tinyInt1isBit=false&transformedBitIsBoolean=false',
 'table-name' = 'certification_result_12',
 'username' = 'sync_user',
 'password' = 'Sync_user12#'
 );
 CREATE TABLE certification_result_13(
+ USER_ID BIGINT,
+ IS_DELETE TINYINT,
  ID              DECIMAL(20,0),
  OLD_USER_ID     BIGINT,
  USER_NAME       STRING,
@@ -243,12 +271,14 @@ CREATE TABLE certification_result_13(
 PRIMARY KEY (ID) NOT ENFORCED
 ) WITH (
 'connector' = 'jdbc',
-'url' = 'jdbc:mysql://10.60.3.56:60001/certification',
+'url' = 'jdbc:mysql://10.60.3.56:60001/certification?tinyInt1isBit=false&transformedBitIsBoolean=false',
 'table-name' = 'certification_result_13',
 'username' = 'sync_user',
 'password' = 'Sync_user12#'
 );
 CREATE TABLE certification_result_14(
+ USER_ID BIGINT,
+ IS_DELETE TINYINT,
  ID              DECIMAL(20,0),
  OLD_USER_ID     BIGINT,
  USER_NAME       STRING,
@@ -260,12 +290,14 @@ CREATE TABLE certification_result_14(
 PRIMARY KEY (ID) NOT ENFORCED
 ) WITH (
 'connector' = 'jdbc',
-'url' = 'jdbc:mysql://10.60.3.56:60001/certification',
+'url' = 'jdbc:mysql://10.60.3.56:60001/certification?tinyInt1isBit=false&transformedBitIsBoolean=false',
 'table-name' = 'certification_result_14',
 'username' = 'sync_user',
 'password' = 'Sync_user12#'
 );
 CREATE TABLE certification_result_15(
+ USER_ID BIGINT,
+ IS_DELETE TINYINT,
  ID              DECIMAL(20,0),
  OLD_USER_ID     BIGINT,
  USER_NAME       STRING,
@@ -277,7 +309,7 @@ CREATE TABLE certification_result_15(
 PRIMARY KEY (ID) NOT ENFORCED
 ) WITH (
 'connector' = 'jdbc',
-'url' = 'jdbc:mysql://10.60.3.56:60001/certification',
+'url' = 'jdbc:mysql://10.60.3.56:60001/certification?tinyInt1isBit=false&transformedBitIsBoolean=false',
 'table-name' = 'certification_result_15',
 'username' = 'sync_user',
 'password' = 'Sync_user12#'
@@ -711,3 +743,67 @@ select user_id, old_user_id, phone, client_code, status, certification_status, i
 select user_id, old_user_id, phone, client_code, status, certification_status, is_delete from user_14 where client_code in ( 'TFT') and certification_status = 1 and is_delete = 0 union all
 select user_id, old_user_id, phone, client_code, status, certification_status, is_delete from user_15 where client_code in ( 'TFT') and certification_status = 1 and is_delete = 0) b
 on a.user_id = b.old_user_id;
+
+
+
+CREATE TABLE print_table (
+ user_id bigint,
+ mobile_phone string,
+ reg_chl string,
+ reg_date timestamp,
+ new_user_id bigint,
+ is_delete tinyint,
+ id              decimal(20,0),
+ old_user_id     bigint,
+ user_name       string,
+ user_phone      string,
+ id_card         string,
+ bank_card       string,
+ create_time     timestamp,
+ client_code     string
+) WITH (
+  'connector' = 'print'
+);
+
+-- create a csv table located at the local directory
+CREATE TABLE csv_table (
+ user_id bigint,
+ mobile_phone string,
+ reg_chl string,
+ reg_date timestamp,
+ new_user_id bigint,
+ is_delete tinyint,
+ id              decimal(20,0),
+ old_user_id     bigint,
+ user_name       string,
+ user_phone      string,
+ id_card         string,
+ bank_card       string,
+ create_time     timestamp,
+ client_code     string
+) WITH (
+  'connector' = 'filesystem',           -- required: specify the connector
+  'path' = 'file:///tmp/20230728',  -- required: path to a directory
+  'format' = 'csv'
+);
+insert into csv_table
+select * from
+(select user_id, mobile_phone, reg_chl, reg_date from user_base where reg_chl like '%\"A01\":\"10\"%') a 
+join (
+select * from certification_result_0  where IS_DELETE = 0 AND  CLIENT_CODE = 'TFT' union all
+select * from certification_result_1  where IS_DELETE = 0 AND  CLIENT_CODE = 'TFT' union all
+select * from certification_result_2  where IS_DELETE = 0 AND  CLIENT_CODE = 'TFT' union all
+select * from certification_result_3  where IS_DELETE = 0 AND  CLIENT_CODE = 'TFT' union all
+select * from certification_result_4  where IS_DELETE = 0 AND  CLIENT_CODE = 'TFT' union all
+select * from certification_result_5  where IS_DELETE = 0 AND  CLIENT_CODE = 'TFT' union all
+select * from certification_result_6  where IS_DELETE = 0 AND  CLIENT_CODE = 'TFT' union all
+select * from certification_result_7  where IS_DELETE = 0 AND  CLIENT_CODE = 'TFT' union all
+select * from certification_result_8  where IS_DELETE = 0 AND  CLIENT_CODE = 'TFT' union all
+select * from certification_result_9  where IS_DELETE = 0 AND  CLIENT_CODE = 'TFT' union all
+select * from certification_result_10 where IS_DELETE = 0 AND CLIENT_CODE = 'TFT' union all
+select * from certification_result_11 where IS_DELETE = 0 AND CLIENT_CODE = 'TFT' union all
+select * from certification_result_12 where IS_DELETE = 0 AND CLIENT_CODE = 'TFT' union all
+select * from certification_result_13 where IS_DELETE = 0 AND CLIENT_CODE = 'TFT' union all
+select * from certification_result_14 where IS_DELETE = 0 AND CLIENT_CODE = 'TFT' union all
+select * from certification_result_15 where IS_DELETE = 0 AND CLIENT_CODE = 'TFT') b
+on a.user_id = b.OLD_USER_ID;

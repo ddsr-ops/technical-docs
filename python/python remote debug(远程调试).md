@@ -11,4 +11,6 @@ Try to keep IDE file path in consistent with remote python file path, otherwise 
 Another attention to be paid is packages which are needed for debugging should be installed in remote and local (IDE) endpoints.
 
 [Reference](https://blog.csdn.net/dkjkls/article/details/89054595)
+https://www.jetbrains.com/help/pycharm/remote-debugging-with-product.html#remote-debug-config
 
+Note: Commonly Local directories and Remote directories are required to be the same for debugging.
