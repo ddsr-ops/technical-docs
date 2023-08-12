@@ -1,5 +1,5 @@
 [Doc](https://docs.oracle.com/en/database/oracle/oracle-database/19/xstrm/configuring-xstream-out.html#GUID-E24B40DF-D1C4-4FCC-8C62-28AAEC2AE972)
-
+[Parameter STREAMS_POOL_SIZE](https://docs.oracle.com/en/database/oracle/oracle-database/19/refrn/STREAMS_POOL_SIZE.html#GUID-3FFF66CB-5A1E-43AF-B30A-A8E189BFF3FF)
 Configure the Streams pool
 The Streams pool is a portion of memory in the System Global Area (SGA) that is used by both Oracle Replication and XStream components.
 
