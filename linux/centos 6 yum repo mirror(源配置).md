@@ -14,7 +14,8 @@ mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup
 vim /etc/yum.repos.d/CentOS-Base.repo 
 
 更改内容如下
-```[base]
+```
+[base]
 name=CentOS-$releasever
 enabled=1
 failovermethod=priority

@@ -807,3 +807,42 @@ select * from certification_result_13 where IS_DELETE = 0 AND CLIENT_CODE = 'TFT
 select * from certification_result_14 where IS_DELETE = 0 AND CLIENT_CODE = 'TFT' union all
 select * from certification_result_15 where IS_DELETE = 0 AND CLIENT_CODE = 'TFT') b
 on a.user_id = b.OLD_USER_ID;
+
+
+
+# Check phone of records from two databases are not equal
+
+-- create a csv table located at the local directory
+CREATE TABLE csv_table (
+ old_user_id     bigint,
+ user_id         bigint,
+ old_phone       string,
+ new_phone       string
+) WITH (
+  'connector' = 'filesystem',           -- required: specify the connector
+  'path' = 'file:///tmp/20230821',  -- required: path to a directory
+  'format' = 'csv'
+);
+insert into csv_table
+select a.old_user_id, user_id, old_phone, new_phone from
+(select user_id as old_user_id, mobile_phone as old_phone from user_base where reg_chl like '%\"A01\":\"11\"%') a 
+join (
+select user_id, old_user_id, phone as new_phone from user_0 where client_code in (  'TFT') and certification_status = 1 and is_delete = 0 union all
+select user_id, old_user_id, phone as new_phone from user_1 where client_code in (  'TFT') and certification_status = 1 and is_delete = 0 union all
+select user_id, old_user_id, phone as new_phone from user_2 where client_code in (  'TFT') and certification_status = 1 and is_delete = 0 union all
+select user_id, old_user_id, phone as new_phone from user_3 where client_code in (  'TFT') and certification_status = 1 and is_delete = 0 union all
+select user_id, old_user_id, phone as new_phone from user_4 where client_code in (  'TFT') and certification_status = 1 and is_delete = 0 union all
+select user_id, old_user_id, phone as new_phone from user_5 where client_code in (  'TFT') and certification_status = 1 and is_delete = 0 union all
+select user_id, old_user_id, phone as new_phone from user_6 where client_code in (  'TFT') and certification_status = 1 and is_delete = 0 union all
+select user_id, old_user_id, phone as new_phone from user_7 where client_code in (  'TFT') and certification_status = 1 and is_delete = 0 union all
+select user_id, old_user_id, phone as new_phone from user_8 where client_code in (  'TFT') and certification_status = 1 and is_delete = 0 union all
+select user_id, old_user_id, phone as new_phone from user_9 where client_code in (  'TFT') and certification_status = 1 and is_delete = 0 union all
+select user_id, old_user_id, phone as new_phone from user_10 where client_code in ( 'TFT') and certification_status = 1 and is_delete = 0 union all
+select user_id, old_user_id, phone as new_phone from user_11 where client_code in ( 'TFT') and certification_status = 1 and is_delete = 0 union all
+select user_id, old_user_id, phone as new_phone from user_12 where client_code in ( 'TFT') and certification_status = 1 and is_delete = 0 union all
+select user_id, old_user_id, phone as new_phone from user_13 where client_code in ( 'TFT') and certification_status = 1 and is_delete = 0 union all
+select user_id, old_user_id, phone as new_phone from user_14 where client_code in ( 'TFT') and certification_status = 1 and is_delete = 0 union all
+select user_id, old_user_id, phone as new_phone from user_15 where client_code in ( 'TFT') and certification_status = 1 and is_delete = 0) b
+on a.old_user_id = b.old_user_id
+where if(a.old_phone is null or char_length(a.old_phone) = 0, 
+'tftxxxxxxxxxx$*#', a.old_phone) <> if(b.new_phone is null or char_length(b.new_phone) = 0, 'tftxxxxxxxxxx$*#', b.new_phone);
