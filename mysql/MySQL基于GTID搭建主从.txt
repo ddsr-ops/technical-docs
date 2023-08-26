@@ -1,0 +1,58 @@
+MySQL基于GTID搭建主从
+
+这里存在一个注意点，也是我案例中会提到的。我们还是直接说步骤
+
+注意主备库必须开启GTID和设置好server_id
+ enforce_gtid_consistency = ON
+ gtid_mode = ON
+ server_id = 9910
+ binlog_format = row
+
+同时主备库都开启binlog如果不设置级联从库，从库不要设置log_slave_updates参数。
+这是最合理的设置。
+
+
+
+建立用户
+ CREATE USER 'repl'@'%' IDENTIFIED BY  'test123';
+ GRANT REPLICATION SLAVE ON *.* TO 'repl'@'%' ;
+
+ 
+导出数据
+ mysqldump  --single-transaction  --master-data=2  -R -E --triggers  --all-databases > test.sql
+
+ 
+从库导入数据
+source即可。
+
+
+从库执行reset master语句
+这一步主要防止gtid_executed被更改过。
+ reset master；
+
+提取GTID_PURGED，并且执行
+使用head -n 40 命令可以快速的得到比如我这里的
+--
+-- GTID state at the beginning of the backup 
+--
+
+SET @@GLOBAL.GTID_PURGED='ec9bdd78-a593-11e7-9315-5254008138e4:1-21';
+
+执行
+
+ SET @@GLOBAL.GTID_PURGED='ec9bdd78-a593-11e7-9315-5254008138e4:1-21';
+
+语句即可，完成本部分mysql.gtid_executed表会重构。
+
+
+使用MASTER_AUTO_POSITION建立同步
+ change master to 
+ master_host='192.168.99.41',
+ master_user='repl',
+ master_password='test123',
+ master_port=3310,
+ MASTER_AUTO_POSITION = 1;
+
+ 
+启动slave
+ start slave

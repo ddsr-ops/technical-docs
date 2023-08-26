@@ -1,0 +1,26 @@
+MySQL GTID模式跳过事务
+
+和传统基于位置的主从不同，如果从库报错，我们需要获得从库执行的最后一个事务，方法有如下：
+
+   show slave status \G 中的 Executed_Gtid_Set。
+   show global variables like '%gtid%'; 中的 gtid_executed 。
+   show master status;中的Executed_Gtid_Set。
+
+
+然后构建一个空事务如下：
+
+   stop slave ;
+   set gtid_next='4a6f2a67-5d87-11e6-a6bd-000c29a879a3:34';
+   begin;commit;
+   set gtid_next='automatic';
+   start slave ;
+
+如果是多个如下：
+
+   stop slave ;
+   set gtid_next='89dfa8a4-cb13-11e6-b504-000c29a879a3:3';
+   begin;commit;
+   set gtid_next='89dfa8a4-cb13-11e6-b504-000c29a879a3:4';
+   begin;commit;
+   set gtid_next='automatic';
+   start slave ;

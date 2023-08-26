@@ -1,0 +1,105 @@
+MySQL GTID模式 使用Xtrabakcup恢复到指定位置
+
+
+要开启GTID，只需在MySQL参数文件中添加以下参数：
+
+gtid-mode                       = ON
+enforce_gtid_consistency        = 1
+
+
+
+二、数据恢复需求：
+
+需要将MySQL（以下简称A库）恢复到一天前的凌晨12:00左右的状态 
+需要具备的前提条件如下：
+
+* 开启GTID
+
+* 有A库昨天凌晨12:00前的xtra备份文件
+
+* 开启binlog日志（废话） 
+
+
+
+
+三、恢复操作：
+在另一台MySQL（B库）上进行数据的恢复，这样可以避免影响线上业务
+
+1. 将B库data目录移走，拷贝A库备份文件到B库
+
+mv data data_20160716           #移走B库data
+mv A_back_20160714 data         #移入A库备份文件
+chown -R mysql12300.mysql data/
+
+注意：这里直接copy的是已经apply-log后的xtrabackup文件，具体xtrabackup备份及恢复参考本地文档《xtrabackup innobackupex 全量 增量备份 恢复.txt》
+
+2. 开启B库，配置主从
+查看data目录下xtrabackup_binlog_info文件中记录的GTID：
+
+[root@service-test1 data]$ cat xtrabackup_binlog_info
+mysql-bin.000012        46455554        8133046e-4282-11e6-848e-026ca51d284c:1-4920155
+
+在B库（slave）设置@@global.gtid_purged跳过备份包含的GTID，并执行change master to指定A库为主库：
+
+mysql> SET GLOBAL gtid_purged="8133046e-4282-11e6-848e-026ca51d284c:1-4920155";
+Query OK, 0 rows affected (0.00 sec)
+mysql> change master to Master_Host ='10.11.21.14',Master_Port=3306,Master_User='replica',Master_Password='XXXXXXXXX',MASTER_AUTO_POSITION=1;
+Query OK, 0 rows affected, 2 warnings (0.01 sec)
+
+注意： xtrabackup_binlog_info中的GTID有时不止一个，设置@@global.gtid_purged时指定多个即可，以逗号隔开。
+
+
+
+
+四、在A库binlog中找到恢复点并进行恢复
+需要特别注意的是，在上述操作后，不要直接start slave，否则B库也又会跑到当前A库的状态
+
+将A库binlog转换为sql语句：
+
+mysqlbinlog -vv mysql-bin.000011 > mysql-bin.000011.sql
+
+找到前一天凌晨12:00左右的位置并记录GTID：
+
+# at 561467475
+#160521  0:24:31 server id 212177500  end_log_pos 561467523 CRC32 0x216072ca    GTID [commit=yes]
+SET @@SESSION.GTID_NEXT= '542ef021-9a64-11e5-bc49-025d3d22c211:1348360'/*!*/;
+
+在B库开启slave并指定恢复到的位置：
+
+mysql> start slave until SQL_BEFORE_GTIDS='542ef021-9a64-11e5-bc49-025d3d22c211:1348360';
+Query OK, 0 rows affected (0.00 sec)
+
+当执行到了指定的GTID，SQL线程便会停止，但IO线程还会继续复制
+
+
+
+
+
+附：常见问题
+在设置@@global.gtid_purged时，可能会遇到报错：
+
+mysql> SET GLOBAL gtid_purged="8133046e-4282-11e6-848e-026ca51d284c:1-4920155";
+ERROR 1840 (HY000): @@GLOBAL.GTID_PURGED can only be set when @@GLOBAL.GTID_EXECUTED is empty.
+
+这是因为这台MySQL的@@GLOBAL.GTID_EXECUTED并不是空的，执行以下reset master操作就好了：
+
+mysql> SET GLOBAL gtid_purged="8133046e-4282-11e6-848e-026ca51d284c:1-4920155";
+ERROR 1840 (HY000): @@GLOBAL.GTID_PURGED can only be set when @@GLOBAL.GTID_EXECUTED is empty.
+mysql> show master status;
++------------------+----------+--------------+------------------+-------------------------------------------+
+| File             | Position | Binlog_Do_DB | Binlog_Ignore_DB | Executed_Gtid_Set                         |
++------------------+----------+--------------+------------------+-------------------------------------------+
+| mysql-bin.000002 |      191 |              |                  | 3857c25c-2caa-11e6-b61b-021feddc3827:1-14 |
++------------------+----------+--------------+------------------+-------------------------------------------+
+1 row in set (0.00 sec)
+mysql> reset master;
+Query OK, 0 rows affected (0.01 sec)
+mysql> show master status;
++------------------+----------+--------------+------------------+-------------------+
+| File             | Position | Binlog_Do_DB | Binlog_Ignore_DB | Executed_Gtid_Set |
++------------------+----------+--------------+------------------+-------------------+
+| mysql-bin.000001 |      151 |              |                  |                   |
++------------------+----------+--------------+------------------+-------------------+
+1 row in set (0.00 sec)
+mysql> SET GLOBAL gtid_purged="8133046e-4282-11e6-848e-026ca51d284c:1-4920155";
+Query OK, 0 rows affected (0.00 sec)
