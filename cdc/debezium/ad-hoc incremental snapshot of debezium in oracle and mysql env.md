@@ -49,7 +49,7 @@ In the official document, refer to "How the XXX connector works-snapshots" secti
   }
 ```
 
-Except common configurations, add a configuration item named "signal.data.collection" which the format is dbname.schema.table in the oracle env.
+Except for common configurations, add a configuration item named "signal.data.collection" which the format is dbname.schema.table in the oracle env.
 **Note: the value of signal.data.collection is upper in the oracle connector. Signal table must be included in the `table.include.list`**
 
 If the env is mysql, the format is schema.table.
