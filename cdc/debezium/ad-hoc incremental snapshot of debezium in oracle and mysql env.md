@@ -106,7 +106,7 @@ In the MySQL env:
 In the Oracle env:
 
 ```
-create table logminer.debezium_signal(id varchar2(256), type varchar2(256),
+create table debezium_signal(id varchar2(256), type varchar2(256),
 data varchar2(2048), primary key(id));
 ```
 
@@ -121,7 +121,9 @@ insert into debezium_signal values('ad-hoc-2', 'execute-snapshot', '{"data-colle
 In the Oracle env:
 
 ```
-insert into logminer.debezium_signal values('ad-hoc-1', 'execute-snapshot', '{"data-collections": ["ORA11G.TFT_TSM.T_ACCOUNT_REFUNDS_INFO","ORA11G.TFT_TSM.T_BINDING_CREDIT_CARD","ORA11G.TFT_TSM.T_EINVOICE_INFO"],"type":"INCREMENTAL"}');
+insert into debezium_signal values('ad-hoc-1', 'execute-snapshot', '{"data-collections": ["ORA11G.TFT_TSM.T_ACCOUNT_REFUNDS_INFO","ORA11G.TFT_TSM.T_BINDING_CREDIT_CARD","ORA11G.TFT_TSM.T_EINVOICE_INFO"],"type":"INCREMENTAL"}');
 commit;
 ```
 **Note: the data-collections section of oracle differs from mysql.**
+
+**Ensure the debezium_signal table captured by Xstream engine, if using the Xstream engine, otherwise, dml statements can not be listened by Logminer**
