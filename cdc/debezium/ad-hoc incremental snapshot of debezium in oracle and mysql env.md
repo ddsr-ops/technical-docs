@@ -16,6 +16,8 @@ If returned data is empty, snapshotting ends. As a proposal, primary keys or uni
 
 In the official document, refer to "How the XXX connector works-snapshots" section.
 
+The important thing is to grant enough privileges on the signal table to `database.user`, because the `database.user` writes some infos to the signal table.
+
 ## Create a connector
 
 ```json
