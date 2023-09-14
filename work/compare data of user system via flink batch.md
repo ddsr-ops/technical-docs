@@ -846,3 +846,147 @@ select user_id, old_user_id, phone as new_phone from user_15 where client_code i
 on a.old_user_id = b.old_user_id
 where if(a.old_phone is null or char_length(a.old_phone) = 0, 
 'tftxxxxxxxxxx$*#', a.old_phone) <> if(b.new_phone is null or char_length(b.new_phone) = 0, 'tftxxxxxxxxxx$*#', b.new_phone);
+
+
+CREATE TABLE id_card_link_person_id_0(
+  id bigint,
+  id_card   string,
+  person_id   bigint,
+  create_time timestamp,
+  update_time timestamp
+) WITH (
+'connector' = 'jdbc',
+'url' = 'jdbc:mysql://10.60.3.56:60001/certification?tinyInt1isBit=false&transformedBitIsBoolean=false',
+'table-name' = 'id_card_link_person_id_0',
+'username' = 'sync_user',
+'password' = 'Sync_user12#'
+);
+
+CREATE TABLE id_card_link_person_id_1(
+id bigint,
+id_card   string,
+person_id   bigint,
+create_time timestamp,
+update_time timestamp
+) WITH (
+'connector' = 'jdbc',
+'url' = 'jdbc:mysql://10.60.3.56:60001/certification?tinyInt1isBit=false&transformedBitIsBoolean=false',
+'table-name' = 'id_card_link_person_id_1',
+'username' = 'sync_user',
+'password' = 'Sync_user12#'
+);
+
+CREATE TABLE id_card_link_person_id_2(
+id bigint,
+id_card   string,
+person_id   bigint,
+create_time timestamp,
+update_time timestamp
+) WITH (
+'connector' = 'jdbc',
+'url' = 'jdbc:mysql://10.60.3.56:60001/certification?tinyInt1isBit=false&transformedBitIsBoolean=false',
+'table-name' = 'id_card_link_person_id_2',
+'username' = 'sync_user',
+'password' = 'Sync_user12#'
+);
+
+CREATE TABLE id_card_link_person_id_3(
+id bigint,
+id_card   string,
+person_id   bigint,
+create_time timestamp,
+update_time timestamp
+) WITH (
+'connector' = 'jdbc',
+'url' = 'jdbc:mysql://10.60.3.56:60001/certification?tinyInt1isBit=false&transformedBitIsBoolean=false',
+'table-name' = 'id_card_link_person_id_3',
+'username' = 'sync_user',
+'password' = 'Sync_user12#'
+);
+
+CREATE TABLE id_card_link_person_id_4(
+id bigint,
+id_card   string,
+person_id   bigint,
+create_time timestamp,
+update_time timestamp
+) WITH (
+'connector' = 'jdbc',
+'url' = 'jdbc:mysql://10.60.3.56:60001/certification?tinyInt1isBit=false&transformedBitIsBoolean=false',
+'table-name' = 'id_card_link_person_id_4',
+'username' = 'sync_user',
+'password' = 'Sync_user12#'
+);
+
+CREATE TABLE id_card_link_person_id_5(
+id bigint,
+id_card   string,
+person_id   bigint,
+create_time timestamp,
+update_time timestamp
+) WITH (
+'connector' = 'jdbc',
+'url' = 'jdbc:mysql://10.60.3.56:60001/certification?tinyInt1isBit=false&transformedBitIsBoolean=false',
+'table-name' = 'id_card_link_person_id_5',
+'username' = 'sync_user',
+'password' = 'Sync_user12#'
+);
+
+CREATE TABLE id_card_link_person_id_6(
+id bigint,
+id_card   string,
+person_id   bigint,
+create_time timestamp,
+update_time timestamp
+) WITH (
+'connector' = 'jdbc',
+'url' = 'jdbc:mysql://10.60.3.56:60001/certification?tinyInt1isBit=false&transformedBitIsBoolean=false',
+'table-name' = 'id_card_link_person_id_6',
+'username' = 'sync_user',
+'password' = 'Sync_user12#'
+);
+
+CREATE TABLE id_card_link_person_id_7(
+id bigint,
+id_card   string,
+person_id   bigint,
+create_time timestamp,
+update_time timestamp
+) WITH (
+'connector' = 'jdbc',
+'url' = 'jdbc:mysql://10.60.3.56:60001/certification?tinyInt1isBit=false&transformedBitIsBoolean=false',
+'table-name' = 'id_card_link_person_id_7',
+'username' = 'sync_user',
+'password' = 'Sync_user12#'
+);
+
+-- create a csv table located at the local directory
+CREATE TABLE csv_table (
+id bigint,
+id_card   string,
+person_id   bigint,
+create_time timestamp,
+update_time timestamp
+) WITH (
+'connector' = 'filesystem',           -- required: specify the connector
+'path' = 'file:///tmp/20230913',  -- required: path to a directory
+'format' = 'csv'
+);
+insert into csv_table
+select * from (
+  select * from id_card_link_person_id_0 where char_length(id_card) > 44
+  union all
+  select * from id_card_link_person_id_1 where char_length(id_card) > 44
+  union all
+  select * from id_card_link_person_id_2 where char_length(id_card) > 44
+  union all
+  select * from id_card_link_person_id_3 where char_length(id_card) > 44
+  union all
+  select * from id_card_link_person_id_4 where char_length(id_card) > 44
+  union all
+  select * from id_card_link_person_id_5 where char_length(id_card) > 44
+  union all
+  select * from id_card_link_person_id_6 where char_length(id_card) > 44
+  union all
+  select * from id_card_link_person_id_7 where char_length(id_card) > 44
+) t;
