@@ -11,7 +11,7 @@ This repository includes technical documents about the following aspects:
 * Spring Boot
 * Others
 
-These documents mainly record notable points or essential operations when meeting the similar cases or problems, also provide `Java` / `Python` / `Shell` code snippets. Please take case if you want to employee these code snippets, recommend you to test them before deploying in the production environment.
+These documents mainly record notable points or essential operations when meeting the similar cases or problems, also provide `Java` / `Python` / `Shell` code snippets. Please take case if you want to employ these code snippets, recommend you to test them before deploying in the production environment.
 
 
 # About Me
