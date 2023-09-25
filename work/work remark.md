@@ -142,3 +142,5 @@ ob or tidb certification
 https://youtrack.jetbrains.com/issue/IDEA-322833/Stuck-at-Closing-project
 https://zhuanlan.zhihu.com/p/507232103
 
+git proxy
+init a repo
