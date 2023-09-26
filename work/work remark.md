@@ -142,7 +142,8 @@ ob or tidb certification
 https://youtrack.jetbrains.com/issue/IDEA-322833/Stuck-at-Closing-project
 https://zhuanlan.zhihu.com/p/507232103
 
-xuyong webchat
 https://www.freecodecamp.org/chinese/news/how-to-delete-a-git-branch-both-locally-and-remotely/
 
 2024-01-01 apply a license of Intellij
+
+todo: remove row_number functions

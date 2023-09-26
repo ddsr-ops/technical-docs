@@ -1,0 +1,5 @@
+hadoop_catalog.mdm.m_frms_scu_recon_detail
+hadoop_catalog.mdm.m_frms_subfill_detail_daily
+hadoop_catalog.mdm.m_frms_subway_detail_daily
+hadoop_catalog.mdm.m_frms_t_trade_extend
+hadoop_catalog.mdm.m_frms_unpaid_order_stat
