@@ -54,9 +54,9 @@ You can try increasing it to higher, depending on your system resources.
 
 Specifies whether flushing a page from the InnoDB buffer pool also flushes other dirty pages in the
 same extent.
-*  The default value of 1 flushes contiguous dirty pages in the same extent from the buffer pool.
+*  The default value of 1 flushes contiguous dirty pages in the same extent from the buffer pool. (HDD)
 *  A setting of 0 turns innodb_flush_neighbors off and no other dirty pages are flushed from the
-buffer pool.
+buffer pool. (SSD)
 *  A setting of 2 flushes dirty pages in the same extent from the buffer pool.
 
 When the table data is stored on a traditional HDD storage device, flushing such neighbor pages
@@ -88,3 +88,64 @@ thread each second.
 # 15.6.3.7 Fine-tuning InnoDB Buffer Pool Flushing
 
 The content of this section are from MySQL official documents, which describes how to finely tune the Innodb flushing. If you want to read the relevant contents, please refer to the official document of MySQL.
+
+The configuration options *innodb_flush_neighbors* and *innodb_lru_scan_depth* let you
+fine-tune certain aspects of the flushing process for the InnoDB buffer pool. These options primarily
+help write-intensive workloads. With heavy DML activity, flushing can fall behind if it is not aggressive
+enough, resulting in excessive memory use in the buffer pool; or, disk writes due to flushing can
+saturate your I/O capacity if that mechanism is too aggressive. The ideal settings depend on your
+workload, data access patterns, and storage configuration (for example, whether data is stored on HDD(innodb_flush_neighbors=1)
+or SSD devices(innodb_flush_neighbors = 0)).
+
+For systems with constant heavy workloads, or workloads that fluctuate widely, several configuration
+options let you fine-tune the flushing behavior for InnoDB tables:
+* innodb_adaptive_flushing_lwm
+* innodb_max_dirty_pages_pct_lwm
+* innodb_io_capacity_max
+* innodb_flushing_avg_loops
+
+These options feed into the formula used by the innodb_adaptive_flushing option.
+The innodb_adaptive_flushing, innodb_io_capacity and innodb_max_dirty_pages_pct
+options are limited or extended by the following options:
+• innodb_adaptive_flushing_lwm
+• innodb_io_capacity_max
+• innodb_max_dirty_pages_pct_lwm
+The InnoDB adaptive flushing mechanism is not appropriate in all cases. It gives the most benefit
+when the redo log is in danger of filling up. The innodb_adaptive_flushing_lwm option specifies
+a “low water mark” percentage of redo log capacity; when that threshold is crossed, InnoDB turns on
+adaptive flushing even if not specified by the innodb_adaptive_flushing option.
+If flushing activity falls far behind, InnoDB can flush more aggressively than specified by
+innodb_io_capacity. innodb_io_capacity_max represents an upper limit on the I/O capacity
+used in such emergency situations, so that the spike in I/O does not consume all the capacity of the
+server.
+InnoDB tries to flush data from the buffer pool so that the percentage of dirty pages
+does not exceed the value of innodb_max_dirty_pages_pct. The default value for
+innodb_max_dirty_pages_pct is 75.
+Note
+The innodb_max_dirty_pages_pct setting establishes a target for flushing
+activity. It does not affect the rate of flushing. For information about managing
+the rate of flushing, see Section 15.6.3.6, “Configuring InnoDB Buffer Pool
+Flushing”.
+The innodb_max_dirty_pages_pct_lwm option specifies a “low water mark” value that represents
+the percentage of dirty pages where pre-flushing is enabled to control the dirty page ratio and ideally
+prevent the percentage of dirty pages from reaching innodb_max_dirty_pages_pct. A value of
+innodb_max_dirty_pages_pct_lwm=0 disables the “pre-flushing” behavior.
+Most of the options referenced above are most applicable to servers that run write-heavy workloads for
+long periods of time and have little reduced load time to catch up with changes waiting to be written to
+disk.
+2199
+InnoDB Buffer Pool Configuration
+innodb_flushing_avg_loops defines the number of iterations for which InnoDB keeps the
+previously calculated snapshot of the flushing state, which controls how quickly adaptive flushing
+responds to foreground load changes. Setting a high value for innodb_flushing_avg_loops
+means that InnoDB keeps the previously calculated snapshot longer, so adaptive flushing
+responds more slowly. A high value also reduces positive feedback between foreground and
+background work, but when setting a high value it is important to ensure that InnoDB redo log
+utilization does not reach 75% (the hardcoded limit at which async flushing starts) and that the
+innodb_max_dirty_pages_pct setting keeps the number of dirty pages to a level that is
+appropriate for the workload.
+Systems with consistent workloads, a large innodb_log_file_size, and small spikes that do not
+reach 75% redo log space utilization should use a high innodb_flushing_avg_loops value to keep
+flushing as smooth as possible. For systems with extreme load spikes or log files that do not provide
+a lot of space, consider a smaller innodb_flushing_avg_loops value. A smaller value allows
+flushing to closely track the load and helps avoid reaching 75% redo log space utilization.
