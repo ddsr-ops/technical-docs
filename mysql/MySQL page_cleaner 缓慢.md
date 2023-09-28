@@ -100,7 +100,7 @@ or SSD devices(innodb_flush_neighbors = 0)).
 For systems with constant heavy workloads, or workloads that fluctuate widely, several configuration
 options let you fine-tune the flushing behavior for InnoDB tables:
 * innodb_adaptive_flushing_lwm, refer to the local file named "MySQL 参数 innodb_adaptive_flushing_lwm.md" for more details
-* innodb_max_dirty_pages_pct_lwm
+* innodb_max_dirty_pages_pct_lwm, pre-flushing is disabled in default
 * innodb_io_capacity_max
 * innodb_flushing_avg_loops
 

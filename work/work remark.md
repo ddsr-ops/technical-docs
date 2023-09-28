@@ -125,11 +125,11 @@ Source(Rest/Kafka) --> Engine --> Sink(Datahub/Neo4j/Rest/Kafka)
 todo: there are still slow queries in the bwt database, a small transaction with one dml statement.
 because innodb can not flush dirty pages instantly, the only thing to take is decrease the data to write
 
-todo: ge for adm/mdm/rcn..., deadline: before October one
-
 todo: a plan of publishing tftactdb process job
 * replace the truncate statement with rename-create-drop
 * reduce the impaction of big data insertion, how?
+
+todo: oracle patch
 
 todo: otest has a report , swingbench
 
@@ -146,3 +146,4 @@ todo: remove row_number functions
 
 https://www.v2ex.com/t/814568
 
+https://tech.meituan.com/2017/06/09/maze-framework.html

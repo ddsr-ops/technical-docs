@@ -16,4 +16,3 @@ When the percentage of dirty pages exceeds the value set in innodb_max_dirty_pag
 By default, the value of innodb_max_dirty_pages_pct_lwm is set to 0, which disables the pre-flushing behavior. However, you can modify this value to specify a different low water mark percentage based on your workload and performance requirements.
 
 A higher value for innodb_max_dirty_pages_pct_lwm means that pre-flushing will be triggered when a larger percentage of dirty pages is reached, potentially prioritizing write performance over durability. Conversely, a lower value will initiate pre-flushing at a smaller percentage of dirty pages, ensuring more frequent writes to disk and improving data durability at the cost of some write performance.
-
