@@ -101,7 +101,7 @@ For systems with constant heavy workloads, or workloads that fluctuate widely, s
 options let you fine-tune the flushing behavior for InnoDB tables:
 * innodb_adaptive_flushing_lwm, refer to the local file named "MySQL 参数 innodb_adaptive_flushing_lwm.md" for more details
 * innodb_max_dirty_pages_pct_lwm, pre-flushing is disabled in default, refer to "MySQL 参数 innodb_max_dirty_pages_pct_lwm.md" for more details
-* innodb_io_capacity_max
+* innodb_io_capacity_max, refer to "MySQL 参数 innodb_io_capacity_max.md" for more details
 * innodb_flushing_avg_loops
 
 These options feed into the formula used by the innodb_adaptive_flushing option.
