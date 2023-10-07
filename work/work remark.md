@@ -147,3 +147,6 @@ todo: remove row_number functions
 https://www.v2ex.com/t/814568
 
 https://tech.meituan.com/2017/06/09/maze-framework.html
+
+todo: resume
+todo: clean disk F
