@@ -152,3 +152,5 @@ todo: resume
 todo: clean disk F
 
 todo: audit database operation docs which would be run on Friday
+
+todo: streaming programs occupy much mem

@@ -30,6 +30,12 @@ DBA在做大表truncate/drop时偶尔会导致数据库夯住，尤其是核心业务系统，一旦夯住，立
 
 注：大buffer pool 和 innodb_adaptive_hash_index=on时：TRUNCATE TABLE操作InnoDB表的自适应哈希索引条目是一个bug(drop table操作已经解决该bug)，(Bug #68184)
 
+On a system with a large InnoDB buffer pool and innodb_adaptive_hash_index enabled,
+TRUNCATE TABLE operations may cause a temporary drop in system performance due to an LRU
+scan that occurs when removing an InnoDB table's adaptive hash index entries. The problem was
+addressed for DROP TABLE in MySQL 5.5.23 (Bug #13704145, Bug #64284) but remains a known
+issue for TRUNCATE TABLE (Bug #68184).
+
 # 四、替换方式（没在生产环境验证过）
 
 以下是采用硬链接的一种方式消除大表删除时突发性IO带来的影响（实际生产环境用处不大）：
