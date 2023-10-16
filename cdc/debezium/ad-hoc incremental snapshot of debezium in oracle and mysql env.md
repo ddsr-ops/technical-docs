@@ -129,3 +129,5 @@ commit;
 **Note: the data-collections section of oracle differs from mysql.**
 
 **Ensure the debezium_signal table is captured by Xstream engine if using the Xstream engine, otherwise, dml statements on the signal table can not be listened by Logminer so that incremental snapshot can not be triggered**
+
+**Make sure the debezium_signal table can be manipulated by `database.user`, such select, update, insert privileges**
