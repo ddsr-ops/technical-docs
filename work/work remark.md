@@ -151,6 +151,12 @@ https://tech.meituan.com/2017/06/09/maze-framework.html
 todo: resume
 todo: clean disk F
 
-todo: audit database operation docs which would be run on Friday
-
 todo: streaming programs occupy much mem
+
+todo: review unpaid order
+
+
+>1. fail-over about oracle 
+>2. Fundamental knowledge MySQL Oracle
+>3. keepalive about mysql
+>4. multiple-phase commit
