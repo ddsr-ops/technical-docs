@@ -155,9 +155,20 @@ todo: streaming programs occupy much mem
 
 todo: review unpaid order
 
+todo: sync the fxq db upgrade event
+
+https://www.percona.com/blog/online-ddl-tools-and-metadata-locks/
+https://cloud.tencent.com/developer/article/1671012
+
 
 >1. fail-over about oracle 
 >2. Fundamental knowledge MySQL Oracle
 >3. keepalive about mysql
 >4. multiple-phase commit
 >5. questions from webchat
+>6. lock
+>7. transaction level
+
+* how to handle fault or trouble, such as high cpu, high mem
+* oracle automatic transaction
+* two phase commit ==> performance_schema ==> commit stage
