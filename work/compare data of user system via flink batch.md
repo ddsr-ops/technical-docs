@@ -1,3 +1,6 @@
+bin/start-cluster.sh
+bin/sql-client.sh embedded
+
 taskmanager.memory.process.size: 25000m
 taskmanager.memory.managed.fraction: 0.2
 
@@ -969,7 +972,7 @@ create_time timestamp,
 update_time timestamp
 ) WITH (
 'connector' = 'filesystem',           -- required: specify the connector
-'path' = 'file:///tmp/20230913',  -- required: path to a directory
+'path' = 'file:///tmp/20231018',  -- required: path to a directory
 'format' = 'csv'
 );
 insert into csv_table

@@ -155,7 +155,7 @@ todo: streaming programs occupy much mem
 
 todo: review unpaid order
 
-todo: sync the fxq db upgrade event
+todo: set a crontab job for killing streaming jobs to release occupied memory <== spark-class org.apache.spark.deploy.Client kill <master url> <driver ID>
 
 https://www.percona.com/blog/online-ddl-tools-and-metadata-locks/
 https://cloud.tencent.com/developer/article/1671012
