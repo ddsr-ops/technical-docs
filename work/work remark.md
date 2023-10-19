@@ -160,6 +160,11 @@ todo: set a crontab job for killing streaming jobs to release occupied memory <=
 https://www.percona.com/blog/online-ddl-tools-and-metadata-locks/
 https://cloud.tencent.com/developer/article/1671012
 
+https://blog.csdn.net/bless2015/article/details/84072703
+https://blog.csdn.net/Hehuyi_In/article/details/106415830
+https://blogs.oracle.com/optimizer/post/why-do-i-have-sql-statement-plans-that-change-for-the-worse
+https://docs.oracle.com/database/121/TGSQL/tgsql_histo.htm#TGSQL366
+
 
 >1. fail-over about oracle 
 >2. Fundamental knowledge MySQL Oracle
