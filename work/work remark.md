@@ -60,8 +60,6 @@ when rollback kafka or kafka-connect ingestion, some problems appear, refer to h
 
 Yeah, three clusters are divided into three jobs which job names might be specified by cluster name other than 'node_exporter'
 
-todo: Migrate flink jobs, finished changing codes to be suitable for flink 1.16 
-
 Infrastructure
 doris m / flink rs m + u / iceberg u / spark un-upgrade / 
 
@@ -126,10 +124,6 @@ todo: there are still slow queries in the bwt database, a small transaction with
 because innodb can not flush dirty pages instantly, the only thing to take is decrease the data to write
 
 todo: a plan of publishing tftactdb process job
-* replace the truncate statement with rename-create-drop
-* reduce the impaction of big data insertion, how?
-
-todo: oracle patch
 
 todo: otest has a report , swingbench
 
@@ -148,14 +142,13 @@ https://www.v2ex.com/t/814568
 
 https://tech.meituan.com/2017/06/09/maze-framework.html
 
-todo: resume
 todo: clean disk F
 
 todo: streaming programs occupy much mem
+? set a crontab job for killing streaming jobs to release occupied memory <== spark-class org.apache.spark.deploy.Client kill <master url> <driver ID>
+? address the problem, solve it at all
 
-todo: review unpaid order
-
-todo: set a crontab job for killing streaming jobs to release occupied memory <== spark-class org.apache.spark.deploy.Client kill <master url> <driver ID>
+todo: The size of stream pool grows, never reduces even if the database was applied the newest patch. In order for resolving this problem, launch an airflow job to monitor the usage of stream pool, restart connector tasks if exceeding the threshold.
 
 https://www.percona.com/blog/online-ddl-tools-and-metadata-locks/
 https://cloud.tencent.com/developer/article/1671012

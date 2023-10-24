@@ -181,5 +181,9 @@
 2023-10-16
 1. 废弃FXQ数据库老旧CDC链路，基于就近时刻重新构建CDC链路
 2. 升级余额提醒实时应用程序至Flink1.16，于本周五与Oracle补丁应用同步操作
-3. todo为屏蔽Drop/Truncate套表对数据库产生的影响，采用rename-create-drop方式清理过期表
+3. 为屏蔽Drop/Truncate套表对数据库产生的影响，采用rename-create-drop方式清理过期表
 4. 修改TFTUPS CDC链路table list，增加捕捉表两张
+
+2023-10-23
+1. 启动FXQ CDC链路，替换JDBC链路进行抽数
+2. 

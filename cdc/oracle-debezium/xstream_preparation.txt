@@ -48,7 +48,9 @@ DECLARE
   schemas DBMS_UTILITY.UNCL_ARRAY;
 BEGIN
     tables(1)  := NULL;
-    schemas(1) := 'tft_tsm';
+    schemas(1) := 'tft_uo';
+    schemas(2) := 'tft_xcgl';
+    schemas(3) := 'logminer';
   DBMS_XSTREAM_ADM.CREATE_OUTBOUND(
     server_name     =>  'dbzxout',
     table_names     =>  tables,
