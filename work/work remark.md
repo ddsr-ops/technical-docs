@@ -146,9 +146,7 @@ todo: clean disk F
 
 todo: streaming programs occupy much mem
 ? set a crontab job for killing streaming jobs to release occupied memory <== spark-class org.apache.spark.deploy.Client kill <master url> <driver ID>
-? address the problem, solve it at all
-
-todo: The size of stream pool grows, never reduces even if the database was applied the newest patch. In order for resolving this problem, launch an airflow job to monitor the usage of stream pool, restart connector tasks if exceeding the threshold.
+? address the problem that program used much memory, solve it at all
 
 https://www.percona.com/blog/online-ddl-tools-and-metadata-locks/
 https://cloud.tencent.com/developer/article/1671012
@@ -170,3 +168,8 @@ https://docs.oracle.com/database/121/TGSQL/tgsql_histo.htm#TGSQL366
 * how to handle fault or trouble, such as high cpu, high mem
 * oracle automatic transaction
 * two phase commit ==> performance_schema ==> commit stage
+
+https://www.bilibili.com/video/BV1Pz4y1B7DC/?spm_id_from=333.788.recommend_more_video.8&vd_source=73cbb7fad6d5d27ee4dd74ddb9b4a348
+https://zhuanlan.zhihu.com/p/662499118
+https://www.51cto.com/article/678511.html
+https://docs.oracle.com/javase/8/docs/technotes/guides/troubleshoot/memleaks001.html
