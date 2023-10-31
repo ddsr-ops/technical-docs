@@ -173,3 +173,7 @@ https://www.bilibili.com/video/BV1Pz4y1B7DC/?spm_id_from=333.788.recommend_more_
 https://zhuanlan.zhihu.com/p/662499118
 https://www.51cto.com/article/678511.html
 https://docs.oracle.com/javase/8/docs/technotes/guides/troubleshoot/memleaks001.html
+
+https://liucy.blog.csdn.net/article/details/130064294?spm=1001.2101.3001.6650.2&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-2-130064294-blog-90512452.235%5Ev38%5Epc_relevant_sort_base3&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-2-130064294-blog-90512452.235%5Ev38%5Epc_relevant_sort_base3
+
+fdm.f_cus_base_info 中有数据状态不一致，这数据问题能否修复？
