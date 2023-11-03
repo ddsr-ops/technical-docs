@@ -126,6 +126,16 @@ In the Oracle env:
 insert into debezium_signal values('ad-hoc-1', 'execute-snapshot', '{"data-collections": ["ORA11G.TFT_TSM.T_ACCOUNT_REFUNDS_INFO","ORA11G.TFT_TSM.T_BINDING_CREDIT_CARD","ORA11G.TFT_TSM.T_EINVOICE_INFO"],"type":"INCREMENTAL"}');
 commit;
 ```
+
+For additional filter predicates:
+```
+insert into debezium_signal (ID, TYPE, DATA)
+values ('ad-hoc-3', 'execute-snapshot', '{"data-collections": ["TFT_CSM.TFT_UO.T_USER_EXTEND"],"type":"INCREMENTAL",
+ "additional-condition":"create_time > to_date(''2023-10-01'', ''yyyy-mm-dd'') AND channel_id IN (''CH20181123093619Y1FU'', ''CH202009101627571MIJ'')"}');
+COMMIT;
+```
+> Tested for single table in Debezium 2.3, insert into multiple rows if taking incremental snapshots for multiple tables. In Debezium 2.3 later, support incremental snapshot of multiple tables by virtue of inserting one row into the signal table. For more details , refer to https://debezium.io/documentation/reference/2.4/connectors/oracle.html#oracle-incremental-snapshots 
+
 **Note: the data-collections section of oracle differs from mysql.**
 
 **Ensure the debezium_signal table is captured by Xstream engine if using the Xstream engine, otherwise, dml statements on the signal table can not be listened by Logminer so that incremental snapshot can not be triggered**

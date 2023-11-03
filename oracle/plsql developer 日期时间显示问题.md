@@ -8,6 +8,6 @@
 
 变量名 ： NLS_DATE_FORMAT
 
-变量值 ： YYYY-MM-DD HH24:MI:SS:FF6
+变量值 ： YYYY-MM-DD HH24:MI:SS
 
 保存后，重启PL/SQL

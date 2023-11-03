@@ -162,6 +162,3 @@ https://docs.oracle.com/database/121/TGSQL/tgsql_histo.htm#TGSQL366
 https://www.bilibili.com/video/BV1Pz4y1B7DC/?spm_id_from=333.788.recommend_more_video.8&vd_source=73cbb7fad6d5d27ee4dd74ddb9b4a348
 https://zhuanlan.zhihu.com/p/662499118
 https://www.51cto.com/article/678511.html
-
-
-fdm.f_cus_base_info 中有数据状态不一致，这数据问题能否修复？
