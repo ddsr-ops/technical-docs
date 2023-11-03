@@ -145,8 +145,11 @@ https://tech.meituan.com/2017/06/09/maze-framework.html
 todo: clean disk F
 
 todo: streaming programs occupy much mem
-? set a crontab job for killing streaming jobs to release occupied memory <== spark-class org.apache.spark.deploy.Client kill <master url> <driver ID>
-? address the problem that program used much memory, solve it at all
+set a crontab job for killing streaming jobs to release occupied memory <== spark-class org.apache.spark.deploy.Client kill <master url> <driver ID>
+address the problem that program used much memory, solve it at all
+It's related to  the direct IO of parquet, compressor not released after writing.
+Upgrade Iceberg dependency to 1.0 to resolve the problem.
+todo: test the capability of merge data, then remove test data
 
 https://www.percona.com/blog/online-ddl-tools-and-metadata-locks/
 https://cloud.tencent.com/developer/article/1671012
@@ -156,24 +159,9 @@ https://blog.csdn.net/Hehuyi_In/article/details/106415830
 https://blogs.oracle.com/optimizer/post/why-do-i-have-sql-statement-plans-that-change-for-the-worse
 https://docs.oracle.com/database/121/TGSQL/tgsql_histo.htm#TGSQL366
 
-
->1. fail-over about oracle 
->2. Fundamental knowledge MySQL Oracle
->3. keepalive about mysql
->4. multiple-phase commit
->5. questions from webchat
->6. lock
->7. transaction level
-
-* how to handle fault or trouble, such as high cpu, high mem
-* oracle automatic transaction
-* two phase commit ==> performance_schema ==> commit stage
-
 https://www.bilibili.com/video/BV1Pz4y1B7DC/?spm_id_from=333.788.recommend_more_video.8&vd_source=73cbb7fad6d5d27ee4dd74ddb9b4a348
 https://zhuanlan.zhihu.com/p/662499118
 https://www.51cto.com/article/678511.html
-https://docs.oracle.com/javase/8/docs/technotes/guides/troubleshoot/memleaks001.html
 
-https://liucy.blog.csdn.net/article/details/130064294?spm=1001.2101.3001.6650.2&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-2-130064294-blog-90512452.235%5Ev38%5Epc_relevant_sort_base3&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-2-130064294-blog-90512452.235%5Ev38%5Epc_relevant_sort_base3
 
 fdm.f_cus_base_info 中有数据状态不一致，这数据问题能否修复？
