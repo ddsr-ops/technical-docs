@@ -262,3 +262,68 @@ cd /opt/kafka_2.12-2.7.0/connector-json
 [2023-06-16 11:06:35,655] INFO 88685 records sent during previous 00:02:39.982, last recorded offset of {server=oracle_tsm} partition is {transaction_id=null, lcr_position=0046b61b977100000001000000010046b61b9770000000010000000101, snapshot_scn=299510708387} (io.debezium.connector.common.BaseSourceTask:211)
 ```
 出现这样的日志，则意味着Connector继续处理了，如果仍然长时间没继续处理，则请联系DBA需进一步检查Xstream各组件状态
+
+
+# Task already exists in this worker
+
+## 症状表现
+
+```
+[2023-11-07 14:11:41,807] ERROR [Worker clientId=connect-1, groupId=connect-cluster-namenode] Couldn't instantiate task oracle_tftfxq1-0 because it has an invalid task configuration. This task will not execute until reconfigured. (org.apache.kafka.connect.runtime.distributed.DistributedHerder:1275)
+org.apache.kafka.connect.errors.ConnectException: Task already exists in this worker: oracle_tftfxq1-0
+        at org.apache.kafka.connect.runtime.Worker.startTask(Worker.java:512)
+        at org.apache.kafka.connect.runtime.distributed.DistributedHerder.startTask(DistributedHerder.java:1258)
+        at org.apache.kafka.connect.runtime.distributed.DistributedHerder.access$1700(DistributedHerder.java:127)
+        at org.apache.kafka.connect.runtime.distributed.DistributedHerder$10.call(DistributedHerder.java:1273)
+        at org.apache.kafka.connect.runtime.distributed.DistributedHerder$10.call(DistributedHerder.java:1269)
+        at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+        at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+        at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+        at java.base/java.lang.Thread.run(Thread.java:834)
+[2023-11-07 14:11:41,822] INFO [Worker clientId=connect-1, groupId=connect-cluster-namenode] Starting connector oracle_tftfxq1 (org.apache.kafka.connect.runtime.distributed.DistributedHerder:1298)
+```
+
+一般来说，是因为Connect集群中，检测到已有相同Task在运行，便抛出这个错误。具体，可以查看，connect-status topic.
+
+```
+key: status-task-oracle_tftfxq1
+
+{
+"state": "RUNNING",
+"trace": null,
+"worker_id": "10.50.253.202:8084",
+"generation": 156
+}
+
+{
+"state": "RUNNING",
+"trace": null,
+"worker_id": "10.50.253.201:8084",
+"generation": 157
+}
+```
+
+这时，相同task名称，两个均为running状态，同时attach至xstream上，Oracle数据库端会拒绝后来连接xstream的用户，所以数据是不会被重复消费。
+
+## 解决
+
+删除后重建对应Connector
+
+```shell
+curl -X DELETE http://10.50.253.201:8084/connectors/oracle_tftfxq1
+
+curl -X POST  \
+-H 'Content-Type: application/json' \
+-H "Accept: application/json" \
+-d '{
+       "name": "oracle_tftfxq1",
+       "config": {
+           "connector.class": "io.debezium.connector.oracle.OracleConnector",
+           ......
+           "transforms.Reroute7.key.enforce.uniqueness":"false",
+           "signal.data.collection":"TFTFXQ.LOGMINER.DEBEZIUM_SIGNAL",
+           "signal.poll.interval.ms":"5000"
+       }
+    }' \
+http://10.50.253.201:8084/connectors
+```

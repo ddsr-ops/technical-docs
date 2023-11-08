@@ -1,6 +1,12 @@
+[root@preRTDH-flink151 flink-1.16.1]# cd /root/workspace/gch/flink-1.16.1
+
 bin/start-cluster.sh
 bin/sql-client.sh embedded
 
+-- 执行完毕后，别忘记关闭集群
+bin/stop-cluster.sh
+
+-- conf/flink-conf.yml
 taskmanager.memory.process.size: 25000m
 taskmanager.memory.managed.fraction: 0.2
 
@@ -993,3 +999,96 @@ select * from (
   union all
   select * from id_card_link_person_id_7 where char_length(id_card) > 44
 ) t;
+
+
+-- create a csv table located at the local directory
+CREATE TABLE csv_table (
+old_user_id     bigint,
+old_user_id1     bigint,
+user_id         bigint,
+old_phone       string,
+new_phone       string
+) WITH (
+'connector' = 'filesystem',           -- required: specify the connector
+'path' = 'file:///tmp/20231106',  -- required: path to a directory
+'format' = 'csv'
+);
+insert into csv_table
+with a as (select user_id as old_user_id, mobile_phone as old_phone from user_base where reg_chl like '%"A01":"1%'),  -- "\" escape not needed from flink 1.16
+     b as (
+         select user_id, old_user_id, phone as new_phone from user_0 where client_code in (  'TFT') and is_delete = 0 union all -- all fields not null
+         select user_id, old_user_id, phone as new_phone from user_1 where client_code in (  'TFT') and is_delete = 0 union all
+         select user_id, old_user_id, phone as new_phone from user_2 where client_code in (  'TFT') and is_delete = 0 union all
+         select user_id, old_user_id, phone as new_phone from user_3 where client_code in (  'TFT') and is_delete = 0 union all
+         select user_id, old_user_id, phone as new_phone from user_4 where client_code in (  'TFT') and is_delete = 0 union all
+         select user_id, old_user_id, phone as new_phone from user_5 where client_code in (  'TFT') and is_delete = 0 union all
+         select user_id, old_user_id, phone as new_phone from user_6 where client_code in (  'TFT') and is_delete = 0 union all
+         select user_id, old_user_id, phone as new_phone from user_7 where client_code in (  'TFT') and is_delete = 0 union all
+         select user_id, old_user_id, phone as new_phone from user_8 where client_code in (  'TFT') and is_delete = 0 union all
+         select user_id, old_user_id, phone as new_phone from user_9 where client_code in (  'TFT') and is_delete = 0 union all
+         select user_id, old_user_id, phone as new_phone from user_10 where client_code in ( 'TFT') and is_delete = 0 union all
+         select user_id, old_user_id, phone as new_phone from user_11 where client_code in ( 'TFT') and is_delete = 0 union all
+         select user_id, old_user_id, phone as new_phone from user_12 where client_code in ( 'TFT') and is_delete = 0 union all
+         select user_id, old_user_id, phone as new_phone from user_13 where client_code in ( 'TFT') and is_delete = 0 union all
+         select user_id, old_user_id, phone as new_phone from user_14 where client_code in ( 'TFT') and is_delete = 0 union all
+         select user_id, old_user_id, phone as new_phone from user_15 where client_code in ( 'TFT') and is_delete = 0)
+select a.old_user_id, b.old_user_id, user_id, old_phone, new_phone
+from a
+         left join b
+                   on a.old_user_id = b.old_user_id
+where a.old_phone <> b.new_phone
+   or b.new_phone is null
+union
+select a.old_user_id, b.old_user_id, user_id, old_phone, new_phone
+from a
+         left join b
+                   on a.old_phone = b.new_phone
+where a.old_user_id <> b.old_user_id
+   or b.old_user_id is null;
+
+
+
+cd /opt/flink-1.16.1
+-- stop yarn application cluster
+echo "stop"|bin/yarn-session.sh -id application_1687554986023_0026
+   -- application id from cat /tmp/.yarn-properties-root
+bin/yarn-session.sh -d -s 1 -tm 20000 -D taskmanager.memory.managed.fraction=0.2
+   -- Using -D option can pass parameters configured in flink-conf.yaml, https://nightlies.apache.org/flink/flink-docs-release-1.16/docs/deployment/resource-providers/yarn/
+bin/sql-client.sh -s yarn-session -l ~/workspace/gch/flink-1.16.1/lib -f sql/user-system/20231108.sql
+   -- set commands in sessions created by sql-client.sh can not set  taskmanager.memory.managed.fraction, https://nightlies.apache.org/flink/flink-docs-release-1.16/docs/dev/table/sqlclient/#sql-client-configuration
+
+-- Attention: taskmanager.memory.managed.fraction can not be specified in sql script used by sql-client.sh
+
+
+CREATE TABLE print_table
+(
+    user_id              string,
+    old_user_id          bigint
+) WITH (
+      'connector' = 'filesystem', -- required: specify the connector
+      'path' = 'file:///tmp/20231108', -- required: path to a directory
+      'format' = 'csv'
+      );
+
+insert into print_table
+select a.user_id, b.old_user_id from
+    (select user_id, cellphone, status, if(channel_id = 'CH20181212103044BEVX', 'TFSMY', 'SMT') as client_code from t_user_extend where status in ('00','11','21') AND  channel_id in ('CH20181212103044BEVX', 'CH20201121024115HPLH')) a
+        left join (
+        select old_user_id, phone, client_code, status, certification_status, is_delete from user_0  where client_code in ( 'TFSMY', 'SMT')  and is_delete = 0 union all
+        select old_user_id, phone, client_code, status, certification_status, is_delete from user_1  where client_code in ( 'TFSMY', 'SMT')  and is_delete = 0 union all
+        select old_user_id, phone, client_code, status, certification_status, is_delete from user_2  where client_code in ( 'TFSMY', 'SMT')  and is_delete = 0 union all
+        select old_user_id, phone, client_code, status, certification_status, is_delete from user_3  where client_code in ( 'TFSMY', 'SMT')  and is_delete = 0 union all
+        select old_user_id, phone, client_code, status, certification_status, is_delete from user_4  where client_code in ( 'TFSMY', 'SMT')  and is_delete = 0 union all
+        select old_user_id, phone, client_code, status, certification_status, is_delete from user_5  where client_code in ( 'TFSMY', 'SMT')  and is_delete = 0 union all
+        select old_user_id, phone, client_code, status, certification_status, is_delete from user_6  where client_code in ( 'TFSMY', 'SMT')  and is_delete = 0 union all
+        select old_user_id, phone, client_code, status, certification_status, is_delete from user_7  where client_code in ( 'TFSMY', 'SMT')  and is_delete = 0 union all
+        select old_user_id, phone, client_code, status, certification_status, is_delete from user_8  where client_code in ( 'TFSMY', 'SMT')  and is_delete = 0 union all
+        select old_user_id, phone, client_code, status, certification_status, is_delete from user_9  where client_code in ( 'TFSMY', 'SMT')  and is_delete = 0 union all
+        select old_user_id, phone, client_code, status, certification_status, is_delete from user_10 where client_code in ( 'TFSMY', 'SMT')  and is_delete = 0 union all
+        select old_user_id, phone, client_code, status, certification_status, is_delete from user_11 where client_code in ( 'TFSMY', 'SMT')  and is_delete = 0 union all
+        select old_user_id, phone, client_code, status, certification_status, is_delete from user_12 where client_code in ( 'TFSMY', 'SMT')  and is_delete = 0 union all
+        select old_user_id, phone, client_code, status, certification_status, is_delete from user_13 where client_code in ( 'TFSMY', 'SMT')  and is_delete = 0 union all
+        select old_user_id, phone, client_code, status, certification_status, is_delete from user_14 where client_code in ( 'TFSMY', 'SMT')  and is_delete = 0 union all
+        select old_user_id, phone, client_code, status, certification_status, is_delete from user_15 where client_code in ( 'TFSMY', 'SMT')  and is_delete = 0) b
+                  on a.user_id = cast(b.old_user_id as string) and a.client_code = b.client_code
+where b.old_user_id is null;
