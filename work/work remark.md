@@ -158,20 +158,9 @@ https://blog.csdn.net/Hehuyi_In/article/details/106415830
 https://blogs.oracle.com/optimizer/post/why-do-i-have-sql-statement-plans-that-change-for-the-worse
 https://docs.oracle.com/database/121/TGSQL/tgsql_histo.htm#TGSQL366
 
-https://www.bilibili.com/video/BV1Pz4y1B7DC/?spm_id_from=333.788.recommend_more_video.8&vd_source=73cbb7fad6d5d27ee4dd74ddb9b4a348
-https://zhuanlan.zhihu.com/p/662499118
-https://www.51cto.com/article/678511.html
-
 todo: a plan of publishing tftactdb process job
 todo: deadline - 2023-11-30,  aggregate sms messages for unpaid_order. ? aggregation rule ?
 
 https://www.rcuts.com/
 
 todo: app 6.9 Dec.1, recover ge rule for column operation_type of table t_client_user_info
-todo: hdfs volume estimation
-todo: flink sql-client on yarn 
-
-https://nightlies.apache.org/flink/flink-docs-release-1.16/docs/deployment/resource-providers/yarn/
-https://blog.csdn.net/lsr40/article/details/113398830
-https://blog.csdn.net/qq_44226094/article/details/131057820?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-4-131057820-blog-127887149.235^v38^pc_relevant_sort_base3&spm=1001.2101.3001.4242.3&utm_relevant_index=7
-

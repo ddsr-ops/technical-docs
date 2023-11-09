@@ -10,18 +10,22 @@ jstack -l pid > pid.log
 这里需要查看下日志详情，特别注意锁、等待。通过2步骤中得到的16进制线程号，可在日志中查看线程状态
 ---
 4. 查看内存对象情况  
-jmap -histo:live 6142 |head -20
+jmap -histo:live 6142 |head -20  
+jcmd 150692 GC.class_histogram |head -n 20
 
+---
 5. 查看GC情况
 jstat -gcutil pid 2000 10
+```
 jstat -gcutil 150692 2000 30
   S0     S1     E      O      M     CCS    YGC     YGCT    FGC    FGCT     GCT   
   1.90   0.00   4.63  42.33  74.66  46.14 179920 3842.826  3112  649.187 4492.013
   ......
   1.90   0.00   5.68  42.33  74.66  46.14 179920 3842.826  3112  649.187 4492.013
+```
 主要关注：
-FGC - Number of full GC events
-FGCT - Full garbage collection time
+* FGC - Number of full GC events
+* FGCT - Full garbage collection time
 注意：这些值是单调递增的，如果GC频繁，FGC短期存在较大变化（内存不够致高频GC，疑Java内存泄漏，非Java内存不受此监控，如parquet IO直接调用内存），jstack中存在较多高cpu线程进行GC
 
 所以，Java管理的内存泄漏，必然造成cpu高额占用，用于GC；但是相关类库直接操作Java堆外内存，则在java相关诊断工具中无法体现

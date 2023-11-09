@@ -1010,7 +1010,7 @@ old_phone       string,
 new_phone       string
 ) WITH (
 'connector' = 'filesystem',           -- required: specify the connector
-'path' = 'file:///tmp/20231106',  -- required: path to a directory
+'path' = 'file:///tmp/20231109',  -- required: path to a directory
 'format' = 'csv'
 );
 insert into csv_table
