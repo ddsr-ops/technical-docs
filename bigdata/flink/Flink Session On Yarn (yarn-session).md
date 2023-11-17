@@ -48,7 +48,7 @@ bin/sql-client.sh -s yarn-session -l ~/workspace/gch/flink-1.16.1/lib -f sql/use
 
 Interactive session:
 ```shell
-bin/sql-client.sh -s yarn-session
+bin/sql-client.sh -s yarn-session -l ~/workspace/gch/flink-1.16.1/lib
 ```
 
 If setting `execution.target` to `yarn-application`, errors occur:

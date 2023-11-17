@@ -159,8 +159,43 @@ https://blogs.oracle.com/optimizer/post/why-do-i-have-sql-statement-plans-that-c
 https://docs.oracle.com/database/121/TGSQL/tgsql_histo.htm#TGSQL366
 
 todo: a plan of publishing tftactdb process job
-todo: deadline - 2023-11-30,  aggregate sms messages for unpaid_order. ? aggregation rule ?
-
-https://www.rcuts.com/
-
+todo: deadline - 2023-11-30,  aggregate sms messages for unpaid_order. ? aggregation rule ?  review code, publish before the end of this month
+todo: 2023-11-19 unpaid order sms pushing
 todo: app 6.9 Dec.1, recover ge rule for column operation_type of table t_client_user_info
+todo: s_tft_wallet_traffic_order_consume, s_tft_sport_x ge jobs
+
+~~Consistency: the deviation of the two indices is small.~~
+
+Relative comparison: Positive changes or Proposed changes in income sources if the preceding one is bigger
+
+total, one, three, six
+
+total more than zero, proportion
+
+1 3 6 
+1 1/3 1/6 = 6 2 1
+
+How to select the smart users
+> The algorithm is similar to the following one;
+> As one of every top 300 , that is one as top 300, three as top 300, six as top 300;
+
+How to clear the bottom users ? do not delete ...
+> Sorting by total income rate in descending order, remove the bottom user.
+
+
+Weighted Average Score = (0.4 * total income rate) + (0.3 * income rate of the most recent one month) + (0.2 * income rate of the most recent three months) + (0.1 * income rate of the most recent six months)
+
+An alternative way to assess who is the smartest investor could be to use a ranking system.
+
+First, calculate the rank of each investor for each factor based on their performance compared to other investors. For example, if there are 10 investors, the investor with the highest total income rate would be ranked 1, the investor with the second-highest total income rate would be ranked 2, and so on. Do this for each factor.
+
+Next, assign weights to each factor based on their importance. For example, if you assign weights of 0.4 to total income rate, 0.3 to income rate of the most recent one month, 0.2 to income rate of the most recent three months, and 0.1 to income rate of the most recent six months.
+
+Finally, calculate a weighted rank for each investor by multiplying their rank for each factor by the corresponding weight and summing them up. The investor with the lowest weighted rank would be considered the smartest investor according to this assessment method.
+
+This alternative method takes into account the relative performance of investors across different factors and provides a ranking based on those performances.
+
+todo: After launching the streaming job, the Job is late for processing the data for about 30 minutes 
+todo: prepare run book for upgrade of tonight
+
+https://github.com/bersler/OpenLogReplicator
