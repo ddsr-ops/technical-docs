@@ -31,7 +31,7 @@ bin/sql-client.sh
 ```shell
 cd /opt/flink-1.16.1
 
-bin/yarn-session.sh -d -s 1 -tm 20000 -D taskmanager.memory.managed.fraction=0.2 # Using -D option can pass parameters configured in flink-conf.yaml, https://nightlies.apache.org/flink/flink-docs-release-1.16/docs/deployment/resource-providers/yarn/
+bin/yarn-session.sh -d -s 1 -tm 20000 -D taskmanager.memory.managed.fraction=0.2 -D yarn.provided.usrlib.dir=hdfs:///tmp/gch/usrlib  # Directory name 'usrlib' is solid-writing, Using -D option can pass parameters configured in flink-conf.yaml, https://nightlies.apache.org/flink/flink-docs-release-1.16/docs/deployment/resource-providers/yarn/
 ```
 
 Note: `bin/yarn-session.sh -h` can show the help information.

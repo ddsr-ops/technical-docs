@@ -199,3 +199,7 @@ todo: After launching the streaming job, the Job is late for processing the data
 todo: prepare run book for upgrade of tonight
 
 https://github.com/bersler/OpenLogReplicator
+
+todo: restart tsm new streaming job, observing what it is doing  
+
+todo: kafka table transaction timeout
