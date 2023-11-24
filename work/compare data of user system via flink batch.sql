@@ -702,18 +702,23 @@ where if(a.cellphone is null or char_length(a.cellphone) = 0,
 
 
 
-CREATE TABLE user_base(
- user_id   bigint,
- mobile_phone  string,
- reg_chl string,
- reg_date timestamp
+CREATE TABLE user_base
+(
+    user_id      bigint,
+    mobile_phone string,
+    reg_chl      string,
+    reg_date     timestamp
 ) WITH (
-'connector' = 'jdbc',
-'url' = 'jdbc:mysql://10.166.83.1:60001/msx_online?tinyInt1isBit=false&transformedBitIsBoolean=false',
-'table-name' = 'user_base',
-'username' = 'ywuser',
-'password' = 'ywuser#!123'
-);
+      'connector' = 'jdbc',
+      'url' = 'jdbc:mysql://10.166.83.1:60001/msx_online?tinyInt1isBit=false&transformedBitIsBoolean=false',
+      'table-name' = 'user_base',
+      'username' = 'ywuser',
+      'password' = 'ywuser#!123',
+      'scan.partition.column' = 'user_id',
+      'scan.partition.num' = '8',
+      'scan.partition.lower-bound' = '1000000000059283',
+      'scan.partition.upper-bound' = '9999999999999999'
+      );
 
 
 CREATE TABLE print_table (
@@ -1010,7 +1015,7 @@ old_phone       string,
 new_phone       string
 ) WITH (
 'connector' = 'filesystem',           -- required: specify the connector
-'path' = 'file:///tmp/20231109',  -- required: path to a directory
+'path' = 'file:///tmp/20231123',  -- required: path to a directory
 'format' = 'csv'
 );
 insert into csv_table

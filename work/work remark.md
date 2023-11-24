@@ -93,7 +93,10 @@ https://juejin.cn/post/6889704993889189896
 
 https://github.com/fatdba/Oracle-Database-Scripts
 
-> TODO: After xstream bugs are fixed, add some debug logs in the section of io.debezium.connector.oracle.logminer.parser.LogMinerDmlParser#parseUpdate.
+> TODO: After xstream bugs are fixed, add some debug logs in the section of io.debezium.connector.oracle.logminer.parser.LogMinerDmlParser#parseUpdate. As for whether the dml events are logged,  it is determined by io.debezium.connector.oracle.logminer.processor.AbstractLogMinerEventProcessor#handleCommit
+> Relevant methods:
+> * io.debezium.relational.RelationalChangeRecordEmitter#emitUpdateRecord, emits delete and re-insert events if pk updated
+> * io.debezium.pipeline.EventDispatcher.StreamingChangeRecordReceiver#changeRecord emitTombstonesOnDelete judgement and construct SourceRecord
 > Finally, CDC engine for Oracle will be reverted to LogMiner 
 
 https://github.com/jeff-zou/flink-connector-redis
@@ -196,10 +199,8 @@ Finally, calculate a weighted rank for each investor by multiplying their rank f
 This alternative method takes into account the relative performance of investors across different factors and provides a ranking based on those performances.
 
 todo: After launching the streaming job, the Job is late for processing the data for about 30 minutes 
-todo: prepare run book for upgrade of tonight
+todo: restart tsm new streaming job, observing what it is doing  
 
 https://github.com/bersler/OpenLogReplicator
 
-todo: restart tsm new streaming job, observing what it is doing  
-
-todo: kafka table transaction timeout
+schtasks /run /tn "TaskName"
