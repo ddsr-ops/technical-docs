@@ -49,7 +49,7 @@ DECLARE
 BEGIN
     tables(1)  := NULL;
     schemas(1) := 'tft_uo';
-    schemas(2) := 'tft_xcgl';
+    schemas(2) := 'tft_tsm';
     schemas(3) := 'logminer';
   DBMS_XSTREAM_ADM.CREATE_OUTBOUND(
     server_name     =>  'dbzxout',

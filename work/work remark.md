@@ -85,7 +85,6 @@ In PROD env, fixed Jars have been uploaded the destination directory named `/opt
 
 PMM monitoring and management tool for MySQL/PG/MongoDB cooperated by Percona
 
-TODO: the case that pk updated in the Debezium, diagnose but can not resolve it.
 TODO: HA capability for MySQL
 
 https://zhuanlan.zhihu.com/p/395273289
@@ -93,6 +92,7 @@ https://juejin.cn/post/6889704993889189896
 
 https://github.com/fatdba/Oracle-Database-Scripts
 
+TODO: the case that pk updated in the Debezium, diagnose but can not resolve it.
 > TODO: After xstream bugs are fixed, add some debug logs in the section of io.debezium.connector.oracle.logminer.parser.LogMinerDmlParser#parseUpdate. As for whether the dml events are logged,  it is determined by io.debezium.connector.oracle.logminer.processor.AbstractLogMinerEventProcessor#handleCommit
 > Relevant methods:
 > * io.debezium.relational.RelationalChangeRecordEmitter#emitUpdateRecord, emits delete and re-insert events if pk updated
@@ -135,9 +135,6 @@ https://cloud.tencent.com/developer/article/1054463
 
 ob or tidb certification 
 
-https://youtrack.jetbrains.com/issue/IDEA-322833/Stuck-at-Closing-project
-https://zhuanlan.zhihu.com/p/507232103
-
 todo: remove row_number functions
 
 https://www.v2ex.com/t/814568
@@ -146,12 +143,6 @@ https://tech.meituan.com/2017/06/09/maze-framework.html
 
 todo: clean disk F
 
-todo: streaming programs occupy much mem
-set a crontab job for killing streaming jobs to release occupied memory <== spark-class org.apache.spark.deploy.Client kill <master url> <driver ID>
-address the problem that program used much memory, solve it at all
-It's related to  the direct IO of parquet, compressor not released after writing.
-Upgrade Iceberg dependency to 1.0 to resolve the problem.
-todo: test the capability of merge data, then remove test data
 
 https://www.percona.com/blog/online-ddl-tools-and-metadata-locks/
 https://cloud.tencent.com/developer/article/1671012
@@ -162,10 +153,8 @@ https://blogs.oracle.com/optimizer/post/why-do-i-have-sql-statement-plans-that-c
 https://docs.oracle.com/database/121/TGSQL/tgsql_histo.htm#TGSQL366
 
 todo: a plan of publishing tftactdb process job
-todo: deadline - 2023-11-30,  aggregate sms messages for unpaid_order. ? aggregation rule ?  review code, publish before the end of this month
-todo: 2023-11-19 unpaid order sms pushing
 todo: app 6.9 Dec.1, recover ge rule for column operation_type of table t_client_user_info
-todo: s_tft_wallet_traffic_order_consume, s_tft_sport_x ge jobs
+
 
 ~~Consistency: the deviation of the two indices is small.~~
 
@@ -198,9 +187,19 @@ Finally, calculate a weighted rank for each investor by multiplying their rank f
 
 This alternative method takes into account the relative performance of investors across different factors and provides a ranking based on those performances.
 
-todo: After launching the streaming job, the Job is late for processing the data for about 30 minutes 
-todo: restart tsm new streaming job, observing what it is doing  
-
 https://github.com/bersler/OpenLogReplicator
 
 schtasks /run /tn "TaskName"
+
+todo: remove temporary tables related to s_tft_wallet_wallet_order (purge)
+todo: s_tft_wallet_traffic_order_consume, s_tft_sport_x ge jobs
+todo: test the capability of merge data, then remove test data
+
+> 1. fxq etl jobs
+> 2. ge for s_tft_tsm_t_trade.order_type
+> 
+>
+
+Zookeeper 首发包数小于 80% 总容量
+
+add alerter for servers down

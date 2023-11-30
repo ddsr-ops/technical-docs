@@ -141,3 +141,12 @@ COMMIT;
 **Ensure the debezium_signal table is captured by Xstream engine if using the Xstream engine, otherwise, dml statements on the signal table can not be listened by Logminer so that incremental snapshot can not be triggered**
 
 **Make sure the debezium_signal table can be manipulated by `database.user`, such select, update, insert privileges**
+
+
+## Stop adhoc snapshots
+
+```
+insert into tft_ups.debezium_signal (ID, TYPE, DATA)
+values ('ad-hoc-2', 'stop-snapshot', '{"data-collections": ["TFTUPS.TFT_UPS.DC_USE_DISCOUNT_FLOW","TFTUPS.TFT_UPS.CP_COUPON_RECORD"],"type":"INCREMENTAL"}');
+commit;
+```

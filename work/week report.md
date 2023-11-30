@@ -218,3 +218,9 @@
 6. 升级离线侧Iceberg依赖
 7. Review未支付订单催缴功能的短信合并代码，本周内择机上线
 Doris 2 测试工作，主要考察高并发点查特性
+
+2023-11-27
+1. 定位Structured Steaming程序启动时无法快速消费Kafka Topic的问题，疑似Spark 3关于Kafka Connector的Bug，升级至3.1及以上可解决该问题
+2. 将测试test12服务器从监控grafana监控列表中移除
+3. 处置因Kafak2节点宕机造成的后置问题
+4. 
