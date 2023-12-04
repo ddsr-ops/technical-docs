@@ -1015,7 +1015,7 @@ old_phone       string,
 new_phone       string
 ) WITH (
 'connector' = 'filesystem',           -- required: specify the connector
-'path' = 'file:///tmp/20231123',  -- required: path to a directory
+'path' = 'file:///tmp/20231204',  -- required: path to a directory
 'format' = 'csv'
 );
 insert into csv_table
@@ -1055,7 +1055,7 @@ where a.old_user_id <> b.old_user_id
 
 cd /opt/flink-1.16.1
 -- stop yarn application cluster
-echo "stop"|bin/yarn-session.sh -id application_1687554986023_0026
+echo "stop"|bin/yarn-session.sh -id application_1687554986023_0065
    -- application id from cat /tmp/.yarn-properties-root
 bin/yarn-session.sh -d -s 1 -tm 20000 -D taskmanager.memory.managed.fraction=0.2
    -- Using -D option can pass parameters configured in flink-conf.yaml, https://nightlies.apache.org/flink/flink-docs-release-1.16/docs/deployment/resource-providers/yarn/

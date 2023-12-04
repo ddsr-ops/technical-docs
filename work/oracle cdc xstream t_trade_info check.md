@@ -59,19 +59,19 @@ select count(*) from hadoop_catalog.stg.t_tft_tsm_t_trade_info_new where trade_n
 
 select trade_no, trade_state, version, debezium_op, settle_trade_time, create_time, update_time, debezium_source
  from hadoop_catalog.stg.t_tft_tsm_t_trade_info 
- where data_dt >= '20231130' and debezium_op = 'd' and create_time > '2023-11-20' limit 100;
+ where data_dt >= '20231201' and debezium_op = 'd' and create_time > '2023-11-20' limit 100;
 
 select trade_no, trade_state, version, debezium_op, settle_trade_time, create_time, update_time, debezium_source
  from hadoop_catalog.stg.t_tft_tsm_t_trade_info_new 
- where data_dt >= '20231130' and debezium_op = 'd' and create_time > '2023-11-20' limit 100;
+ where data_dt >= '20231201' and debezium_op = 'd' and create_time > '2023-11-20' limit 100;
 
 select trade_no, trade_state, version, debezium_op, settle_trade_time, create_time, update_time, debezium_source, debezium_time, kafka_time, iceberg_table_time
  from hadoop_catalog.stg.t_tft_tsm_t_trade_info 
- where data_dt >= '20231130' and trade_no in ('20231122083135089634') order by trade_no , kafka_offset;
+ where data_dt >= '20231201' and trade_no in ('20231122083135089634') order by trade_no , kafka_offset;
 
 select trade_no, trade_state, version, debezium_op, settle_trade_time, create_time, update_time, debezium_source, debezium_time, kafka_time, iceberg_table_time
  from hadoop_catalog.stg.t_tft_tsm_t_trade_info_new 
- where data_dt >= '20231130' and trade_no in ('20231122083135089634') order by trade_no , kafka_offset;
+ where data_dt >= '20231201' and trade_no in ('20231122083135089634') order by trade_no , kafka_offset;
 
 select * 
  from hadoop_catalog.stg.t_tft_tsm_t_trade_info 
