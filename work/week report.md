@@ -223,4 +223,9 @@ Doris 2 测试工作，主要考察高并发点查特性
 1. 定位Structured Steaming程序启动时无法快速消费Kafka Topic的问题，疑似Spark 3关于Kafka Connector的Bug，升级至3.1及以上可解决该问题
 2. 将测试test12服务器从监控grafana监控列表中移除
 3. 处置因Kafak2节点宕机造成的后置问题
-4. 
+4. 在Grafana中添加服务器宕机的告警策略
+
+2023-12-4
+1. 使用LogMiner引擎另建TSM CDC链路，并打开部分包体的trace日志，诊断Event被识别错误的问题
+2. 就上周发生Kafka节点宕机后，应相关开发者要求，再次对（新）用户系统数据核验
+3. 
