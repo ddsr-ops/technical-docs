@@ -67,11 +67,11 @@ select trade_no, trade_state, version, debezium_op, settle_trade_time, create_ti
 
 select trade_no, trade_state, version, debezium_op, settle_trade_time, create_time, update_time, debezium_source, debezium_time, kafka_time, iceberg_table_time
  from hadoop_catalog.stg.t_tft_tsm_t_trade_info 
- where data_dt >= '20231201' and trade_no in ('20231122083135089634') order by trade_no , kafka_offset;
+ where data_dt >= '20231201' and trade_no in ('20231205084713380267', '20231205085540476972', '20231205085718492560') order by trade_no , kafka_offset;
 
 select trade_no, trade_state, version, debezium_op, settle_trade_time, create_time, update_time, debezium_source, debezium_time, kafka_time, iceberg_table_time
  from hadoop_catalog.stg.t_tft_tsm_t_trade_info_new 
- where data_dt >= '20231201' and trade_no in ('20231122083135089634') order by trade_no , kafka_offset;
+ where data_dt >= '20231201' and trade_no in ('20231205084713380267', '20231205085540476972', '20231205085718492560')  order by trade_no , kafka_offset;
 
 select * 
  from hadoop_catalog.stg.t_tft_tsm_t_trade_info 
