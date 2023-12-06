@@ -144,10 +144,6 @@ https://tech.meituan.com/2017/06/09/maze-framework.html
 https://www.percona.com/blog/online-ddl-tools-and-metadata-locks/
 https://cloud.tencent.com/developer/article/1671012
 
-https://blog.csdn.net/bless2015/article/details/84072703
-https://blog.csdn.net/Hehuyi_In/article/details/106415830
-https://blogs.oracle.com/optimizer/post/why-do-i-have-sql-statement-plans-that-change-for-the-worse
-https://docs.oracle.com/database/121/TGSQL/tgsql_histo.htm#TGSQL366
 
 todo: a plan of publishing tftactdb process job
 
