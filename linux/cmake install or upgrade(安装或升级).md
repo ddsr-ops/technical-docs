@@ -7,3 +7,7 @@ Once downloaded, you can extract the package to somewhere you have access to on 
 mkdir ~/cmake
 tar xvzf ~/Downloads/cmake-3.18.2-Linux-x86_64.tar.gz -C ~/cmake
 Finally, make sure you add the extracted bin directory to your PATH environment variable so you can run the cmake executable from the command line.
+
+you can invoke the cmake command as follows:
+
+~/cmake/bin/cmake --version
