@@ -144,9 +144,31 @@ https://tech.meituan.com/2017/06/09/maze-framework.html
 https://www.percona.com/blog/online-ddl-tools-and-metadata-locks/
 https://cloud.tencent.com/developer/article/1671012
 
-
 todo: a plan of publishing tftactdb process job
 
-https://github.com/bersler/OpenLogReplicator
-
 todo: seamless toggle to switch between batch and micro batch
+cdc sqoop全面切换开关，offset, partition下沉至doris，待doris 2.0.3发布投产后进行(Multi-Catalog)。修改后这个任务将会采用微批的方式运行，所以依赖这个任务的，都要改依赖时间
+
+https://www.percona.com/blog/avoiding-mysql-alter-table-downtime/
+https://stackoverflow.com/questions/5677932/optimize-mysql-for-faster-alter-table-add-column
+https://percona.community/blog/2020/04/23/unexpected-slow-alter-table-mysql-5-7/
+https://dev.mysql.com/doc/refman/5.7/en/innodb-online-ddl-operations.html#online-ddl-column-operations
+
+https://github.com/RealtimeCompute/ververica-cep-demo/tree/master
+
+https://blog.csdn.net/lvwenyuan_1/article/details/93080820
+
+todo: 2024-01-02 historical data process for annual bill, 01-19 incremental data process
+
+
+```
+CH202009181710426KJ0   支付宝   ALIPAY
+CH20181219150802W3R8   云闪付   UNIONPAY
+
+select * from tft_uo.t_user_extend where STATUS in ('00','11','21') AND  CHANNEL_ID = 'CH202009181710426KJ0'
+USER_ID,CELLPHONE
+
+
+select old_user_id,phone from user_core.user_1 where old_user_id = :USER_ID and client_code = 'ALIPAY'
+user_id,old_user_id,phone
+```

@@ -15,7 +15,7 @@ set execution.checkpointing.interval='6s';
 set restart-strategy.fixed-delay.attempts=3;
 set restart-strategy.fixed-delay.delay='10s';
 SET execution.runtime-mode = 'batch';
-set 'parallelism.default' = '4';
+set 'parallelism.default' = '8';
 set execution.checkpointing.externalized-checkpoint-retention='RETAIN_ON_CANCELLATION';
 
 -- DROP TABLE certification_result_0;
@@ -402,7 +402,7 @@ set execution.checkpointing.interval='6s';
 set restart-strategy.fixed-delay.attempts=3;
 set restart-strategy.fixed-delay.delay='10s';
 SET execution.runtime-mode = 'batch';
-set 'parallelism.default' = '4';
+set 'parallelism.default' = '8';
 set execution.checkpointing.externalized-checkpoint-retention='RETAIN_ON_CANCELLATION';
 
 -- DROP TABLE user_0;
@@ -654,7 +654,11 @@ user_id string, cellphone string, status string, channel_id string
 'url' = 'jdbc:oracle:thin:@10.60.6.4:1521:tftfxq2',
 'table-name' = 'tft_uo.t_user_extend', 
 'username' = 'logminer',
-'password' = 'Logminer#$321'
+'password' = 'Logminer#$321',
+'scan.partition.column' = 'id',
+'scan.partition.num' = '8',
+'scan.partition.lower-bound' = '1',
+'scan.partition.upper-bound' = '32000000'
 );
 
 -- CH20181212103044BEVX  –√Ò‘∆  TFSMY
@@ -1097,3 +1101,71 @@ select a.user_id, b.old_user_id from
         select old_user_id, phone, client_code, status, certification_status, is_delete from user_15 where client_code in ( 'TFSMY', 'SMT')  and is_delete = 0) b
                   on a.user_id = cast(b.old_user_id as string) and a.client_code = b.client_code
 where b.old_user_id is null;
+
+
+
+-- create a csv table located at the local directory
+CREATE TABLE csv_table (
+                           old_user_id     string,
+                           old_phone       string,
+                           client_code     string,
+                           old_user_id1     bigint,
+                           user_id         bigint,
+                           new_phone       string,
+                           client_code1     string
+) WITH (
+      'connector' = 'filesystem',           -- required: specify the connector
+      'path' = 'file:///tmp/20231213',  -- required: path to a directory
+      'format' = 'csv'
+      );
+-- If conditional expression can not be used in Flink SQL, use `case when` instead
+insert into csv_table
+with a as (select user_id as old_user_id, cellphone as old_phone, status, (case when channel_id = 'CH202009181710426KJ0' then 'ALIPAY' else 'UNIONPAY' end) as client_code from t_user_extend where status in ('00','11','21') AND  channel_id in ('CH202009181710426KJ0', 'CH20181219150802W3R8')),
+     b as (
+         select user_id, old_user_id, phone as new_phone, client_code from user_0 where client_code in (  'ALIPAY', 'UNIONPAY') and is_delete = 0  union all -- all fields not null
+         select user_id, old_user_id, phone as new_phone, client_code from user_1 where client_code in (  'ALIPAY', 'UNIONPAY') and is_delete = 0  union all
+         select user_id, old_user_id, phone as new_phone, client_code from user_2 where client_code in (  'ALIPAY', 'UNIONPAY') and is_delete = 0  union all
+         select user_id, old_user_id, phone as new_phone, client_code from user_3 where client_code in (  'ALIPAY', 'UNIONPAY') and is_delete = 0  union all
+         select user_id, old_user_id, phone as new_phone, client_code from user_4 where client_code in (  'ALIPAY', 'UNIONPAY') and is_delete = 0  union all
+         select user_id, old_user_id, phone as new_phone, client_code from user_5 where client_code in (  'ALIPAY', 'UNIONPAY') and is_delete = 0  union all
+         select user_id, old_user_id, phone as new_phone, client_code from user_6 where client_code in (  'ALIPAY', 'UNIONPAY') and is_delete = 0  union all
+         select user_id, old_user_id, phone as new_phone, client_code from user_7 where client_code in (  'ALIPAY', 'UNIONPAY') and is_delete = 0  union all
+         select user_id, old_user_id, phone as new_phone, client_code from user_8 where client_code in (  'ALIPAY', 'UNIONPAY') and is_delete = 0  union all
+         select user_id, old_user_id, phone as new_phone, client_code from user_9 where client_code in (  'ALIPAY', 'UNIONPAY') and is_delete = 0  union all
+         select user_id, old_user_id, phone as new_phone, client_code from user_10 where client_code in ( 'ALIPAY', 'UNIONPAY') and is_delete = 0  union all
+         select user_id, old_user_id, phone as new_phone, client_code from user_11 where client_code in ( 'ALIPAY', 'UNIONPAY') and is_delete = 0  union all
+         select user_id, old_user_id, phone as new_phone, client_code from user_12 where client_code in ( 'ALIPAY', 'UNIONPAY') and is_delete = 0  union all
+         select user_id, old_user_id, phone as new_phone, client_code from user_13 where client_code in ( 'ALIPAY', 'UNIONPAY') and is_delete = 0  union all
+         select user_id, old_user_id, phone as new_phone, client_code from user_14 where client_code in ( 'ALIPAY', 'UNIONPAY') and is_delete = 0  union all
+         select user_id, old_user_id, phone as new_phone, client_code from user_15 where client_code in ( 'ALIPAY', 'UNIONPAY') and is_delete = 0 )
+select a.old_user_id, a.old_phone, a.client_code, b.old_user_id, b.user_id, b.new_phone, b.client_code
+from a
+         left join b
+                   on a.old_user_id||a.client_code = cast(b.old_user_id as string)||b.client_code
+where a.old_phone <> b.new_phone
+   or b.new_phone is null
+union
+select a.old_user_id, a.old_phone, a.client_code, b.old_user_id, b.user_id, b.new_phone, b.client_code
+from a
+         left join b
+                   on a.old_phone||a.client_code = b.new_phone||b.client_code
+where a.old_user_id <> cast(b.old_user_id as string)
+   or b.old_user_id is null;
+
+
+select user_id, old_user_id, phone as new_phone, client_code from user_1 where client_code in (  'ALIPAY', 'UNIONPAY') and is_delete = 0 and old_user_id = '8117605509106688' union all
+select user_id, old_user_id, phone as new_phone, client_code from user_0 where client_code in (  'ALIPAY', 'UNIONPAY') and is_delete = 0 and old_user_id = '8117605509106688' union all -- all fields not null
+select user_id, old_user_id, phone as new_phone, client_code from user_2 where client_code in (  'ALIPAY', 'UNIONPAY') and is_delete = 0 and old_user_id = '8117605509106688' union all
+select user_id, old_user_id, phone as new_phone, client_code from user_3 where client_code in (  'ALIPAY', 'UNIONPAY') and is_delete = 0 and old_user_id = '8117605509106688' union all
+select user_id, old_user_id, phone as new_phone, client_code from user_4 where client_code in (  'ALIPAY', 'UNIONPAY') and is_delete = 0 and old_user_id = '8117605509106688' union all
+select user_id, old_user_id, phone as new_phone, client_code from user_5 where client_code in (  'ALIPAY', 'UNIONPAY') and is_delete = 0 and old_user_id = '8117605509106688' union all
+select user_id, old_user_id, phone as new_phone, client_code from user_6 where client_code in (  'ALIPAY', 'UNIONPAY') and is_delete = 0 and old_user_id = '8117605509106688' union all
+select user_id, old_user_id, phone as new_phone, client_code from user_7 where client_code in (  'ALIPAY', 'UNIONPAY') and is_delete = 0 and old_user_id = '8117605509106688' union all
+select user_id, old_user_id, phone as new_phone, client_code from user_8 where client_code in (  'ALIPAY', 'UNIONPAY') and is_delete = 0 and old_user_id = '8117605509106688' union all
+select user_id, old_user_id, phone as new_phone, client_code from user_9 where client_code in (  'ALIPAY', 'UNIONPAY') and is_delete = 0 and old_user_id = '8117605509106688' union all
+select user_id, old_user_id, phone as new_phone, client_code from user_10 where client_code in ( 'ALIPAY', 'UNIONPAY') and is_delete = 0 and old_user_id = '8117605509106688' union all
+select user_id, old_user_id, phone as new_phone, client_code from user_11 where client_code in ( 'ALIPAY', 'UNIONPAY') and is_delete = 0 and old_user_id = '8117605509106688' union all
+select user_id, old_user_id, phone as new_phone, client_code from user_12 where client_code in ( 'ALIPAY', 'UNIONPAY') and is_delete = 0 and old_user_id = '8117605509106688' union all
+select user_id, old_user_id, phone as new_phone, client_code from user_13 where client_code in ( 'ALIPAY', 'UNIONPAY') and is_delete = 0 and old_user_id = '8117605509106688' union all
+select user_id, old_user_id, phone as new_phone, client_code from user_14 where client_code in ( 'ALIPAY', 'UNIONPAY') and is_delete = 0 and old_user_id = '8117605509106688' union all
+select user_id, old_user_id, phone as new_phone, client_code from user_15 where client_code in ( 'ALIPAY', 'UNIONPAY') and is_delete = 0 and old_user_id = '8117605509106688';
