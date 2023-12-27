@@ -46,8 +46,6 @@ todo: **Star product**
 
 https://github.com/open-falcon/falcon-plus
 
-todo: doris metadata, (column) lineage, doris inner lineage ?
-todo: lineage from iceberg to doris
 
 https://blog.csdn.net/woloqun/article/details/128649833
 https://blog.csdn.net/woloqun/article/details/128478981
@@ -79,9 +77,6 @@ https://www.v2ex.com/t/901763
 
 https://issues.redhat.com/browse/DBZ-6373
 https://issues.redhat.com/browse/DBZ-6334
-
-In PROD env, ts_ms in SourceInfo is wrong when using LogMiner engine, but ok in TEST env due to using fixed jar.
-In PROD env, fixed Jars have been uploaded the destination directory named `/opt/kafka*/connector/`. It will apply immediately if connector cluster is restarted
 
 PMM monitoring and management tool for MySQL/PG/MongoDB cooperated by Percona
 
@@ -149,10 +144,8 @@ todo: a plan of publishing tftactdb process job
 todo: seamless toggle to switch between batch and micro batch
 cdc sqoop全面切换开关，offset, partition下沉至doris，待doris 2.0.3发布投产后进行(Multi-Catalog)。修改后这个任务将会采用微批的方式运行，所以依赖这个任务的，都要改依赖时间
 
-https://www.percona.com/blog/avoiding-mysql-alter-table-downtime/
-https://stackoverflow.com/questions/5677932/optimize-mysql-for-faster-alter-table-add-column
-https://percona.community/blog/2020/04/23/unexpected-slow-alter-table-mysql-5-7/
 https://dev.mysql.com/doc/refman/5.7/en/innodb-online-ddl-operations.html#online-ddl-column-operations
+https://dev.mysql.com/doc/refman/5.7/en/innodb-online-ddl-performance.html
 
 https://github.com/RealtimeCompute/ververica-cep-demo/tree/master
 
@@ -160,15 +153,16 @@ https://blog.csdn.net/lvwenyuan_1/article/details/93080820
 
 todo: 2024-01-02 historical data process for annual bill, 01-19 incremental data process
 
+todo: doris metadata, (column) lineage, doris inner lineage ?
+todo: lineage from iceberg to doris
 
-```
-CH202009181710426KJ0   支付宝   ALIPAY
-CH20181219150802W3R8   云闪付   UNIONPAY
+todo: binlog2sql, my2sql
 
-select * from tft_uo.t_user_extend where STATUS in ('00','11','21') AND  CHANNEL_ID = 'CH202009181710426KJ0'
-USER_ID,CELLPHONE
+todo: value, filter funds? also a summarization report, x users sell x funds , x users buy x funds, map the same users, 
+togather trades for the same user
 
+todo: add ge jobs for pboc
 
-select old_user_id,phone from user_core.user_1 where old_user_id = :USER_ID and client_code = 'ALIPAY'
-user_id,old_user_id,phone
-```
+todo: write qr_userid into redis, deadline: before 2024-01-26
+
+Bar Chart? 
