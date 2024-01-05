@@ -158,11 +158,9 @@ todo: lineage from iceberg to doris
 
 todo: binlog2sql, my2sql
 
-todo: value, filter funds? also a summarization report, x users sell x funds , x users buy x funds, map the same users, 
-togather trades for the same user
-
 todo: add ge jobs for pboc
 
 todo: write qr_userid into redis, deadline: before 2024-01-26
 
-Bar Chart? 
+GE SparkDFDataset  
+GE PandasDFDataset 
