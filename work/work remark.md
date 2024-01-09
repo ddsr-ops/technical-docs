@@ -151,7 +151,9 @@ https://github.com/RealtimeCompute/ververica-cep-demo/tree/master
 
 https://blog.csdn.net/lvwenyuan_1/article/details/93080820
 
-todo: 2024-01-02 historical data process for annual bill, 01-19 incremental data process
+todo: 2024-01-02 historical data process for annual bill, 01-19 incremental data process, data are accessible for all
+on 01-19, so performing the incremental data processing must be after 01-19 00:00. Furthermore, guarantee the source  
+tables are ready.
 
 todo: doris metadata, (column) lineage, doris inner lineage ?
 todo: lineage from iceberg to doris
@@ -161,6 +163,3 @@ todo: binlog2sql, my2sql
 todo: add ge jobs for pboc
 
 todo: write qr_userid into redis, deadline: before 2024-01-26
-
-GE SparkDFDataset  
-GE PandasDFDataset 
